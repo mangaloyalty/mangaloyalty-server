@@ -1,0 +1,256 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "description": "Your personal manga collection on your server. Your content, your rules.",
+    "title": "MangaLoyalty",
+    "version": "0.0.0"
+  },
+  "paths": {
+    "/remote/search": {
+      "get": {
+        "operationId": "RemoteSearch",
+        "tags": ["Remote"],
+        "description": "Searches for series.",
+        "parameters": [{
+          "in": "query",
+          "name": "providerName",
+          "description": "The provider name.",
+          "required": true,
+          "schema": {"$ref": "#/components/schemas/ProviderName"}
+        }, {
+          "in": "query",
+          "name": "title",
+          "description": "The series title.",
+          "required": true,
+          "schema": {"type": "string"}
+        }, {
+          "in": "query",
+          "name": "pageNumber",
+          "description": "The page number.",
+          "required": false,
+          "schema": {"type": "number", "minimum": 1}
+        }],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {"$ref": "#/components/schemas/Search"}
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/remote/series": {
+      "get": {
+        "operationId": "RemoteSeries",
+        "tags": ["Remote"],
+        "description": "Retrieves the series.",
+        "parameters": [{
+          "in": "query",
+          "name": "url",
+          "description": "The series url.",
+          "required": true,
+          "schema": {"$ref": "#/components/schemas/ProviderSeriesUrl"}
+        }],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Series"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/remote/start": {
+      "get": {
+        "operationId": "RemoteStart",
+        "tags": ["Remote"],
+        "description": "Starts a session for the chapter.",
+        "parameters": [{
+          "in": "query",
+          "name": "url",
+          "description": "The chapter url.",
+          "required": true,
+          "schema": {"$ref": "#/components/schemas/ProviderChapterUrl"}
+        }],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Session"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/session": {
+      "get": {
+        "operationId": "SessionList",
+        "tags": ["Session"],
+        "description": "Retrieves each session",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {"$ref": "#/components/schemas/Session"}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/session/{sessionId}": {
+      "get": {
+        "operationId": "SessionPage",
+        "tags": ["Session"],
+        "description": "Retrieves the session page.",
+        "parameters": [{
+          "in": "path",
+          "name": "sessionId",
+          "description": "The session identifier.",
+          "required": true,
+          "schema": {"type": "number"}
+        }, {
+          "in": "query",
+          "name": "pageNumber",
+          "description": "The page number.",
+          "required": true,
+          "schema": {"type": "number"}
+        }],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["image"],
+                  "properties": {
+                    "image": {"type": "string"}
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "responses": {
+      "BadRequest": {
+        "description": "Bad Request"
+      },
+      "NotFound": {
+        "description": "Not Found"
+      },
+      "InternalServerError": {
+        "description": "Internal Server Error"
+      }
+    },
+    "schemas": {
+      "ProviderName": {
+        "type": "string",
+        "enum": ["batoto", "fanfox"]
+      },
+      "ProviderSeriesUrl": {
+        "type": "string",
+        "oneOf": [
+          {"type": "string", "pattern": "^https:\\/\\/bato\\.to\\/series\\/[0-9]+$"},
+          {"type": "string", "pattern": "^https:\\/\\/fanfox\\.net\\/manga\\/.*\\/$"}
+        ]
+      },
+      "ProviderChapterUrl": {
+        "type": "string",
+        "oneOf": [
+          {"type": "string", "pattern": "^https:\\/\\/bato\\.to\\/chapter\\/[0-9]+$"},
+          {"type": "string", "pattern": "^https:\\/\\/fanfox\\.net\\/manga\\/.+\\/(v[0-9]+\\/)?c[0-9]+\\/1.html$"}
+        ]
+      },
+      "Search": {
+        "type": "object",
+        "required": ["image", "title", "url"],
+        "properties": {
+          "image": {"type": "string"},
+          "summary": {"type": "string"},
+          "title": {"type": "string"},
+          "url": {"type": "string"}
+        }
+      },
+      "Series": {
+        "type": "object",
+        "required": ["authors", "chapters", "genres", "image", "title"],
+        "properties": {
+          "authors": {"type": "array", "items": {"type": "string"}},
+          "chapters": {"type": "array", "items": {"$ref": "#/components/schemas/SeriesChapter"}},
+          "genres": {"type": "array", "items": {"type": "string"}},
+          "image": {"type": "string"},
+          "summary": {"type": "string"},
+          "title": {"type": "string"}
+        }
+      },
+      "SeriesChapter": {
+        "type": "object",
+        "required": ["title", "url"],
+        "properties": {
+          "title": {"type": "string"},
+          "url": {"type": "string"}
+        }
+      },
+      "Session": {
+        "type": "object",
+        "required": ["id", "pageCount", "url"],
+        "properties": {
+          "id": {"type": "number"},
+          "pageCount": {"type": "number"},
+          "url": {"type": "string"}
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>MangaLoyalty</title>
+    <link rel="stylesheet" type="text/css" href="swagger-ui.css" >
+    <link rel="icon" type="image/png" href="favicon-16x16.png" sizes="16x16" />
+    <link rel="icon" type="image/png" href="favicon-32x32.png" sizes="32x32" />
+    <style>
+      body {margin: 0; overflow-y: scroll}
+      #ui {margin: 0 auto; max-width: 800px;}
+      .scheme-container, .response-content-type, .body-param-content-type, .models {display: none !important}
+    </style>
+  </head>
+  <body>
+    <div id="ui"></div>
+    <script src="swagger-ui-bundle.js"></script>
+    <script>
+      SwaggerUIBundle({
+        dom_id: '#ui',
+        presets: [SwaggerUIBundle.presets.apis],
+        url: location.protocol + '//' + location.host + '/openapi.json'
+      });
+    </script>
+  </body>
+</html>
