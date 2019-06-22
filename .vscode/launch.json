@@ -1,0 +1,10 @@
+{
+  "version": "0.2.0",
+  "configurations": [{
+    "args": ["."],
+    "name": "Launch Program",
+    "preLaunchTask": "TypeScript Watch",
+    "request": "launch",
+    "type": "node"
+  }]
+}
