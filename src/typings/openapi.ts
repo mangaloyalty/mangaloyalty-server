@@ -8,31 +8,40 @@
 export type IProviderName = "batoto" | "fanfox";
 export type IProviderSeriesUrl = string;
 export type IProviderChapterUrl = string;
-export type IRemoteSearch = ISearch[];
-export type ISessionList = ISession[];
+export type ISeriesList = ISeriesListItem[];
+export type ISessionList = ISessionListItem[];
+export type ISessionListResponse = ISessionListItem[];
 
-export interface ISearch {
+export interface ISeriesListItem {
   image: string;
-  summary?: string;
   title: string;
   url: string;
 }
-export interface ISeries {
+export interface ISeriesDetail {
   authors: string[];
-  chapters: ISeriesChapter[];
+  chapters: ISeriesDetailChapter[];
   genres: string[];
   image: string;
   summary?: string;
   title: string;
 }
-export interface ISeriesChapter {
+export interface ISeriesDetailChapter {
   title: string;
   url: string;
 }
-export interface ISession {
+export interface ISessionListItem {
   id: number;
   pageCount: number;
   url: string;
+}
+export interface ISessionPage {
+  image: string;
+}
+export interface IRemotePopularContext {
+  query: {
+    providerName: IProviderName;
+    pageNumber?: number;
+  };
 }
 export interface IRemoteSearchContext {
   query: {
@@ -59,9 +68,9 @@ export interface ISessionPageContext {
     pageNumber: number;
   };
 }
-export interface ISessionPage {
-  image: string;
-}
 
-export type IRemoteSeries = ISeries;
-export type IRemoteStart = ISession;
+export type IRemotePopularResponse = ISeriesList;
+export type IRemoteSearchResponse = ISeriesList;
+export type IRemoteSeriesResponse = ISeriesDetail;
+export type IRemoteStartResponse = ISessionListItem;
+export type ISessionPageResponse = ISessionPage;

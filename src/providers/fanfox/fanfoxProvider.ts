@@ -1,19 +1,29 @@
 import puppeteer from 'puppeteer';
 import * as app from '../..';
-import * as search from './evaluators/search';
-import * as series from './evaluators/series';
+import * as seriesDetail from './evaluators/seriesDetail';
+import * as seriesList from './evaluators/seriesList';
 const baseUrl = 'https://fanfox.net';
 
 export const fanfoxProvider = {
   isSupported(url: string) {
     return url.startsWith(baseUrl);
   },
-  
+
+  async popularAsync(pageNumber?: number) {
+    return await app.browserHelper.usingPageAsync(async (page) => {
+      const cache = new app.CacheComponent(page);
+      await page.goto(`${baseUrl}/directory/${pageNumber && pageNumber > 1 ? `${pageNumber}.html` : ''}`);
+      const results = await page.evaluate(seriesList.evaluator);
+      await cache.resolveOrDeleteAsync('image', ...results);
+      return results;
+    });
+  },
+
   async searchAsync(title: string, pageNumber?: number) {
     return await app.browserHelper.usingPageAsync(async (page) => {
       const cache = new app.CacheComponent(page);
       await page.goto(`${baseUrl}/search?title=${encodeURIComponent(title)}${pageNumber && pageNumber > 1 ? `&page=${pageNumber}` : ''}`);
-      const results = await page.evaluate(search.evaluator);
+      const results = await page.evaluate(seriesList.evaluator);
       await cache.resolveOrDeleteAsync('image', ...results);
       return results;
     });
@@ -24,13 +34,13 @@ export const fanfoxProvider = {
       const cache = new app.CacheComponent(page);
       await page.goto(url);
       await ensureAdultAsync(page);
-      const result = await page.evaluate(series.evaluator);
+      const result = await page.evaluate(seriesDetail.evaluator);
       await cache.resolveOrDeleteAsync('image', result);
       return result;
     });
   },
 
-  async chapterAsync(url: string) {
+  async startAsync(url: string) {
     const runner = new app.FanfoxRunnerComponent(url).run();
     const session = await runner.getAsync();
     app.sessionManager.add(session);
@@ -40,6 +50,6 @@ export const fanfoxProvider = {
 
 async function ensureAdultAsync(page: puppeteer.Page) {
   const waitPromise = page.waitForNavigation();
-  if (await page.evaluate(series.shouldWaitAdultEvaluator)) await waitPromise;
+  if (await page.evaluate(seriesDetail.shouldWaitAdultEvaluator)) await waitPromise;
   else waitPromise.catch(() => undefined);
 }

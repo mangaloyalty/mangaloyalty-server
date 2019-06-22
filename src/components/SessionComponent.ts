@@ -2,7 +2,7 @@ import * as app from '..';
 let previousId = 0;
 
 @app.serializableDecorator
-export class SessionComponent implements app.ISession {
+export class SessionComponent implements app.ISessionListItem {
   private readonly _images: app.FutureMapComponent<string>;
 
   constructor(images: app.FutureMapComponent<string>, pageCount: number, url: string) {
