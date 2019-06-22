@@ -13,7 +13,7 @@ export class SessionComponent implements app.ISession {
   }
 
   async getImageAsync(pageNumber: number) {
-    if (pageNumber < 0 || pageNumber > this.pageCount) throw new Error();
+    if (pageNumber < 0 || pageNumber > this.pageCount) return;
     return await this._images.getAsync(String(pageNumber));
   }
 
