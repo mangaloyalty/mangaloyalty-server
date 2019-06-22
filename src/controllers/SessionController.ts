@@ -10,8 +10,8 @@ export class SessionController {
   @api.createOperation('SessionPage')
   async sessionPageAsync(model: app.ISessionPageContext): Promise<api.Result<app.ISessionPage>> {
     const session = app.sessionManager.get(model.path.sessionId);
-    if (session) {
-      const image = await session.getImageAsync(model.query.pageNumber);
+    const image = session && await session.getImageAsync(model.query.pageNumber);
+    if (image) {
       return api.json({image});
     } else {
       return api.status(404);
