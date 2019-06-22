@@ -1,0 +1,31 @@
+import * as app from '../..';
+import * as puppeteer from 'puppeteer';
+
+export class CacheComponent {
+	private readonly _page: puppeteer.Page;
+  private readonly _responses: app.FutureMapComponent<puppeteer.Response | null>;
+
+  constructor(page: puppeteer.Page) {
+    this._page = page;
+    this._page.on('requestfinished', (request) => this._responses.resolve(request.url(), request.response()));
+    this._responses = new app.FutureMapComponent(app.settings.browserDefaultTimeout);
+  }
+
+  async getAsync(url: string) {
+    const response = await this._responses.getAsync(url);
+    const responseBuffer = response && await response.buffer();
+    const image = responseBuffer && responseBuffer.toString('base64');
+    if (!image) throw new Error();
+    return image;
+  }
+
+  // TODO: Constraints for value[key] is string|undefined
+  // https://stackoverflow.com/questions/49752151/typescript-keyof-returning-specific-type/49752227#49752227
+  async resolveOrDeleteAsync(key: string, ...values: any[]) {
+    for (const value of values) {
+      const property = value[key];
+      const image = typeof property === 'string' && await this.getAsync(property);
+      value[key] = image || value[key];
+    }
+  }
+}
