@@ -6,6 +6,42 @@
     "version": "0.0.0"
   },
   "paths": {
+    "/remote/popular": {
+      "get": {
+        "operationId": "RemotePopular",
+        "tags": ["Remote"],
+        "description": "Retrieves popular series.",
+        "parameters": [{
+          "in": "query",
+          "name": "providerName",
+          "description": "The provider name.",
+          "required": true,
+          "schema": {"$ref": "#/components/schemas/ProviderName"}
+        }, {
+          "in": "query",
+          "name": "pageNumber",
+          "description": "The page number.",
+          "required": false,
+          "schema": {"type": "number", "minimum": 1}
+        }],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/SeriesList"}
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
     "/remote/search": {
       "get": {
         "operationId": "RemoteSearch",
@@ -35,10 +71,7 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {"$ref": "#/components/schemas/Search"}
-                }
+                "schema": {"$ref": "#/components/schemas/SeriesList"}
               }
             }
           },
@@ -69,7 +102,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Series"
+                  "$ref": "#/components/schemas/SeriesDetail"
                 }
               }
             }
@@ -101,7 +134,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Session"
+                  "$ref": "#/components/schemas/SessionListItem"
                 }
               }
             }
@@ -127,7 +160,7 @@
               "application/json": {
                 "schema": {
                   "type": "array",
-                  "items": {"$ref": "#/components/schemas/Session"}
+                  "items": {"$ref": "#/components/schemas/SessionListItem"}
                 }
               }
             }
@@ -151,20 +184,14 @@
           "name": "pageNumber",
           "description": "The page number.",
           "required": true,
-          "schema": {"type": "number"}
+          "schema": {"type": "number", "minimum": 1}
         }],
         "responses": {
           "200": {
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": ["image"],
-                  "properties": {
-                    "image": {"type": "string"}
-                  }
-                }
+                "schema": {"$ref": "#/components/schemas/SessionPage"}
               }
             }
           },
@@ -212,29 +239,32 @@
           {"type": "string", "pattern": "^https:\\/\\/fanfox\\.net\\/manga\\/.+\\/(v[0-9]+\\/)?c[0-9]+\\/1.html$"}
         ]
       },
-      "Search": {
+      "SeriesList": {
+        "type": "array",
+        "items": {"$ref": "#/components/schemas/SeriesListItem"}
+      },
+      "SeriesListItem": {
         "type": "object",
         "required": ["image", "title", "url"],
         "properties": {
           "image": {"type": "string"},
-          "summary": {"type": "string"},
           "title": {"type": "string"},
           "url": {"type": "string"}
         }
       },
-      "Series": {
+      "SeriesDetail": {
         "type": "object",
         "required": ["authors", "chapters", "genres", "image", "title"],
         "properties": {
           "authors": {"type": "array", "items": {"type": "string"}},
-          "chapters": {"type": "array", "items": {"$ref": "#/components/schemas/SeriesChapter"}},
+          "chapters": {"type": "array", "items": {"$ref": "#/components/schemas/SeriesDetailChapter"}},
           "genres": {"type": "array", "items": {"type": "string"}},
           "image": {"type": "string"},
           "summary": {"type": "string"},
           "title": {"type": "string"}
         }
       },
-      "SeriesChapter": {
+      "SeriesDetailChapter": {
         "type": "object",
         "required": ["title", "url"],
         "properties": {
@@ -242,13 +272,24 @@
           "url": {"type": "string"}
         }
       },
-      "Session": {
+      "SessionList": {
+        "type": "array",
+        "items": {"$ref": "#/components/schemas/SessionListItem"}
+      },
+      "SessionListItem": {
         "type": "object",
         "required": ["id", "pageCount", "url"],
         "properties": {
           "id": {"type": "number"},
           "pageCount": {"type": "number"},
           "url": {"type": "string"}
+        }
+      },
+      "SessionPage": {
+        "type": "object",
+        "required": ["image"],
+        "properties": {
+          "image": {"type": "string"}
         }
       }
     }
