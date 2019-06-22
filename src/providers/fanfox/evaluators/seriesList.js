@@ -1,6 +1,6 @@
 function evaluator() {
   return (() => {
-    const containerNodes = document.querySelectorAll('.manga-list-4-list li');
+    const containerNodes = document.querySelectorAll('.manga-list-1-list li, .manga-list-4-list li');
     if (!containerNodes || !containerNodes.length) throw new Error();
     return Array.from(containerNodes).map(extract);
   })();
@@ -10,10 +10,9 @@ function evaluator() {
    */
   function extract(containerNode) {
     const image = getImage(containerNode.querySelector('img'));
-    const summary = getSummary(containerNode.querySelector('p:last-of-type'));
     const title = getTitle(containerNode.querySelector('p:first-of-type a'));
     const url = getUrl(containerNode.querySelector('p:first-of-type a'));
-    return {image, summary, title, url};
+    return {image, title, url};
   }
   
   /**
@@ -21,13 +20,6 @@ function evaluator() {
    */
   function getImage(imageNode) {
     return validateStrict(imageNode && imageNode.src);
-  }
-
-  /**
-   * @param {HTMLParagraphElement?} summaryNode
-   */
-  function getSummary(summaryNode) {
-    return validate(summaryNode && summaryNode.textContent);
   }
 
   /**
