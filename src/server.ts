@@ -1,5 +1,4 @@
 import bodyParser from 'body-parser';
-import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express from 'express';
 import swaggerUi from 'swagger-ui-dist';
@@ -19,12 +18,11 @@ const openapi = api.createCore(openapiData)
 const server = express();
 server.disable('x-powered-by');
 server.use(bodyParser.json());
-server.use(cookieParser());
 server.use(cors());
 
 // Initialize the server router.
-server.use('/', express.static(__dirname + '/../public'));
-server.use('/', express.static(swaggerUi.absolutePath()));
+server.use(express.static(`${__dirname}/../public`));
+server.use(express.static(swaggerUi.absolutePath()));
 server.use(openapi);
 server.listen(7783, () => {
   console.log(`Server running on http://localhost:7783/`);
