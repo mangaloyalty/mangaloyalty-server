@@ -3,7 +3,7 @@
   "tasks": [{
     "group": {"isDefault": true, "kind": "build"},
     "isBackground": true,
-    "label": "TypeScript Watch",
+    "label": "TypeScript",
     "option": "watch",
     "problemMatcher": ["$tsc-watch"],
     "tsconfig": "tsconfig.json",

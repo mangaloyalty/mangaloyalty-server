@@ -3,7 +3,7 @@
   "configurations": [{
     "args": ["."],
     "name": "Launch Program",
-    "preLaunchTask": "TypeScript Watch",
+    "preLaunchTask": "TypeScript",
     "request": "launch",
     "type": "node"
   }]
