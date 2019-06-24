@@ -26,11 +26,11 @@ export class FanfoxRunnerComponent {
 
   private async _runAsync() {
     const page = await app.browserHelper.pageAsync();
-    const cache = new app.CacheComponent(page);
+    const watch = new app.WatchComponent(page);
     try {
       await page.goto(this._url);
       await ensureAdultAsync(page);
-      while (await this._stepAsync(page, cache));
+      while (await this._stepAsync(page, watch));
     } catch (error) {
       this._images.reject(app.errorHelper.create(error));
       this._session.reject(app.errorHelper.create(error)); 
@@ -39,7 +39,7 @@ export class FanfoxRunnerComponent {
     }
   }
 
-  private async _stepAsync(page: puppeteer.Page, cache: app.CacheComponent) {
+  private async _stepAsync(page: puppeteer.Page, watch: app.WatchComponent) {
     const result = await page.evaluate(chapter.evaluator);
 
     // Initialize the session.
@@ -51,7 +51,7 @@ export class FanfoxRunnerComponent {
     // Initialize the images.
     for (const image of result.images) {
       this._pageNumber++;
-      this._images.resolve(String(this._pageNumber), await cache.getAsync(image));
+      this._images.resolve(String(this._pageNumber), await watch.getAsync(image));
     }
 
     // Initialize the continuation.
