@@ -2,6 +2,7 @@ export * from './settings';
 export * from './common/components/CacheComponent';
 export * from './common/components/FutureComponent';
 export * from './common/components/FutureMapComponent';
+export * from './common/components/WatchComponent';
 export * from './common/decorators/serializableDecorator';
 export * from './common/helpers/browserHelper';
 export * from './common/helpers/errorHelper';

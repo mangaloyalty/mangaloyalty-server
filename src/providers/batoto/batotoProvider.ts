@@ -10,30 +10,30 @@ export const batotoProvider = {
 
   async popularAsync(pageNumber?: number) {
     return await app.browserHelper.usingPageAsync(async (page) => {
-      const cache = new app.CacheComponent(page);
+      const watch = new app.WatchComponent(page);
       await page.goto(`${baseUrl}/browse?langs=english${pageNumber && pageNumber > 1 ? `&page=${pageNumber}` : ''}`);
       const results = await page.evaluate(seriesList.evaluator);
-      await cache.resolveOrDeleteAsync('image', ...results);
+      await watch.resolveOrDeleteAsync('image', ...results);
       return results;
     });
   },
 
   async searchAsync(title: string, pageNumber?: number) {
     return await app.browserHelper.usingPageAsync(async (page) => {
-      const cache = new app.CacheComponent(page);
+      const watch = new app.WatchComponent(page);
       await page.goto(`${baseUrl}/search?q=${encodeURIComponent(title)}${pageNumber && pageNumber > 1 ? `&a=&p=${pageNumber}` : ''}`);
       const results = await page.evaluate(seriesList.evaluator);
-      await cache.resolveOrDeleteAsync('image', ...results);
+      await watch.resolveOrDeleteAsync('image', ...results);
       return results;
     });
   },
 
   async seriesAsync(url: string) {
     return await app.browserHelper.usingPageAsync(async (page) => {
-      const cache = new app.CacheComponent(page);
+      const watch = new app.WatchComponent(page);
       await page.goto(url);
       const result = await page.evaluate(seriesDetail.evaluator);
-      await cache.resolveOrDeleteAsync('image', result);
+      await watch.resolveOrDeleteAsync('image', result);
       return result;
     });
   },
