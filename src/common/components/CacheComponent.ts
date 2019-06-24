@@ -1,31 +1,19 @@
-import * as app from '../..';
-import * as puppeteer from 'puppeteer';
+export class CacheComponent<T> {
+  private readonly _timeout: number;
+  private _cacheData?: Promise<T>;
+  private _cacheTime?: number;
 
-export class CacheComponent {
-	private readonly _page: puppeteer.Page;
-  private readonly _responses: app.FutureMapComponent<puppeteer.Response | null>;
-
-  constructor(page: puppeteer.Page) {
-    this._page = page;
-    this._page.on('requestfinished', (request) => this._responses.resolve(request.url(), request.response()));
-    this._responses = new app.FutureMapComponent(app.settings.browserDefaultTimeout);
+  constructor(timeout: number) {
+    this._timeout = timeout;
   }
 
-  async getAsync(url: string) {
-    const response = await this._responses.getAsync(url);
-    const responseBuffer = response && await response.buffer();
-    const image = responseBuffer && responseBuffer.toString('base64');
-    if (!image) throw new Error();
-    return image;
-  }
-
-  // TODO: Constraints for value[key] is string|undefined
-  // https://stackoverflow.com/questions/49752151/typescript-keyof-returning-specific-type/49752227#49752227
-  async resolveOrDeleteAsync(key: string, ...values: any[]) {
-    for (const value of values) {
-      const property = value[key];
-      const image = typeof property === 'string' && await this.getAsync(property);
-      value[key] = image || value[key];
+  async getAsync(refreshAsync: () => Promise<T>) {
+    if (!this._cacheData || !this._cacheTime || this._cacheTime < Date.now()) {
+      this._cacheData = refreshAsync();
+      this._cacheTime = Date.now() + this._timeout;
+      return await this._cacheData;
+    } else {
+      return await this._cacheData;
     }
   }
 }

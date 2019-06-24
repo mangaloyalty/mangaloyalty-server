@@ -2,14 +2,17 @@ import * as api from 'express-openapi-json';
 import * as app from '..';
 
 export class RemoteController {
+  private readonly _batotoCache = new app.CacheComponent<app.IRemotePopularResponse>(app.settings.remoteCacheTimeout);
+  private readonly _fanfoxCache = new app.CacheComponent<app.IRemotePopularResponse>(app.settings.remoteCacheTimeout);
+
   // TODO: Add pagination indicators (hasMorePages?).
   @api.createOperation('RemotePopular')
   async popularAsync(model: app.IRemotePopularContext): Promise<api.Result<app.IRemotePopularResponse>> {
     switch (model.query.providerName) {
       case 'batoto':
-        return api.json(await app.batotoProvider.popularAsync(model.query.pageNumber));
+        return api.json(await this._batotoCache.getAsync(() => app.batotoProvider.popularAsync(model.query.pageNumber)));
       case 'fanfox':
-        return api.json(await app.fanfoxProvider.popularAsync(model.query.pageNumber));
+        return api.json(await this._fanfoxCache.getAsync(() => app.fanfoxProvider.popularAsync(model.query.pageNumber)));
       default:
         throw new Error();
     }
