@@ -4,5 +4,6 @@ export const settings = {
   browserHeadless: true,
   browserUserDataDir: 'chromeCache',
   browserViewport: {width: 1920, height: 974},
-  remoteCacheTimeout: 600000
+  remoteTimeout: 600000, // 10m
+  sessionTimeout: 1200000, // 20m
 };

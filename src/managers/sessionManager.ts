@@ -1,7 +1,6 @@
 import * as app from '..';
 const sessions: {[id: number]: app.SessionComponent} = {};
 const timeouts: {[id: number]: NodeJS.Timeout} = {};
-const totalTimeout = 20 * 60000;
 
 export const sessionManager = {
   add(session: app.SessionComponent) {
@@ -26,5 +25,5 @@ function updateTimeout(id: number) {
   timeouts[id] = setTimeout(() => {
     delete sessions[id];
     delete timeouts[id];
-  }, totalTimeout);
+  }, app.settings.sessionTimeout);
 }
