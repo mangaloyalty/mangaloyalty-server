@@ -1,11 +1,11 @@
 import * as app from '..';
 let previousId = 0;
 
-@app.serializableDecorator
-export class SessionComponent implements app.ISessionListItem {
-  private readonly _images: app.FutureMapComponent<string>;
+export class Session implements app.ISessionListItem {
+  private readonly _images: app.FutureMap<string>;
 
-  constructor(images: app.FutureMapComponent<string>, pageCount: number, url: string) {
+  constructor(images: app.FutureMap<string>, pageCount: number, url: string) {
+    Object.defineProperty(this, '_images', {enumerable: false, writable: true});
     this._images = images;
     this.id = ++previousId;
     this.pageCount = pageCount;

@@ -2,7 +2,7 @@ import * as api from 'express-openapi-json';
 import * as app from '..';
 
 export class RemoteController {
-  private readonly _cache = new app.CacheComponent(app.settings.remoteTimeout);
+  private readonly _cache = new app.Cache(app.settings.remoteTimeout);
 
   // TODO: Add pagination indicators (hasMorePages?).
   @api.createOperation('RemotePopular')

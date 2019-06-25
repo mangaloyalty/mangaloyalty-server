@@ -1,14 +1,14 @@
-import * as app from '../..';
+import * as app from '..';
 import * as puppeteer from 'puppeteer';
 
-export class WatchComponent {
+export class Watch {
 	private readonly _page: puppeteer.Page;
-  private readonly _responses: app.FutureMapComponent<puppeteer.Response | null>;
+  private readonly _responses: app.FutureMap<puppeteer.Response | null>;
 
   constructor(page: puppeteer.Page) {
     this._page = page;
     this._page.on('requestfinished', (request) => this._responses.resolve(request.url(), request.response()));
-    this._responses = new app.FutureMapComponent(app.settings.browserDefaultTimeout);
+    this._responses = new app.FutureMap(app.settings.browserDefaultTimeout);
   }
 
   async getAsync(url: string) {

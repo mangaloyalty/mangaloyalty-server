@@ -5,17 +5,17 @@ import * as chapter from '../evaluators/chapter';
 // TODO: Remove shouldAwait in favor of using Promises in the evaluator itself.
 // TODO: Clean me up.
 export class FanfoxRunnerComponent {
-  private readonly _images: app.FutureMapComponent<string>;
-  private readonly _session: app.FutureComponent<app.SessionComponent>;
+  private readonly _images: app.FutureMap<string>;
+  private readonly _session: app.Future<app.Session>;
   private readonly _url: string;
   private _hasSession: boolean;
   private _pageNumber: number;
 
   constructor(url: string) {
     this._hasSession = false;
-    this._images = new app.FutureMapComponent<string>();
+    this._images = new app.FutureMap<string>();
     this._pageNumber = 0;
-    this._session = new app.FutureComponent<app.SessionComponent>();
+    this._session = new app.Future<app.Session>();
     this._url = url;
   }
   
@@ -25,26 +25,26 @@ export class FanfoxRunnerComponent {
   }
 
   private async _runAsync() {
-    const page = await app.browserHelper.pageAsync();
-    const watch = new app.WatchComponent(page);
+    const page = await app.browserManager.pageAsync();
+    const watch = new app.Watch(page);
     try {
       await page.goto(this._url);
       await ensureAdultAsync(page);
       while (await this._stepAsync(page, watch));
     } catch (error) {
-      this._images.reject(app.errorHelper.create(error));
-      this._session.reject(app.errorHelper.create(error)); 
+      this._images.reject(app.errorManager.create(error));
+      this._session.reject(app.errorManager.create(error)); 
     } finally {
       await page.close();
     }
   }
 
-  private async _stepAsync(page: puppeteer.Page, watch: app.WatchComponent) {
+  private async _stepAsync(page: puppeteer.Page, watch: app.Watch) {
     const result = await page.evaluate(chapter.evaluator);
 
     // Initialize the session.
     if (!this._hasSession) {
-      this._session.resolve(new app.SessionComponent(this._images, result.pageCount, this._url));
+      this._session.resolve(new app.Session(this._images, result.pageCount, this._url));
       this._hasSession = true;
     }
     
