@@ -1,9 +1,9 @@
 import * as app from '..';
-const sessions: {[id: number]: app.SessionComponent} = {};
+const sessions: {[id: number]: app.Session} = {};
 const timeouts: {[id: number]: NodeJS.Timeout} = {};
 
 export const sessionManager = {
-  add(session: app.SessionComponent) {
+  add(session: app.Session) {
     if (sessions[session.id]) throw new Error();
     sessions[session.id] = session;
     updateTimeout(session.id);

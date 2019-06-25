@@ -1,12 +1,12 @@
 import puppeteer from 'puppeteer';
-import * as app from '../..';
+import * as app from '..';
 let browserInstance: Promise<puppeteer.Browser> | undefined;
 
-export const browserHelper = {
+export const browserManager = {
   browserAsync() {
     if (browserInstance) return browserInstance;
     const headless = app.settings.browserHeadless;
-    const userDataDir = app.pathHelper.resolve(app.settings.browserUserDataDir);
+    const userDataDir = app.pathManager.resolve(app.settings.browserUserDataDir);
     browserInstance = puppeteer.launch({headless, userDataDir});
     return browserInstance;
   },
@@ -14,7 +14,7 @@ export const browserHelper = {
   async pageAsync() {
     let page: puppeteer.Page | undefined;
     try {
-      const browser = await browserHelper.browserAsync();
+      const browser = await browserManager.browserAsync();
       const userAgent = await browser.userAgent();
       page = await browser.newPage();
       await page.setDefaultTimeout(app.settings.browserDefaultTimeout);
@@ -28,7 +28,7 @@ export const browserHelper = {
   },
 
   async usingPageAsync<T>(handlerAsync: (page: puppeteer.Page) => Promise<T>) {
-    const page = await browserHelper.pageAsync();
+    const page = await browserManager.pageAsync();
     try {
       return await handlerAsync(page);
     } finally {

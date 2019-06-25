@@ -1,4 +1,4 @@
-export class FutureComponent<T> {
+export class Future<T> {
   private readonly _timeout: number;
   private _hasReject: boolean;
   private _hasResolve: boolean;
