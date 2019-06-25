@@ -1,4 +1,4 @@
-export class CacheComponent {
+export class Cache {
   private readonly _timeout: number;
   private _cacheData: {[key: string]: Promise<any>};
   private _cacheTime: {[key: string]: number};

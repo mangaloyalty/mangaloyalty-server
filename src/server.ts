@@ -26,5 +26,5 @@ server.use(express.static(swaggerUi.absolutePath()));
 server.use(openapi);
 server.listen(7783, () => {
   console.log(`Server running on http://localhost:7783/`);
-  app.browserHelper.browserAsync();
+  app.browserManager.browserAsync();
 });

@@ -1,7 +1,7 @@
-import * as app from '../..';
+import * as app from '..';
 
-export class FutureMapComponent<T> {
-  private readonly _results: {[key: string]: app.FutureComponent<T>};
+export class FutureMap<T> {
+  private readonly _results: {[key: string]: app.Future<T>};
   private readonly _timeout: number;
 
   constructor(timeout = 0) {
@@ -22,6 +22,6 @@ export class FutureMapComponent<T> {
   }
 
   private _ensure(key: string) {
-    return this._results[key] || (this._results[key] = new app.FutureComponent(this._timeout));
+    return this._results[key] || (this._results[key] = new app.Future(this._timeout));
   }
 }
