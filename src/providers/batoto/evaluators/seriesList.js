@@ -1,7 +1,7 @@
 function evaluator() {
   return (() => {
     const containerNodes = document.querySelectorAll('#series-list div.no-flag');
-    if (!containerNodes || !containerNodes.length) throw new Error();
+    if (!containerNodes) throw new Error();
     return Array.from(containerNodes).map(extract);
   })();
   
