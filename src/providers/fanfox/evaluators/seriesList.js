@@ -1,7 +1,7 @@
 function evaluator() {
   return (() => {
     const containerNodes = document.querySelectorAll('.manga-list-1-list li, .manga-list-4-list li');
-    if (!containerNodes || !containerNodes.length) throw new Error();
+    if (!containerNodes) throw new Error();
     return Array.from(containerNodes).map(extract);
   })();
 
