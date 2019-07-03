@@ -229,14 +229,14 @@
         "type": "string",
         "oneOf": [
           {"type": "string", "pattern": "^https:\\/\\/bato\\.to\\/series\\/[0-9]+$"},
-          {"type": "string", "pattern": "^https:\\/\\/fanfox\\.net\\/manga\\/.*\\/$"}
+          {"type": "string", "pattern": "^https:\\/\\/fanfox\\.net\\/manga\\/[^\\/]+\\/$"}
         ]
       },
       "ProviderChapterUrl": {
         "type": "string",
         "oneOf": [
           {"type": "string", "pattern": "^https:\\/\\/bato\\.to\\/chapter\\/[0-9]+$"},
-          {"type": "string", "pattern": "^https:\\/\\/fanfox\\.net\\/manga\\/.+\\/(v[0-9]+\\/)?c[0-9]+\\/1.html$"}
+          {"type": "string", "pattern": "^https:\\/\\/fanfox\\.net\\/manga\\/[^\\/]+\\/(v[0-9]+\\/)?c[0-9]+(\\.[0-9]+)?\\/1.html$"}
         ]
       },
       "SeriesList": {
