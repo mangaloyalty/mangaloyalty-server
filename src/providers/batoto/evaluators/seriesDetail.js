@@ -35,7 +35,7 @@ function evaluator() {
    * @param {NodeListOf<HTMLAnchorElement>?} chapterNodes
    */
   function getChapters(chapterNodes) {
-    if (!chapterNodes || !chapterNodes.length) throw new Error();
+    if (!chapterNodes) throw new Error();
     return Array.from(chapterNodes).map((chapterNode) => {
       const title = validateStrict(chapterNode.textContent);
       const url = validateStrict(chapterNode.href);

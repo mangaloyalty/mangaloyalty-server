@@ -11,7 +11,7 @@ function evaluator() {
    * @param {NodeListOf<HTMLAnchorElement>?} authorNodes
    */
   function getAuthors(authorNodes) {
-    if (!authorNodes || !authorNodes.length) throw new Error();
+    if (!authorNodes) throw new Error();
     return Array.from(authorNodes).map((authorNode) => validateStrict(authorNode.textContent));
   }
 
@@ -19,7 +19,7 @@ function evaluator() {
    * @param {NodeListOf<HTMLAnchorElement>?} chapterNodes
    */
   function getChapters(chapterNodes) {
-    if (!chapterNodes || !chapterNodes.length) throw new Error();
+    if (!chapterNodes) throw new Error();
     return Array.from(chapterNodes).map((chapterNode) => {
       const titleNode = chapterNode.querySelector('.title3');
       const title = validateStrict(titleNode && titleNode.textContent);
@@ -32,7 +32,7 @@ function evaluator() {
    * @param {NodeListOf<HTMLAnchorElement>?} genreNodes
    */
   function getGenres(genreNodes) {
-    if (!genreNodes || !genreNodes.length) throw new Error();
+    if (!genreNodes) throw new Error();
     return Array.from(genreNodes).map((genreNode) => validateStrict(genreNode.textContent));
   }
 
