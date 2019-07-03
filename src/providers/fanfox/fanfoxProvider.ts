@@ -12,7 +12,7 @@ export const fanfoxProvider = {
   async popularAsync(pageNumber?: number) {
     return await app.browserManager.usingPageAsync(async (page) => {
       const watch = new app.Watch(page);
-      await page.goto(`${baseUrl}/directory/${pageNumber && pageNumber > 1 ? `${pageNumber}.html` : ''}`);
+      await page.goto(`${baseUrl}/directory/${pageNumber && pageNumber > 1 ? `${pageNumber}.html` : ''}`, {waitUntil: 'domcontentloaded'});
       const results = await page.evaluate(seriesList.evaluator);
       await watch.resolveOrDeleteAsync('image', ...results);
       return results;
@@ -22,7 +22,7 @@ export const fanfoxProvider = {
   async searchAsync(title: string, pageNumber?: number) {
     return await app.browserManager.usingPageAsync(async (page) => {
       const watch = new app.Watch(page);
-      await page.goto(`${baseUrl}/search?title=${encodeURIComponent(title)}${pageNumber && pageNumber > 1 ? `&page=${pageNumber}` : ''}`);
+      await page.goto(`${baseUrl}/search?title=${encodeURIComponent(title)}${pageNumber && pageNumber > 1 ? `&page=${pageNumber}` : ''}`, {waitUntil: 'domcontentloaded'});
       const results = await page.evaluate(seriesList.evaluator);
       await watch.resolveOrDeleteAsync('image', ...results);
       return results;
@@ -32,7 +32,7 @@ export const fanfoxProvider = {
   async seriesAsync(url: string) {
     return await app.browserManager.usingPageAsync(async (page) => {
       const watch = new app.Watch(page);
-      await page.goto(url);
+      await page.goto(url, {waitUntil: 'domcontentloaded'});
       await ensureAdultAsync(page);
       const result = await page.evaluate(seriesDetail.evaluator);
       await watch.resolveOrDeleteAsync('image', result);
