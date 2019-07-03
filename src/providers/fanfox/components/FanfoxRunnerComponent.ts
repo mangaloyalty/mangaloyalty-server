@@ -28,7 +28,7 @@ export class FanfoxRunnerComponent {
     const page = await app.browserManager.pageAsync();
     const watch = new app.Watch(page);
     try {
-      await page.goto(this._url);
+      await page.goto(this._url, {waitUntil: 'domcontentloaded'});
       await ensureAdultAsync(page);
       while (await this._stepAsync(page, watch));
     } catch (error) {
