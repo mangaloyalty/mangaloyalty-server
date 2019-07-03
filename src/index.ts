@@ -1,4 +1,3 @@
-export * from './settings';
 export * from './controllers/RemoteController';
 export * from './controllers/SessionController';
 export * from './managers/browserManager';
@@ -15,3 +14,4 @@ export * from './providers/batoto/components/BatotoRunnerComponent';
 export * from './providers/fanfox/fanfoxProvider';
 export * from './providers/fanfox/components/FanfoxRunnerComponent';
 export * from './typings/openapi';
+export * from './settings';
