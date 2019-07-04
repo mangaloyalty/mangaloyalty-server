@@ -14,7 +14,7 @@ export class Future<T> {
   }
 
   async getAsync() {
-    return new Promise<T>((resolve, reject) => {
+    return await new Promise<T>((resolve, reject) => {
       if (this._hasReject) {
         reject(this._reject);
       } else if (this._hasResolve) {
