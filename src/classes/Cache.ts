@@ -1,4 +1,4 @@
-// TODO: Use a setTimeout to let the data expire automatically to clear up memory.
+// TECH: Use a setTimeout to let the data expire automatically to clear up memory.
 export class Cache {
   private readonly _timeout: number;
   private _cacheData: {[key: string]: Promise<any>};

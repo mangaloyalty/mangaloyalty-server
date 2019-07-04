@@ -1,6 +1,7 @@
 import * as app from '..';
 import * as puppeteer from 'puppeteer';
 
+// TODO: Add support for broken images (http://fanfox.net/manga/star_martial_god_technique/c001/1.html, page 1).
 export class Watch {
 	private readonly _page: puppeteer.Page;
   private readonly _responses: app.FutureMap<puppeteer.Response | null>;
@@ -19,7 +20,7 @@ export class Watch {
     return image;
   }
 
-  // TODO: Constraints for value[key] is string|undefined
+  // TECH: Constraints for value[key] is string|undefined
   // https://stackoverflow.com/questions/49752151/typescript-keyof-returning-specific-type/49752227#49752227
   async resolveOrDeleteAsync(key: string, ...values: any[]) {
     for (const value of values) {

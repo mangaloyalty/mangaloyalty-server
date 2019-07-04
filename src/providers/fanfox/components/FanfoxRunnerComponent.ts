@@ -2,8 +2,8 @@ import puppeteer from 'puppeteer';
 import * as app from '../../..';
 import * as chapter from '../evaluators/chapter';
 
-// TODO: Remove shouldAwait in favor of using Promises in the evaluator itself.
-// TODO: Clean me up.
+// TECH: Remove shouldAwait in favor of using Promises in the evaluator itself.
+// TECH: Clean me up.
 export class FanfoxRunnerComponent {
   private readonly _images: app.FutureMap<string>;
   private readonly _session: app.Future<app.Session>;

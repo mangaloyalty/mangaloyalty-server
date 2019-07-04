@@ -1,7 +1,7 @@
 import * as app from '../..';
 import * as seriesDetail from './evaluators/seriesDetail';
 import * as seriesList from './evaluators/seriesList';
-const baseUrl = 'https://bato.to';
+const baseUrl = app.settings.providerBaseUrlBatoto;
 
 export const batotoProvider = {
   isSupported(url: string) {
