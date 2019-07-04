@@ -2,7 +2,7 @@ import puppeteer from 'puppeteer';
 import * as app from '../../..';
 import * as chapter from '../evaluators/chapter';
 
-// TODO: Clean me up.
+// TECH: Clean me up.
 export class BatotoRunnerComponent {
   private readonly _images: app.FutureMap<string>;
   private readonly _session: app.Future<app.Session>;

@@ -3,17 +3,27 @@ import * as app from '..';
 export class FutureMap<T> {
   private readonly _results: {[key: string]: app.Future<T>};
   private readonly _timeout: number;
+  private _hasReject: boolean;
+  private _reject?: Error;
 
   constructor(timeout = 0) {
+    this._hasReject = false;
     this._results = {};
     this._timeout = timeout;
   }
 
   async getAsync(key: string) {
-    return this._ensure(key).getAsync();
+    if (this._hasReject && !this._results[key]) {
+      return await Promise.reject(this._reject);
+    } else {
+      return await this._ensure(key).getAsync();
+    }
   }
 
   reject(error?: Error) {
+    if (this._hasReject) return;
+    this._hasReject = true;
+    this._reject = error;
     Object.values(this._results).forEach((result) => result.reject(error));
   }
 
