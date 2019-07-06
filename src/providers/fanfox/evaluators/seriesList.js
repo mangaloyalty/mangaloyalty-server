@@ -1,8 +1,8 @@
 function evaluator() {
   return (() => {
-    const containerNodes = document.querySelectorAll('.manga-list-1-list li, .manga-list-4-list li');
-    if (!containerNodes) throw new Error();
-    return Array.from(containerNodes).map(extract);
+    const hasMorePages = getHasMorePages(document.querySelector('.pager-list a:last-of-type'));
+    const items = Array.from(document.querySelectorAll('.manga-list-1-list li, .manga-list-4-list li')).map(extract);
+    return {hasMorePages, items};
   })();
 
   /**
@@ -14,7 +14,16 @@ function evaluator() {
     const url = getUrl(containerNode.querySelector('p:first-of-type a'));
     return {image, title, url};
   }
-  
+
+  /**
+   * @param {HTMLAnchorElement?} anchorNode
+   */
+  function getHasMorePages(anchorNode) {
+    const anchorHref = validateStrict(anchorNode && anchorNode.href);
+    const hasMorePages = !anchorHref.startsWith('javascript');
+    return hasMorePages;
+  }
+
   /**
    * @param {HTMLImageElement?} imageNode
    */

@@ -1,8 +1,8 @@
 function evaluator() {
   return (() => {
-    const containerNodes = document.querySelectorAll('#series-list div.no-flag');
-    if (!containerNodes) throw new Error();
-    return Array.from(containerNodes).map(extract);
+    const hasMorePages = getHasMorePages(document.querySelector('.pager li:last-of-type'));
+    const items = Array.from(document.querySelectorAll('#series-list div.no-flag')).map(extract);
+    return {hasMorePages, items};
   })();
   
   /**
@@ -13,6 +13,14 @@ function evaluator() {
     const title = getTitle(containerNode.querySelector('a.item-title'));
     const url = getUrl(containerNode.querySelector('a.item-title'));
     return {image, title, url};
+  }
+
+  /**
+   * @param {HTMLLIElement?} liItem
+   */
+  function getHasMorePages(liItem) {
+    const hasMorePages = !/disabled/.test(validateStrict(liItem && liItem.className));
+    return hasMorePages;
   }
 
   /**
