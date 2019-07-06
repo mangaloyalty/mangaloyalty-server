@@ -29,7 +29,7 @@ router.use('/api', express.static(swaggerUi.absolutePath()));
 router.use(openapi);
 
 // Initialize the server.
-if (require.main && require.main.filename.startsWith(__dirname)) {
+if (require.main === module || (require.main && require.main.filename.endsWith('mangaloyalty-server'))) {
   const server = express();
   server.disable('x-powered-by');
   server.use(router);
