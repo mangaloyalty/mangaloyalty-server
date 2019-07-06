@@ -14,7 +14,7 @@ export const fanfoxProvider = {
       const watch = new app.Watch(page);
       await page.goto(`${baseUrl}/directory/${pageNumber && pageNumber > 1 ? `${pageNumber}.html` : ''}`, {waitUntil: 'domcontentloaded'});
       const results = await page.evaluate(seriesList.evaluator);
-      await watch.resolveOrDeleteAsync('image', ...results);
+      await watch.resolveOrDeleteAsync('image', ...results.items);
       return results;
     });
   },
@@ -24,7 +24,7 @@ export const fanfoxProvider = {
       const watch = new app.Watch(page);
       await page.goto(`${baseUrl}/search?title=${encodeURIComponent(title)}${pageNumber && pageNumber > 1 ? `&page=${pageNumber}` : ''}`, {waitUntil: 'domcontentloaded'});
       const results = await page.evaluate(seriesList.evaluator);
-      await watch.resolveOrDeleteAsync('image', ...results);
+      await watch.resolveOrDeleteAsync('image', ...results.items);
       return results;
     });
   },
