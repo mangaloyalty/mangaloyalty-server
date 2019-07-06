@@ -4,8 +4,6 @@ import * as seriesDetail from './evaluators/seriesDetail';
 import * as seriesList from './evaluators/seriesList';
 const baseUrl = 'https://fanfox.net';
 
-// TODO: Handle connection issues more gracefully. Right now, a single error propagates immediately to the client.
-// TODO: Add support for webtoon-style comics (https://fanfox.net/manga/solo_leveling/c000/1.html).
 export const fanfoxProvider = {
   isSupported(url: string) {
     return url.startsWith(baseUrl);

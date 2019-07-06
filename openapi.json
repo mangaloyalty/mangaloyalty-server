@@ -6,7 +6,7 @@
     "version": "0.0.0"
   },
   "paths": {
-    "/remote/popular": {
+    "/api/remote/popular": {
       "get": {
         "operationId": "RemotePopular",
         "tags": ["Remote"],
@@ -42,7 +42,7 @@
         }
       }
     },
-    "/remote/search": {
+    "/api/remote/search": {
       "get": {
         "operationId": "RemoteSearch",
         "tags": ["Remote"],
@@ -84,7 +84,7 @@
         }
       }
     },
-    "/remote/series": {
+    "/api/remote/series": {
       "get": {
         "operationId": "RemoteSeries",
         "tags": ["Remote"],
@@ -116,7 +116,7 @@
         }
       }
     },
-    "/remote/start": {
+    "/api/remote/start": {
       "get": {
         "operationId": "RemoteStart",
         "tags": ["Remote"],
@@ -148,7 +148,7 @@
         }
       }
     },
-    "/session": {
+    "/api/session": {
       "get": {
         "operationId": "SessionList",
         "tags": ["Session"],
@@ -168,7 +168,7 @@
         }
       }
     },
-    "/session/{sessionId}": {
+    "/api/session/{sessionId}": {
       "get": {
         "operationId": "SessionPage",
         "tags": ["Session"],
