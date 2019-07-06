@@ -13,7 +13,7 @@ export const batotoProvider = {
       const watch = new app.Watch(page);
       await page.goto(`${baseUrl}/browse?langs=english${pageNumber && pageNumber > 1 ? `&page=${pageNumber}` : ''}`, {waitUntil: 'domcontentloaded'});
       const results = await page.evaluate(seriesList.evaluator);
-      await watch.resolveOrDeleteAsync('image', ...results);
+      await watch.resolveOrDeleteAsync('image', ...results.items);
       return results;
     });
   },
@@ -23,7 +23,7 @@ export const batotoProvider = {
       const watch = new app.Watch(page);
       await page.goto(`${baseUrl}/search?q=${encodeURIComponent(title)}${pageNumber && pageNumber > 1 ? `&a=&p=${pageNumber}` : ''}`, {waitUntil: 'domcontentloaded'});
       const results = await page.evaluate(seriesList.evaluator);
-      await watch.resolveOrDeleteAsync('image', ...results);
+      await watch.resolveOrDeleteAsync('image', ...results.items);
       return results;
     });
   },

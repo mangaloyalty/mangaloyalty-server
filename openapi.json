@@ -240,8 +240,15 @@
         ]
       },
       "SeriesList": {
-        "type": "array",
-        "items": {"$ref": "#/components/schemas/SeriesListItem"}
+        "type": "object",
+        "required": ["hasMorePages", "items"],
+        "properties": {
+          "hasMorePages": {"type": "boolean"},
+          "items": {
+            "type": "array",
+            "items": {"$ref": "#/components/schemas/SeriesListItem"}
+          }
+        }
       },
       "SeriesListItem": {
         "type": "object",

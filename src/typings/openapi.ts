@@ -8,10 +8,13 @@
 export type IProviderName = "batoto" | "fanfox";
 export type IProviderSeriesUrl = string;
 export type IProviderChapterUrl = string;
-export type ISeriesList = ISeriesListItem[];
 export type ISessionList = ISessionListItem[];
 export type ISessionListResponse = ISessionListItem[];
 
+export interface ISeriesList {
+  hasMorePages: boolean;
+  items: ISeriesListItem[];
+}
 export interface ISeriesListItem {
   image: string;
   title: string;
