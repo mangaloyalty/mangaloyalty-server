@@ -4,7 +4,6 @@ import * as app from '..';
 export class RemoteController {
   private readonly _cache = new app.Cache(app.settings.remoteCacheTimeout);
 
-  // TODO: Add pagination indicators (hasMorePages?).
   @api.createOperation('RemotePopular')
   async popularAsync(model: app.IRemotePopularContext): Promise<api.Result<app.IRemotePopularResponse>> {
     const cacheKey = `${model.query.providerName}/${model.query.pageNumber || 1}`;
@@ -18,7 +17,6 @@ export class RemoteController {
     }
   }
 
-  // TODO: Add pagination indicators (hasMorePages?).
   @api.createOperation('RemoteSearch')
   async searchAsync(model: app.IRemoteSearchContext): Promise<api.Result<app.IRemoteSearchResponse>> {
     const cacheKey = `${model.query.providerName}/${model.query.title}/${model.query.pageNumber || 1}`;
@@ -32,7 +30,6 @@ export class RemoteController {
     }
   }
 
-  // TODO: Add resolved url. Because provider can do redirections, and the library needs to understand that later!
   @api.createOperation('RemoteSeries')
   async seriesAsync(model: app.IRemoteSeriesContext): Promise<api.Result<app.IRemoteSeriesResponse>> {
     const cacheKey = model.query.url;
