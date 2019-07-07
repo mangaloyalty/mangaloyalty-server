@@ -57,12 +57,14 @@ API:
 GET /library
   200
   - return serieslist info by accumulating _series.json and flattening user (image, title, id)
+
 POST /library ({url: string})
   200
   - server must check if url already has an entry
     - if so, add user to list (if not yet added)
     - otherwise get metadata and create new entry with user
   - return id
+
 PUT /library
   200
   - server refreshes metadata for ALL series
@@ -71,31 +73,37 @@ PUT /library
 GET /library/{seriesId}
   200, 404
   - return described _series.json info flattened for user (for now, 'admin').
+
 DELETE /library/{seriesId}
   200, 404
   - server removes from user list of id, and if last user, deletes series from disk
   - empty result
+
 PUT /library/{seriesId}
   200, 404
   - server refreshes metadata for THIS series
   - return result as GET
+
 PATCH /library/{seriesId} ({automationFrequency, automationStoreAll})
   200, 404
   - sets new options for series
   - empty result
-  
+
 GET /library/{seriesId}/{chapterId}
   200, 404
   - creates session for chapter (either online or local)
   - return session id/pageCount
+
 DELETE /library/{seriesId}/{chapterId}
   200, 404
   - force delete of chapter regardless of how many users have it (that's only for series listings to preserve list/states).
   - empty result
+
 PUT /library/{seriesId}/{chapterId}
   200, 404
   - forces refresh for chapter, creats session while getting the new one from online
   - return result as GET
+  
 PATCH /library/{seriesId}/{chapterId} ({pageNumber})
   200, 404
   - status update signal to update where you're currently reading
