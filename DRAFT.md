@@ -19,18 +19,19 @@ SERIES.JSON:
           addedAt: Date                     // when was this chapter added? one should always match `lastChapterAddedAt`
           deletedAt? Date                   // when was this chapter found to have been deleted?
           id: Guid                          // generated identifier for this chapter
-          pageCount?: number                // when set, chapter has been made available locally, and the .json should be there!
+          stored: boolean                   // has chapter been made available locally?
           title: string                     // backup in case chapter gets deleted from metadata
         }
       }
       users: {
         [name: string]: {                   // default user 'admin' to get everything rolling w/o implementing auth
           addedAt: Date                     // when did this user add this series?
-          lastChapterReadAt?: Date          // when did this user last read this series? or did not open yet? (start reading/rediscover)
+          lastPageReadAt?: Date             // when did this user last read a page for this series? or did not open yet? (start reading/rediscover)
           chapters: {
             [id: Guid]: {                   // when chapterId exists, user has opened the chapter (continue reading/completed)
-              readAt: Date                  // when did this user read this chapter? happens when `pageNumber` is updated, one should always match `lastChapterReadAt`
-              pageNumber: number            // when pageNumber === pageCount, user has read the chapter
+              pageNumber: number            // which is the last page read?
+              pageReadAt: Date              // when did this user last read a page? happens when `pageNumber` is updated, one should always match `lastPageReadAt`
+              completed: boolean            // true when pageNumber === pageCount, but only available in a session (e.g. non-stored chapters), so it must be persisted!
             }
           }
         }
@@ -91,6 +92,7 @@ PATCH /library/{seriesId} ({automationFrequency, automationStoreAll})
 
 GET /library/{seriesId}/{chapterId}
   200, 404
+  - if automation.storeAll is set, this will be saved locally as well
   - creates session for chapter (either online or local)
   - return session id/pageCount
 
@@ -101,7 +103,8 @@ DELETE /library/{seriesId}/{chapterId}
 
 PUT /library/{seriesId}/{chapterId}
   200, 404
-  - forces refresh for chapter, creats session while getting the new one from online
+  - forces refresh for chapter, creates session while getting the new one from online
+  - unlike a GET, this always stores the library locally as well (even if automation.storeAll == false).
   - return result as GET
   
 PATCH /library/{seriesId}/{chapterId} ({pageNumber})
