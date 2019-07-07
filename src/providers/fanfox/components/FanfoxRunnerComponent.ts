@@ -2,7 +2,6 @@ import puppeteer from 'puppeteer';
 import * as app from '../../..';
 import * as chapter from '../evaluators/chapter';
 
-// TECH: Remove shouldAwait in favor of using Promises in the evaluator itself.
 // TECH: Clean me up.
 export class FanfoxRunnerComponent {
   private readonly _images: app.FutureMap<string>;
@@ -40,7 +39,7 @@ export class FanfoxRunnerComponent {
   }
 
   private async _stepAsync(page: puppeteer.Page, watch: app.Watch) {
-    const result = await page.evaluate(chapter.evaluator);
+    const result = await page.evaluate(chapter.evaluatorAsync);
 
     // Initialize the session.
     if (!this._hasSession) {
@@ -55,9 +54,7 @@ export class FanfoxRunnerComponent {
     }
 
     // Initialize the continuation.
-    if (!result.shouldAwait) return result.shouldContinue;
-    await new Promise((resolve) => setTimeout(resolve, app.settings.browserAwaitTimeout));
-    return true;
+    return result.shouldContinue;
   }
 }
 

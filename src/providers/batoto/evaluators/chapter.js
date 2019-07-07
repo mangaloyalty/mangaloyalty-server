@@ -1,9 +1,8 @@
 function evaluator() {
   const images = getImages(document.querySelectorAll('.chapter-page img'));
   const pageCount = getPageCount(images);
-  const shouldAwait = false;
   const shouldContinue = false;
-  return {images, pageCount, shouldAwait, shouldContinue};
+  return {images, pageCount, shouldContinue};
 
   /**
    * @param {NodeListOf<HTMLImageElement>?} imageNodes

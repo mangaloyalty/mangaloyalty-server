@@ -1,5 +1,4 @@
 export const settings = {
-  browserAwaitTimeout: 250,
   browserDefaultTimeout: 30000,
   browserHeadless: true,
   browserUserDataDir: 'chromeCache',
