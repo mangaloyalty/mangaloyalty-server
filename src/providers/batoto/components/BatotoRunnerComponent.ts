@@ -53,8 +53,6 @@ export class BatotoRunnerComponent {
     }
 
     // Initialize the continuation.
-    if (!result.shouldAwait) return result.shouldContinue;
-    await new Promise((resolve) => setTimeout(resolve, app.settings.browserAwaitTimeout));
-    return true;
+    return result.shouldContinue;
   }
 }
