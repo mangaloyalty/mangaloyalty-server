@@ -1,17 +1,20 @@
-function evaluator() {
-  const images = getImages(document.querySelector('img.reader-main-img'));
+async function evaluatorAsync() {
+  const images = await getImagesAsync(document.querySelector('img.reader-main-img'));
   const pageCount = getPageCount(document.querySelectorAll('.cp-pager-list a[data-page]'));
-  const shouldAwait = getShouldAwait(images);
   const shouldContinue = getShouldContinue(document.querySelector('.cp-pager-list a:last-of-type'), images);
-  return {images, pageCount, shouldAwait, shouldContinue};
+  return {images, pageCount, shouldContinue};
 
   /**
    * @param {HTMLImageElement?} imageNode
+   * @return {Promise<string[]>}
    */
-  function getImages(imageNode) {
-    const image = validateStrict(imageNode && imageNode.src);
-    if (/\/loading\.gif$/.test(image)) return [];
-    return [image];
+  function getImagesAsync(imageNode) {
+    return new Promise((resolve, reject) => {
+      const image = validateStrict(imageNode && imageNode.src);
+      if (!/\/loading\.gif$/.test(image)) resolve([image]);
+      else if (!imageNode) reject();
+      else imageNode.addEventListener('load', () => resolve(getImagesAsync(imageNode)));
+    });
   }
 
   /**
@@ -23,13 +26,6 @@ function evaluator() {
     const pageNumbers = pageData.filter((page) => page && /^[0-9]+$/.test(page)).map((page) => Number(page));
     if (!pageNumbers.length) throw new Error();
     return pageNumbers.sort((a, b) => a < b ? 1 : -1)[0];
-  }
-
-  /**
-   * @param {string[]} images 
-   */
-  function getShouldAwait(images) {
-    return !Boolean(images.length);
   }
 
   /**
@@ -74,9 +70,9 @@ function shouldWaitAdultEvaluator() {
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = {evaluator, shouldWaitAdultEvaluator};
+  module.exports = {evaluatorAsync, shouldWaitAdultEvaluator};
 } else if (shouldWaitAdultEvaluator()) {
   console.log('Waiting for navigation');
 } else {
-  console.log(evaluator());
+  evaluatorAsync().then(console.log.bind(console));
 }

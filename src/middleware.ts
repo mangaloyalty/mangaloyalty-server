@@ -1,3 +1,4 @@
+// TECH: Let the Chromium-instance automatically close when not used for some time, to preserve memory.
 // UX: Provider: Connection issue retries. Immediate propagation is too severe.
 // UX: Provider: Support missing images (http://fanfox.net/manga/star_martial_god_technique/c001/1.html).
 // UX: Provider/Fanfox: Support for webtoons (https://fanfox.net/manga/solo_leveling/c000/1.html).
