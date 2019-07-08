@@ -261,12 +261,13 @@
       },
       "SeriesDetail": {
         "type": "object",
-        "required": ["authors", "chapters", "genres", "image", "title"],
+        "required": ["authors", "chapters", "genres", "image", "isCompleted", "title"],
         "properties": {
           "authors": {"type": "array", "items": {"type": "string"}},
           "chapters": {"type": "array", "items": {"$ref": "#/components/schemas/SeriesDetailChapter"}},
           "genres": {"type": "array", "items": {"type": "string"}},
           "image": {"type": "string"},
+          "isCompleted": {"type": "boolean"},
           "summary": {"type": "string"},
           "title": {"type": "string"}
         }

@@ -25,6 +25,7 @@ export interface ISeriesDetail {
   chapters: ISeriesDetailChapter[];
   genres: string[];
   image: string;
+  isCompleted: boolean;
   summary?: string;
   title: string;
 }
