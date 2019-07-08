@@ -3,9 +3,10 @@ function evaluator() {
   const chapters = getChapters(document.querySelectorAll('.detail-main #chapterlist .detail-main-list a'));
   const genres = getGenres(document.querySelectorAll('.detail-info a[href*=\'/directory/\']'));
   const image = getImage(document.querySelector('.detail-info img'));
+  const isCompleted = getIsCompleted(document.querySelector('.detail-info span.detail-info-right-title-tip'));
   const summary = getSummary(document.querySelector('.detail-info p.detail-info-right-content'));
   const title = getTitle(document.querySelector('.detail-info span.detail-info-right-title-font'));
-  return {authors, chapters, genres, image, summary, title};
+  return {authors, chapters, genres, image, isCompleted, summary, title};
 
   /**
    * @param {NodeListOf<HTMLAnchorElement>?} authorNodes
@@ -44,6 +45,14 @@ function evaluator() {
   }
 
   /**
+   * @param {HTMLSpanElement?} statusNode
+   */
+  function getIsCompleted(statusNode) {
+    const status = validateStrict(statusNode && statusNode.textContent);
+    return status === 'Completed';
+  }
+
+  /**
    * @param {HTMLParagraphElement?} summaryNode
    */
   function getSummary(summaryNode) {
@@ -60,7 +69,7 @@ function evaluator() {
   }
 
   /**
-   * @param {string?} value 
+   * @param {string?} value
    */
   function validate(value) {
     return value && value.trim().replace(/\s+/g, ' ') || undefined;
