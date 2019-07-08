@@ -3,9 +3,10 @@ function evaluator() {
   const chapters = getChapters(document.querySelectorAll('.chapter-list a.chapt'));
   const genres = find(document.querySelectorAll('.detail-set div.attr-item'), 'Genres:', getGenres);
   const image = getImage(document.querySelector('.detail-set img'));
+  const isCompleted = find(document.querySelectorAll('.detail-set div.attr-item'), 'Status:', getIsCompleted);
   const summary = getSummary(document.querySelector('.detail-set pre'));
   const title = getTitle(document.querySelector('.item-title a'));
-  return {authors, chapters, genres, image, summary, title};
+  return {authors, chapters, genres, image, isCompleted, summary, title};
   
   /**
    * @template T
@@ -58,6 +59,14 @@ function evaluator() {
    */
   function getImage(imageNode) {
     return validateStrict(imageNode && imageNode.src);
+  }
+
+  /**
+   * @param {HTMLDivElement?} statusNode
+   */
+  function getIsCompleted(statusNode) {
+    const status = validateStrict(statusNode && statusNode.textContent);
+    return status === 'Status: Completed';
   }
 
   /**
