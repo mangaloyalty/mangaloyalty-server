@@ -1,4 +1,8 @@
+import * as os from 'os';
+import * as path from 'path';
+
 export const settings = {
+  basePath: path.resolve(os.homedir(), 'mangaloyalty'),
   browserDefaultTimeout: 30000,
   browserHeadless: true,
   browserUserDataDir: 'chromeCache',

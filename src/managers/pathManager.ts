@@ -1,9 +1,8 @@
-import * as os from 'os';
+import * as app from '..';
 import * as path from 'path';
-const basePath = [os.homedir(), 'mangaloyalty'];
 
 export const pathManager = {
   resolve(...args: string[]): string {
-    return path.resolve.apply(path, basePath.concat(args));
+    return path.resolve.apply(path, [app.settings.basePath].concat(args));
   }
 };
