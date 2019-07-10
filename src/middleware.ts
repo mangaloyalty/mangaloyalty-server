@@ -1,4 +1,3 @@
-// TECH: Let the Chromium-instance automatically close when not used for some time, to preserve memory (and solve hibernate issues).
 // TECH: Cache session images using the on-disk cache mechanism rather than in-memory, to preserve memory.
 // TECH: Watch should clear in-memory persistence (including puppeteer.Response) for non-required/processed responses, and clear buffers asap.
 // TECH: Cache responses should use file-to-response-streaming to avoid unnecessary serialization/deserialization steps.
