@@ -2,7 +2,12 @@ import * as api from 'express-openapi-json';
 import * as app from '..';
 
 export class RemoteController {
-  private readonly _cache = new app.Cache(app.settings.remoteCacheTimeout);
+  private readonly _cache: app.Cache;
+  
+  constructor() {
+    this._cache = new app.Cache(app.settings.cacheRemoteName, app.settings.cacheRemoteTimeout);
+    this._cache.initAsync().catch(() => {});
+  }
 
   @api.createOperation('RemotePopular')
   async popularAsync(model: app.IRemotePopularContext): Promise<api.Result<app.IRemotePopularResponse>> {

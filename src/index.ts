@@ -8,6 +8,7 @@ export * from './controllers/RemoteController';
 export * from './controllers/SessionController';
 export * from './managers/browserManager';
 export * from './managers/errorManager';
+export * from './managers/fileManager';
 export * from './managers/pathManager';
 export * from './managers/sessionManager';
 export * from './providers/batoto/batotoProvider';
