@@ -8,7 +8,7 @@ export class Watch {
   constructor(page: puppeteer.Page) {
     this._page = page;
     this._page.on('requestfinished', (request) => this._responses.resolve(request.url(), request.response()));
-    this._responses = new app.FutureMap(app.settings.browserDefaultTimeout);
+    this._responses = new app.FutureMap(app.settings.browserNavigationTimeout);
   }
 
   async getAsync(url: string) {
