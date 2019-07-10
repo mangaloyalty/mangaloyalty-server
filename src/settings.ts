@@ -4,8 +4,9 @@ import * as path from 'path';
 export const settings = {
   basePath: path.resolve(os.homedir(), 'mangaloyalty'),
   browserCache: 'chromeCache',
-  browserDefaultTimeout: 30000,
   browserHeadless: true,
+  browserIdleTimeout: 60000,
+  browserNavigationTimeout: 30000,
   browserViewport: {width: 1920, height: 974},
   cacheCoreName: 'coreCache',
   cacheCoreTimeout: 1000,
