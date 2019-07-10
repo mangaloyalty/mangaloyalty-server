@@ -1,7 +1,7 @@
 FILE STRUCTURE:
 
-    /manga/{seriesId}/_series.json
-    /manga/{seriesId}/{chapterId}.json
+    /manga/{seriesId}/series.json
+    /manga/{seriesId}/{chapterId}/{pageNumber:000}.json
 
 SERIES.JSON:
 
@@ -17,7 +17,8 @@ SERIES.JSON:
       chapters: {                           // chapters are added from each metadata update, but never removed. So, deleted chapters are visible!
         [url: string]: {
           addedAt: Date                     // when was this chapter added? one should always match `lastChapterAddedAt`
-          deletedAt? Date                   // when was this chapter found to have been deleted?
+          deletedAt?: Date                  // when was this chapter found to have been deleted?
+          pageCount?: number                // set when session is a opened, if ever
           id: Guid                          // generated identifier for this chapter
           stored: boolean                   // has chapter been made available locally?
           title: string                     // backup in case chapter gets deleted from metadata
@@ -31,18 +32,17 @@ SERIES.JSON:
             [id: Guid]: {                   // when chapterId exists, user has opened the chapter (continue reading/completed)
               pageNumber: number            // which is the last page read?
               pageReadAt: Date              // when did this user last read a page? happens when `pageNumber` is updated, one should always match `lastPageReadAt`
-              completed: boolean            // true when pageNumber === pageCount, but only available in a session (e.g. non-stored chapters), so it must be persisted!
             }
           }
         }
       }[]
     }
 
-CHAPTER: 
+CHAPTER/PAGE: 
 
     {
       image: string
-    }[]
+    }
 
 ENUMERATORS:
 
