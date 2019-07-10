@@ -19,22 +19,21 @@ export class FanfoxRunnerComponent {
   }
   
   run() {
-    this._runAsync();
+    this._runAsync().catch(() => {});
     return this._session;
   }
 
   private async _runAsync() {
-    const page = await app.browserManager.pageAsync();
-    const watch = new app.Watch(page);
     try {
-      await page.goto(this._url, {waitUntil: 'domcontentloaded'});
-      await ensureAdultAsync(page);
-      while (await this._stepAsync(page, watch));
+      await app.browserManager.pageAsync(async (page) => {
+        const watch = new app.Watch(page);
+        await page.goto(this._url, {waitUntil: 'domcontentloaded'});
+        await ensureAdultAsync(page);
+        while (await this._stepAsync(page, watch));
+      });
     } catch (error) {
       this._images.reject(app.errorManager.create(error));
       this._session.reject(app.errorManager.create(error)); 
-    } finally {
-      await page.close();
     }
   }
 
@@ -61,5 +60,5 @@ export class FanfoxRunnerComponent {
 async function ensureAdultAsync(page: puppeteer.Page) {
   const waitPromise = page.waitForNavigation();
   if (await page.evaluate(chapter.shouldWaitAdultEvaluator)) await waitPromise;
-  else waitPromise.catch(() => undefined);
+  else waitPromise.catch(() => {});
 }

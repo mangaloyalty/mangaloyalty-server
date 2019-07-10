@@ -1,29 +1,29 @@
 import * as app from '..';
-const sessions: {[id: number]: app.Session} = {};
 const timeouts: {[id: number]: NodeJS.Timeout} = {};
+const values: {[id: number]: app.Session} = {};
 
 export const sessionManager = {
   add(session: app.Session) {
-    if (sessions[session.id]) throw new Error();
-    sessions[session.id] = session;
+    if (values[session.id]) throw new Error();
+    values[session.id] = session;
     updateTimeout(session.id);
   },
 
   get(id: number) {
-    if (!sessions[id]) return undefined;
+    if (!values[id]) return undefined;
     updateTimeout(id);
-    return sessions[id];
+    return values[id];
   },
 
   getAll() {
-    return Object.values(sessions);
+    return Object.values(values);
   }
 };
 
 function updateTimeout(id: number) {
   clearTimeout(timeouts[id]);
   timeouts[id] = setTimeout(() => {
-    delete sessions[id];
     delete timeouts[id];
+    delete values[id];
   }, app.settings.sessionTimeout);
 }

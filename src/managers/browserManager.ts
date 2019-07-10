@@ -6,12 +6,12 @@ export const browserManager = {
   browserAsync() {
     if (browserInstance) return browserInstance;
     const headless = app.settings.browserHeadless;
-    const userDataDir = app.pathManager.resolve(app.settings.browserUserDataDir);
+    const userDataDir = app.pathManager.resolve(app.settings.browserCache);
     browserInstance = puppeteer.launch({headless, userDataDir});
     return browserInstance;
   },
 
-  async pageAsync() {
+  async pageAsync<T>(handlerAsync: (page: puppeteer.Page) => Promise<T>) {
     let page: puppeteer.Page | undefined;
     try {
       const browser = await browserManager.browserAsync();
@@ -20,16 +20,6 @@ export const browserManager = {
       await page.setDefaultTimeout(app.settings.browserDefaultTimeout);
       await page.setUserAgent(userAgent.replace(/HeadlessChrome/g, 'Chrome'));
       await page.setViewport(app.settings.browserViewport);
-      return page;
-    } catch (error) {
-      if (page) await page.close();
-      throw error;
-    }
-  },
-
-  async usingPageAsync<T>(handlerAsync: (page: puppeteer.Page) => Promise<T>) {
-    const page = await browserManager.pageAsync();
-    try {
       return await handlerAsync(page);
     } finally {
       if (page) await page.close();
