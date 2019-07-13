@@ -5,7 +5,7 @@ export const settings = {
   basePath: path.resolve(os.homedir(), 'mangaloyalty'),
   browserCache: 'chromeCache',
   browserHeadless: true,
-  browserIdleTimeout: 60000,
+  browserExitTimeout: 60000,
   browserNavigationTimeout: 30000,
   browserViewport: {width: 1920, height: 974},
   cacheCoreName: 'coreCache',
