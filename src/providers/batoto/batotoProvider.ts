@@ -1,6 +1,7 @@
 import * as app from '../..';
 import * as seriesDetail from './evaluators/seriesDetail';
 import * as seriesList from './evaluators/seriesList';
+import {Runner} from './classes/Runner';
 const baseUrl = 'https://bato.to';
 
 export const batotoProvider = {
@@ -39,7 +40,7 @@ export const batotoProvider = {
   },
 
   async startAsync(url: string) {
-    const runner = new app.BatotoRunnerComponent(url).run();
+    const runner = new Runner(url).run();
     const session = await runner.getAsync();
     app.sessionManager.add(session);
     return session;

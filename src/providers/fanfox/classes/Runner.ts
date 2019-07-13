@@ -3,7 +3,7 @@ import * as app from '../../..';
 import * as chapter from '../evaluators/chapter';
 
 // TECH: Clean me up.
-export class FanfoxRunnerComponent {
+export class Runner {
   private readonly _images: app.FutureMap<string>;
   private readonly _session: app.Future<app.Session>;
   private readonly _url: string;
@@ -19,7 +19,7 @@ export class FanfoxRunnerComponent {
   }
   
   run() {
-    this._runAsync().catch(() => {});
+    this._runAsync();
     return this._session;
   }
 

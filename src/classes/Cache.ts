@@ -19,12 +19,16 @@ export class Cache {
   }
 
   async getAsync<T>(key: string, refreshAsync: () => Promise<T>) {
-    if (this._values[key]) {
-      await this.initAsync();
-      return await this._fetchAsync<T>(this._values[key]);
-    } else {
+    if (!this._values[key]) {
       await this.initAsync();
       return await this._createAsync(key, refreshAsync);
+    } else if (typeof this._values[key] !== 'string') {
+      return await this._values[key] as T;
+    } else try {
+      return await app.fileManager.readJsonAsync<T>(path.join(this._currentPath, String(this._values[key])));
+    } catch (error) {
+      if (error && error.code === 'ENOENT') return await this._createAsync(key, refreshAsync);
+      throw error;
     }
   }
 
@@ -56,14 +60,6 @@ export class Cache {
     }
   }
 
-  private async _fetchAsync<T>(idOrValue: Promise<any> | string) {
-    if (typeof idOrValue === 'string') {
-      return await app.fileManager.readJsonAsync<T>(path.join(this._currentPath, idOrValue));
-    } else {
-      return await idOrValue as T;
-    }
-  }
-
   private async _removeAsync(id: string) {
     try {
       clearTimeout(this._timeouts[id]);
@@ -72,6 +68,7 @@ export class Cache {
       delete this._ids[id];
       await app.fileManager.deleteAsync(path.join(this._currentPath, id));
     } catch (error) {
+      app.errorManager.trace(error);
       this._ids[id] = Math.random();
       this._updateTimeout(id, app.settings.cacheCoreTimeout);
     }
@@ -87,6 +84,6 @@ export class Cache {
 
   private _updateTimeout(id: string, timeout: number) {
     clearTimeout(this._timeouts[id]);
-    this._timeouts[id] = setTimeout(() => this._removeAsync(id).catch(() => {}), timeout);
+    this._timeouts[id] = setTimeout(() => this._removeAsync(id), timeout);
   }
 }

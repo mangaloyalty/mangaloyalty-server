@@ -44,5 +44,5 @@ function updateTimeout() {
     if (!currentBrowser || numberOfPages) return;
     browser = undefined;
     await currentBrowser.close();
-  }, app.settings.browserIdleTimeout);
+  }, app.settings.browserExitTimeout);
 }
