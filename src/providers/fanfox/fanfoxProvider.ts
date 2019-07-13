@@ -2,6 +2,7 @@ import puppeteer from 'puppeteer';
 import * as app from '../..';
 import * as seriesDetail from './evaluators/seriesDetail';
 import * as seriesList from './evaluators/seriesList';
+import {Runner} from './classes/Runner';
 const baseUrl = 'https://fanfox.net';
 
 export const fanfoxProvider = {
@@ -41,7 +42,7 @@ export const fanfoxProvider = {
   },
 
   async startAsync(url: string) {
-    const runner = new app.FanfoxRunnerComponent(url).run();
+    const runner = new Runner(url).run();
     const session = await runner.getAsync();
     app.sessionManager.add(session);
     return session;

@@ -6,7 +6,7 @@ export class RemoteController {
   
   constructor() {
     this._cache = new app.Cache(app.settings.cacheRemoteName, app.settings.cacheRemoteTimeout);
-    this._cache.initAsync().catch(() => {});
+    this._cache.initAsync().catch((error) => app.errorManager.trace(error));
   }
 
   @api.createOperation('RemotePopular')
