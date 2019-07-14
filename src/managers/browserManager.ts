@@ -1,5 +1,6 @@
 import puppeteer from 'puppeteer';
 import * as app from '..';
+import * as path from 'path';
 let browser: Promise<puppeteer.Browser> | undefined;
 let idleTimeout: NodeJS.Timeout;
 let numberOfPages = 0;
@@ -9,7 +10,7 @@ export const browserManager = {
     try {
       if (browser) return browser;
       const headless = app.settings.browserHeadless;
-      const userDataDir = app.pathManager.resolve(app.settings.browserCache);
+      const userDataDir = path.resolve(app.settings.basePath, app.settings.browserCache);
       browser = puppeteer.launch({headless, userDataDir});
       return await browser;
     } catch (error) {

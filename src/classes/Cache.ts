@@ -1,19 +1,16 @@
 import * as app from '..';
 import * as path from 'path';
-import {randomBytes} from 'crypto';
 
 export class Cache {
   private readonly _currentPath: string;
   private readonly _currentTimeout: number;
-  private readonly _ids: {[id: string]: string | number};
-  private readonly _timeouts: {[id: string]: NodeJS.Timeout};
+  private readonly _timeouts: {[key: string]: NodeJS.Timeout};
   private readonly _values: {[key: string]: Promise<any> | string};
   private _initPromise?: Promise<void>;
 
   constructor(name: string, timeout: number) {
-    this._currentPath = path.join(app.settings.cacheCoreName, name);
+    this._currentPath = path.join(app.settings.cacheCore, name);
     this._currentTimeout = timeout;
-    this._ids = {};
     this._timeouts = {};
     this._values = {};
   }
@@ -43,18 +40,15 @@ export class Cache {
   }
 
   private async _createAsync<T>(key: string, refreshAsync: () => Promise<T>) {
-    const id = this._spawnUniqueId();
-    const valuePromise = refreshAsync();
     try {
-      this._ids[id] = key;
-      this._values[key] = valuePromise;
-      const value = await valuePromise;
+      this._values[key] = refreshAsync();
+      const value = await this._values[key];
+      const id = app.createUniqueId();
       await app.fileManager.writeJsonAsync(path.join(this._currentPath, id), value);
       this._values[key] = id;
-      this._updateTimeout(id, this._currentTimeout);
+      this._updateTimeout(key, this._currentTimeout);
       return value;
     } catch (error) {
-      delete this._ids[id];
       delete this._values[key];
       throw error;
     }
@@ -62,28 +56,19 @@ export class Cache {
 
   private async _removeAsync(id: string) {
     try {
-      clearTimeout(this._timeouts[id]);
-      delete this._values[this._ids[id]];
-      delete this._timeouts[id];
-      delete this._ids[id];
       await app.fileManager.deleteAsync(path.join(this._currentPath, id));
     } catch (error) {
       app.errorManager.trace(error);
-      this._ids[id] = Math.random();
-      this._updateTimeout(id, app.settings.cacheCoreTimeout);
     }
   }
 
-  private _spawnUniqueId() {
-    while (true) {
-      const id = randomBytes(16).toString('hex');
-      if (this._ids[id]) continue;
-      return id;
-    }
-  }
-
-  private _updateTimeout(id: string, timeout: number) {
-    clearTimeout(this._timeouts[id]);
-    this._timeouts[id] = setTimeout(() => this._removeAsync(id), timeout);
+  private _updateTimeout(key: string, timeout: number) {
+    clearTimeout(this._timeouts[key]);
+    this._timeouts[key] = setTimeout(() => {
+      const id = this._values[key];
+      delete this._timeouts[key];
+      delete this._values[key];
+      this._removeAsync(String(id));
+    }, timeout);
   }
 }
