@@ -6,7 +6,8 @@ function evaluator() {
   const isCompleted = find(document.querySelectorAll('.detail-set div.attr-item'), 'Status:', getIsCompleted);
   const summary = getSummary(document.querySelector('.detail-set pre'));
   const title = getTitle(document.querySelector('.item-title a'));
-  return {authors, chapters, genres, image, isCompleted, summary, title};
+  const url = location.href;
+  return {authors, chapters, genres, image, isCompleted, summary, title, url};
   
   /**
    * @template T
