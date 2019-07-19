@@ -2,20 +2,37 @@ import * as app from '..';
 import * as path from 'path';
 
 // TODO: where will be cache?
-// TODO: where will be syncroot?
+// TODO: where will be syncroot? concurrent access on singular series must be protected
 export class LibraryManager {
-  private readonly _currentPath: string;
-
-  constructor() {
-    this._currentPath = app.settings.library;
-  }
-
   async addAsync(url: string) {
     const remoteDetail = await remoteAsync(url);
     const libraryDetail = createDetail(remoteDetail);
     synchronize(libraryDetail, remoteDetail);
-    await app.core.file.writeJsonAsync(path.join(this._currentPath, libraryDetail.id, 'series.json'), libraryDetail);
+    await app.core.file.writeJsonAsync(getPath(libraryDetail.id), libraryDetail);
     return libraryDetail.id;
+  }
+
+  async detailAsync(id: string) {
+    try {
+      return await app.core.file.readJsonAsync<app.ILibraryDetail>(getPath(id));
+    } catch (error) {
+      if (error && error.code === 'ENOENT') return undefined;
+      throw error;
+    }
+  }
+
+  async listAsync(pageNumber?: number) {
+    // Initialize the series details.
+    const ids = await app.core.file.readdirAsync(app.settings.library);
+    const details = await Promise.all(ids.map((id) => app.core.file.readJsonAsync<app.ILibraryDetail>(getPath(id))));
+    details.sort((a, b) => (b.lastChapterAddedAt || b.addedAt) - (a.lastChapterAddedAt || a.addedAt));
+
+    // Initialize the series view.
+    const startIndex = (pageNumber || 1 - 1) * app.settings.librarySeriesPerPage;
+    const stopIndex = startIndex + app.settings.librarySeriesPerPage;
+    const hasMorePages = details.length > stopIndex;
+    const items = details.slice(startIndex, stopIndex).map((detail) => ({id: detail.id, image: detail.series.image, title: detail.series.title}));
+    return {hasMorePages, items};
   }
 }
 
@@ -39,6 +56,10 @@ function createDetailSeries(detail: app.IRemoteDetail): app.ILibraryDetailSeries
     title: detail.title,
     url: detail.url
   };
+}
+
+function getPath(id: string) {
+  return path.join(app.settings.library, id, 'series.json');
 }
 
 async function remoteAsync(url: string) {

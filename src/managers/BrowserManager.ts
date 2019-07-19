@@ -34,7 +34,7 @@ export class BrowserManager {
     try {
       if (this._browser) return this._browser;
       const headless = app.settings.browserHeadless;
-      const userDataDir = path.resolve(app.settings.basePath, app.settings.browserCache);
+      const userDataDir = path.join(app.settings.basePath, app.settings.browserCache);
       this._browser = puppeteer.launch({headless, userDataDir});
       return await this._browser;
     } catch (error) {
