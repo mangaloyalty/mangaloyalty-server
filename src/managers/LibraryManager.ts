@@ -1,10 +1,9 @@
 import * as app from '..';
 import * as path from 'path';
 
-// LibraryManager? global instance for the library. -> app.core.library.addAsync() etc?
 // TODO: where will be cache?
 // TODO: where will be syncroot?
-export class LibraryService {
+export class LibraryManager {
   private readonly _currentPath: string;
 
   constructor() {
