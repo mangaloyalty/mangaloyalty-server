@@ -12,5 +12,6 @@ export const settings = {
   cacheRemoteName: 'remote',
   cacheRemoteTimeout: 600000,
   library: 'library',
+  librarySeriesPerPage: 70,
   sessionTimeout: 600000,
 };

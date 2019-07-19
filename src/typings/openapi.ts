@@ -81,9 +81,19 @@ export interface ISessionListItem {
 export interface ISessionPage {
   image: string;
 }
-export interface ILibraryCreateSeriesContext {
+export interface ILibraryListContext {
+  query: {
+    pageNumber?: number;
+  };
+}
+export interface ILibraryAddContext {
   query: {
     url: IProviderSeriesUrl;
+  };
+}
+export interface ILibraryDetailContext {
+  path: {
+    id: string;
   };
 }
 export interface IRemotePopularContext {
@@ -111,14 +121,16 @@ export interface IRemoteStartContext {
 }
 export interface ISessionPageContext {
   path: {
-    sessionId: string;
+    id: string;
   };
   query: {
     pageNumber: number;
   };
 }
 
-export type ILibraryCreateSeriesResponse = ILibraryId;
+export type ILibraryListResponse = ILibraryList;
+export type ILibraryAddResponse = ILibraryId;
+export type ILibraryDetailResponse = ILibraryDetail;
 export type IRemotePopularResponse = IRemoteList;
 export type IRemoteSearchResponse = IRemoteList;
 export type IRemoteSeriesResponse = IRemoteDetail;

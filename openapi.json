@@ -7,10 +7,34 @@
   },
   "paths": {
     "/api/library": {
-      "post": {
-        "operationId": "LibraryCreateSeries",
+      "get": {
+        "operationId": "LibraryList",
         "tags": ["Library"], 
-        "description": "Adds a series to the library.",
+        "description": "Retrieves each series.",
+        "parameters": [{
+          "in": "query",
+          "name": "pageNumber",
+          "description": "The page number.",
+          "required": false,
+          "schema": {"type": "number", "minimum": 1}
+        }],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/LibraryList"}
+              }
+            }
+          },
+          "400": {"$ref": "#/components/responses/BadRequest"},
+          "500": {"$ref": "#/components/responses/InternalServerError"}
+        }
+      },
+      "post": {
+        "operationId": "LibraryAdd",
+        "tags": ["Library"], 
+        "description": "Adds the series.",
         "parameters": [{
           "in": "query",
           "name": "url",
@@ -28,6 +52,33 @@
             }
           },
           "400": {"$ref": "#/components/responses/BadRequest"},
+          "500": {"$ref": "#/components/responses/InternalServerError"}
+        }
+      }
+    },
+    "/api/library/{id}": {
+      "get": {
+        "operationId": "LibraryDetail",
+        "tags": ["Library"], 
+        "description": "Retrieves the series.",
+        "parameters": [{
+          "in": "path",
+          "name": "id",
+          "description": "The series identifier.",
+          "required": true,
+          "schema": {"type": "string"}
+        }],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/LibraryDetail"}
+              }
+            }
+          },
+          "400": {"$ref": "#/components/responses/BadRequest"},
+          "404": {"$ref": "#/components/responses/NotFound"},
           "500": {"$ref": "#/components/responses/InternalServerError"}
         }
       }
@@ -68,7 +119,7 @@
       "get": {
         "operationId": "RemoteSearch",
         "tags": ["Remote"],
-        "description": "Searches for series.",
+        "description": "Searches series.",
         "parameters": [{
           "in": "query",
           "name": "providerName",
@@ -132,7 +183,7 @@
       "get": {
         "operationId": "RemoteStart",
         "tags": ["Remote"],
-        "description": "Starts a session for the chapter.",
+        "description": "Starts a session.",
         "parameters": [{
           "in": "query",
           "name": "url",
@@ -172,14 +223,14 @@
         }
       }
     },
-    "/api/session/{sessionId}": {
+    "/api/session/{id}": {
       "get": {
         "operationId": "SessionPage",
         "tags": ["Session"],
         "description": "Retrieves the session page.",
         "parameters": [{
           "in": "path",
-          "name": "sessionId",
+          "name": "id",
           "description": "The session identifier.",
           "required": true,
           "schema": {"type": "string"}
