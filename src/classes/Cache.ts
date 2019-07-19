@@ -22,7 +22,7 @@ export class Cache {
     } else if (typeof this._values[key] !== 'string') {
       return await this._values[key] as T;
     } else try {
-      return await app.fileManager.readJsonAsync<T>(path.join(this._currentPath, String(this._values[key])));
+      return await app.core.file.readJsonAsync<T>(path.join(this._currentPath, String(this._values[key])));
     } catch (error) {
       if (error && error.code === 'ENOENT') return await this._createAsync(key, refreshAsync);
       throw error;
@@ -31,7 +31,7 @@ export class Cache {
 
   async initAsync() {
     try {
-      this._initPromise = this._initPromise || app.fileManager.deleteAsync(this._currentPath);
+      this._initPromise = this._initPromise || app.core.file.deleteAsync(this._currentPath);
       await this._initPromise;
     } catch (error) {
       this._initPromise = undefined;
@@ -44,7 +44,7 @@ export class Cache {
       const valuePromise = this._values[key] = refreshAsync();
       const value = await valuePromise;
       const id = app.createUniqueId();
-      await app.fileManager.writeJsonAsync(path.join(this._currentPath, id), value);
+      await app.core.file.writeJsonAsync(path.join(this._currentPath, id), value);
       this._values[key] = id;
       this._updateTimeout(key, this._currentTimeout);
       return value;
@@ -54,13 +54,6 @@ export class Cache {
     }
   }
 
-  private async _removeAsync(id: string) {
-    try {
-      await app.fileManager.deleteAsync(path.join(this._currentPath, id));
-    } catch (error) {
-      app.errorManager.trace(error);
-    }
-  }
 
   private _updateTimeout(key: string, timeout: number) {
     clearTimeout(this._timeouts[key]);
@@ -68,7 +61,15 @@ export class Cache {
       const id = this._values[key];
       delete this._timeouts[key];
       delete this._values[key];
-      this._removeAsync(String(id));
+      cleanAsync(path.join(this._currentPath, String(id)));
     }, timeout);
+  }
+}
+
+async function cleanAsync(path: string) {
+  try {
+    await app.core.file.deleteAsync(path);
+  } catch (error) {
+    app.core.error.trace(error);
   }
 }
