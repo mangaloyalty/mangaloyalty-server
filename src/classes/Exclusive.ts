@@ -20,6 +20,6 @@ async function handlerAsync<T>(runAsync: () => Promise<T>) {
   try {
     return {value: await runAsync()};
   } catch (error) {
-    return {error: app.errorManager.create(error)};
+    return {error: app.core.error.create(error)};
   }
 }

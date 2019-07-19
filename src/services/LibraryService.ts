@@ -15,7 +15,7 @@ export class LibraryService {
     const remoteDetail = await remoteAsync(url);
     const libraryDetail = createDetail(remoteDetail);
     synchronize(libraryDetail, remoteDetail);
-    await app.fileManager.writeJsonAsync(path.join(this._currentPath, libraryDetail.id, 'series.json'), libraryDetail);
+    await app.core.file.writeJsonAsync(path.join(this._currentPath, libraryDetail.id, 'series.json'), libraryDetail);
     return libraryDetail.id;
   }
 }
