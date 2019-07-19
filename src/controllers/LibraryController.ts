@@ -31,4 +31,14 @@ export class LibraryController {
   async listAsync(model: app.ILibraryListContext): Promise<api.Result<app.ILibraryListResponse>> {
     return api.json(await app.core.library.listAsync(model.query.pageNumber));
   }
+
+  @api.createOperation('LibraryUpdate')
+  async updateAsync(model: app.ILibraryUpdateContext): Promise<api.Result<app.ILibraryUpdateResponse>> {
+    const detail = await app.core.library.updateAsync(model.path.id);
+    if (detail) {
+      return api.json(detail);
+    } else {
+      return api.status(404);
+    }
+  }
 }

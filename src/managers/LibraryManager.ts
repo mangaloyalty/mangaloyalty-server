@@ -34,19 +34,35 @@ export class LibraryManager {
   }
 
   async listAsync(pageNumber?: number) {
-    // Initialize the series details.
     const ids = await app.core.file.readdirAsync(app.settings.libraryCore);
     const seriesPaths = ids.filter((id) => !id.startsWith('_')).map((id) => path.join(app.settings.libraryCore, id, app.settings.librarySeriesName));
-    const details = await Promise.all(seriesPaths.map((seriesPath) => app.core.file.readJsonAsync<app.ILibraryDetail>(seriesPath)));
-    details.sort((a, b) => (b.lastChapterAddedAt || b.addedAt) - (a.lastChapterAddedAt || a.addedAt));
-
-    // Initialize the series view.
-    const startIndex = (pageNumber || 1 - 1) * app.settings.librarySeriesPerPage;
-    const stopIndex = startIndex + app.settings.librarySeriesPerPage;
-    const hasMorePages = details.length > stopIndex;
-    const items = details.slice(startIndex, stopIndex).map((detail) => ({id: detail.id, image: detail.series.image, title: detail.series.title}));
-    return {hasMorePages, items};
+    const results = await Promise.all(seriesPaths.map((seriesPath) => app.core.file.readJsonAsync<app.ILibraryDetail>(seriesPath)));
+    results.sort((a, b) => (b.lastChapterAddedAt || b.addedAt) - (a.lastChapterAddedAt || a.addedAt));
+    return createPageResults(results, pageNumber);
   }
+
+  async updateAsync(id: string) {
+    try {
+      const seriesPath = path.join(app.settings.libraryCore, id, app.settings.librarySeriesName);
+      const detail = await app.core.file.readJsonAsync<app.ILibraryDetail>(seriesPath);
+      const remote = await remoteAsync(detail.series.url);
+      detail.series = createDetailSeries(remote);
+      synchronize(detail, remote);
+      await app.core.file.writeJsonAsync(seriesPath, detail);
+      return detail;
+    } catch (error) {
+      if (error && error.code === 'ENOENT') return undefined;
+      throw error;
+    }
+  }
+}
+
+function createPageResults(results: app.ILibraryDetail[], pageNumber?: number) {
+  const startIndex = ((pageNumber || 1) - 1) * app.settings.librarySeriesPerPage;
+  const stopIndex = startIndex + app.settings.librarySeriesPerPage;
+  const hasMorePages = results.length > stopIndex;
+  const items = results.slice(startIndex, stopIndex).map((detail) => ({id: detail.id, image: detail.series.image, title: detail.series.title}));
+  return {hasMorePages, items};
 }
 
 function createDetail(detail: app.IRemoteDetail): app.ILibraryDetail {
