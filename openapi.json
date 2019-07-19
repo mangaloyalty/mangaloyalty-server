@@ -6,6 +6,32 @@
     "version": "0.0.0"
   },
   "paths": {
+    "/api/library": {
+      "post": {
+        "operationId": "LibraryCreateSeries",
+        "tags": ["Library"], 
+        "description": "Adds a series to the library.",
+        "parameters": [{
+          "in": "query",
+          "name": "url",
+          "description": "The series url.",
+          "required": true,
+          "schema": {"$ref": "#/components/schemas/ProviderSeriesUrl"}
+        }],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/LibraryId"}
+              }
+            }
+          },
+          "400": {"$ref": "#/components/responses/BadRequest"},
+          "500": {"$ref": "#/components/responses/InternalServerError"}
+        }
+      }
+    },
     "/api/remote/popular": {
       "get": {
         "operationId": "RemotePopular",
@@ -29,16 +55,12 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": {"$ref": "#/components/schemas/SeriesList"}
+                "schema": {"$ref": "#/components/schemas/RemoteList"}
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          }
+          "400": {"$ref": "#/components/responses/BadRequest"},
+          "500": {"$ref": "#/components/responses/InternalServerError"}
         }
       }
     },
@@ -71,16 +93,12 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": {"$ref": "#/components/schemas/SeriesList"}
+                "schema": {"$ref": "#/components/schemas/RemoteList"}
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          }
+          "400": {"$ref": "#/components/responses/BadRequest"},
+          "500": {"$ref": "#/components/responses/InternalServerError"}
         }
       }
     },
@@ -101,18 +119,12 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SeriesDetail"
-                }
+                "schema": {"$ref": "#/components/schemas/RemoteDetail"}
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          }
+          "400": {"$ref": "#/components/responses/BadRequest"},
+          "500": {"$ref": "#/components/responses/InternalServerError"}
         }
       }
     },
@@ -133,18 +145,12 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SessionListItem"
-                }
+                "schema": {"$ref": "#/components/schemas/SessionListItem"}
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          }
+          "400": {"$ref": "#/components/responses/BadRequest"},
+          "500": {"$ref": "#/components/responses/InternalServerError"}
         }
       }
     },
@@ -158,13 +164,11 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {"$ref": "#/components/schemas/SessionListItem"}
-                }
+                "schema": {"$ref": "#/components/schemas/SessionList"}
               }
             }
-          }
+          },
+          "500": {"$ref": "#/components/responses/InternalServerError"}
         }
       }
     },
@@ -178,7 +182,7 @@
           "name": "sessionId",
           "description": "The session identifier.",
           "required": true,
-          "schema": {"type": "number"}
+          "schema": {"type": "string"}
         }, {
           "in": "query",
           "name": "pageNumber",
@@ -195,15 +199,9 @@
               }
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          }
+          "400": {"$ref": "#/components/responses/BadRequest"},
+          "404": {"$ref": "#/components/responses/NotFound"},
+          "500": {"$ref": "#/components/responses/InternalServerError"}
         }
       }
     }
@@ -239,18 +237,79 @@
           {"type": "string", "pattern": "^https:\\/\\/fanfox\\.net\\/manga\\/[^\\/]+\\/(v[0-9]+\\/)?c[0-9]+(\\.[0-9]+)?\\/1.html$"}
         ]
       },
-      "SeriesList": {
+      "LibraryId": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {"type": "string"}
+        }
+      },
+      "LibraryList": {
         "type": "object",
         "required": ["hasMorePages", "items"],
         "properties": {
           "hasMorePages": {"type": "boolean"},
-          "items": {
-            "type": "array",
-            "items": {"$ref": "#/components/schemas/SeriesListItem"}
-          }
+          "items": {"type": "array", "items": {"$ref": "#/components/schemas/LibraryListItem"}}
         }
       },
-      "SeriesListItem": {
+      "LibraryListItem": {
+        "type": "object",
+        "required": ["id", "image", "title"],
+        "properties": {
+          "id": {"type": "string"},
+          "image": {"type": "string"},
+          "title": {"type": "string"}
+        }
+      },
+      "LibraryDetail": {
+        "type": "object",
+        "required": ["id", "addedAt", "lastSyncAt", "chapters", "series"],
+        "properties": {
+          "id": {"type": "string"},
+          "addedAt": {"type": "number"},
+          "lastChapterAddedAt": {"type": "number"},
+          "lastPageReadAt": {"type": "number"},
+          "lastSyncAt": {"type": "number"},
+          "chapters": {"type": "array", "items": {"$ref": "#/components/schemas/LibraryDetailChapter"}},
+          "series": {"$ref": "#/components/schemas/LibraryDetailSeries"}
+        }
+      },
+      "LibraryDetailChapter": {
+        "type": "object",
+        "required": ["id", "addedAt", "title", "url"],
+        "properties": {
+          "id": {"type": "string"},
+          "addedAt": {"type": "number"},
+          "deletedAt": {"type": "number"},
+          "storedAt": {"type": "number"},
+          "pageCount": {"type": "number"},
+          "pageReadNumber": {"type": "number"},
+          "title": {"type": "string"},
+          "url": {"type": "string"}
+        }
+      },
+      "LibraryDetailSeries": {
+        "type": "object",
+        "required": ["authors", "genres", "image", "isCompleted", "title", "url"],
+        "properties": {
+          "authors": {"type": "array", "items": {"type": "string"}},
+          "genres": {"type": "array", "items": {"type": "string"}},
+          "image": {"type": "string"},
+          "isCompleted": {"type": "boolean"},
+          "summary": {"type": "string"},
+          "title": {"type": "string"},
+          "url": {"type": "string"}
+        }
+      },
+      "RemoteList": {
+        "type": "object",
+        "required": ["hasMorePages", "items"],
+        "properties": {
+          "hasMorePages": {"type": "boolean"},
+          "items": {"type": "array", "items": {"$ref": "#/components/schemas/RemoteListItem"}}
+        }
+      },
+      "RemoteListItem": {
         "type": "object",
         "required": ["image", "title", "url"],
         "properties": {
@@ -259,20 +318,21 @@
           "url": {"type": "string"}
         }
       },
-      "SeriesDetail": {
+      "RemoteDetail": {
         "type": "object",
-        "required": ["authors", "chapters", "genres", "image", "isCompleted", "title"],
+        "required": ["authors", "chapters", "genres", "image", "isCompleted", "title", "url"],
         "properties": {
           "authors": {"type": "array", "items": {"type": "string"}},
-          "chapters": {"type": "array", "items": {"$ref": "#/components/schemas/SeriesDetailChapter"}},
+          "chapters": {"type": "array", "items": {"$ref": "#/components/schemas/RemoteDetailChapter"}},
           "genres": {"type": "array", "items": {"type": "string"}},
           "image": {"type": "string"},
           "isCompleted": {"type": "boolean"},
           "summary": {"type": "string"},
-          "title": {"type": "string"}
+          "title": {"type": "string"},
+          "url": {"type": "string"}
         }
       },
-      "SeriesDetailChapter": {
+      "RemoteDetailChapter": {
         "type": "object",
         "required": ["title", "url"],
         "properties": {
@@ -288,7 +348,7 @@
         "type": "object",
         "required": ["id", "pageCount", "url"],
         "properties": {
-          "id": {"type": "number"},
+          "id": {"type": "string"},
           "pageCount": {"type": "number"},
           "url": {"type": "string"}
         }

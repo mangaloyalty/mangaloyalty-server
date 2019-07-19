@@ -1,6 +1,6 @@
 import * as app from '..';
-const timeouts: {[id: number]: NodeJS.Timeout} = {};
-const values: {[id: number]: app.Session} = {};
+const timeouts: {[id: string]: NodeJS.Timeout} = {};
+const values: {[id: string]: app.Session} = {};
 
 export const sessionManager = {
   add(session: app.Session) {
@@ -9,7 +9,7 @@ export const sessionManager = {
     updateTimeout(session.id);
   },
 
-  get(id: number) {
+  get(id: string) {
     if (!values[id]) return undefined;
     updateTimeout(id);
     return values[id];
@@ -20,7 +20,7 @@ export const sessionManager = {
   }
 };
 
-function updateTimeout(id: number) {
+function updateTimeout(id: string) {
   clearTimeout(timeouts[id]);
   timeouts[id] = setTimeout(() => {
     delete timeouts[id];

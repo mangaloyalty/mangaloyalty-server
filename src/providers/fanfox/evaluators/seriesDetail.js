@@ -6,7 +6,8 @@ function evaluator() {
   const isCompleted = getIsCompleted(document.querySelector('.detail-info span.detail-info-right-title-tip'));
   const summary = getSummary(document.querySelector('.detail-info p.detail-info-right-content'));
   const title = getTitle(document.querySelector('.detail-info span.detail-info-right-title-font'));
-  return {authors, chapters, genres, image, isCompleted, summary, title};
+  const url = location.href;
+  return {authors, chapters, genres, image, isCompleted, summary, title, url};
 
   /**
    * @param {NodeListOf<HTMLAnchorElement>?} authorNodes

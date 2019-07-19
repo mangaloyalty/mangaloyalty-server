@@ -41,8 +41,8 @@ export class Cache {
 
   private async _createAsync<T>(key: string, refreshAsync: () => Promise<T>) {
     try {
-      this._values[key] = refreshAsync();
-      const value = await this._values[key];
+      const valuePromise = this._values[key] = refreshAsync();
+      const value = await valuePromise;
       const id = app.createUniqueId();
       await app.fileManager.writeJsonAsync(path.join(this._currentPath, id), value);
       this._values[key] = id;

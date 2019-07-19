@@ -6,36 +6,28 @@ FILE STRUCTURE:
 SERIES.JSON:
 
     {
-      id: Guid  
+      id: Guid
+      addedAt: Date                         // when was the series added?
       lastChapterAddedAt: Date              // when was the last chapter added?
       lastCheckedAt: Date                   // when was the series checked against online sources?
-      metadata: openapi:ISeriesDetail       // providerName can be derived
+      lastPageReadAt: Date                  // when did this user last read a page? happens when `pageNumber` is updated, one should always match `lastPageReadAt`
+
       automation: {
         frequency: Frequency                // at which frequency should the online check be automated?
         storeAll: boolean                   // should new chapters be stored automatically?
       }
       chapters: {                           // chapters are added from each metadata update, but never removed. So, deleted chapters are visible!
-        [url: string]: {
+        [url: string]: { // swap url and id so that there is never a collision ever.
           addedAt: Date                     // when was this chapter added? one should always match `lastChapterAddedAt`
           deletedAt?: Date                  // when was this chapter found to have been deleted?
           pageCount?: number                // set when session is a opened, if ever
+          pageNumber?: number               // which is the last page read?
           id: Guid                          // generated identifier for this chapter
           stored: boolean                   // has chapter been made available locally?
           title: string                     // backup in case chapter gets deleted from metadata
         }
-      }
-      users: {
-        [name: string]: {                   // default user 'admin' to get everything rolling w/o implementing auth
-          addedAt: Date                     // when did this user add this series?
-          lastPageReadAt?: Date             // when did this user last read a page for this series? or did not open yet? (start reading/rediscover)
-          chapters: {
-            [id: Guid]: {                   // when chapterId exists, user has opened the chapter (continue reading/completed)
-              pageNumber: number            // which is the last page read?
-              pageReadAt: Date              // when did this user last read a page? happens when `pageNumber` is updated, one should always match `lastPageReadAt`
-            }
-          }
-        }
-      }[]
+      },
+      series: openapi:ISeriesDetail       // providerName can be derived, but do delete the chapters. its so unnecessary.
     }
 
 CHAPTER/PAGE: 

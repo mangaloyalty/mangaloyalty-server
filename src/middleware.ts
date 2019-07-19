@@ -17,6 +17,7 @@ openapiData.info.version = packageData.version;
 
 // Initialize the openapi router.
 module.exports = api.createCore(openapiData)
+  .controller(new app.LibraryController())
   .controller(new app.RemoteController())
   .controller(new app.SessionController())
   .router();

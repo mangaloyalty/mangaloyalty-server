@@ -13,7 +13,7 @@ export const fileManager = {
 
   async writeJsonAsync<T>(relativePath: string, value: T) {
     const absolutePath = path.resolve(app.settings.basePath, relativePath);
-    await fs.ensureFile(absolutePath);
+    await fs.ensureDir(path.dirname(absolutePath));
     await fs.writeJson(absolutePath, value, {spaces: 2});
   }
 };
