@@ -12,7 +12,7 @@ router.use(cors());
 router.get('/', (_, res) => res.redirect('/api/'));
 router.use('/api', express.static(`${__dirname}/public`));
 router.use('/api', express.static(swaggerUi.absolutePath()));
-router.use(require('./dist/middleware'));
+router.use(require('./dist/launch'));
 
 // Initialize the server.
 if (require.main && require.main.filename.startsWith(__dirname)) {
