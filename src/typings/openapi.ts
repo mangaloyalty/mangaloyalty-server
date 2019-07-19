@@ -9,37 +9,82 @@ export type IProviderName = "batoto" | "fanfox";
 export type IProviderSeriesUrl = string;
 export type IProviderChapterUrl = string;
 export type ISessionList = ISessionListItem[];
-export type ISessionListResponse = ISessionListItem[];
 
-export interface ISeriesList {
-  hasMorePages: boolean;
-  items: ISeriesListItem[];
+export interface ILibraryId {
+  id: string;
 }
-export interface ISeriesListItem {
+export interface ILibraryList {
+  hasMorePages: boolean;
+  items: ILibraryListItem[];
+}
+export interface ILibraryListItem {
+  id: string;
   image: string;
+  title: string;
+}
+export interface ILibraryDetail {
+  id: string;
+  addedAt: number;
+  lastChapterAddedAt?: number;
+  lastPageReadAt?: number;
+  lastSyncAt: number;
+  chapters: ILibraryDetailChapter[];
+  series: ILibraryDetailSeries;
+}
+export interface ILibraryDetailChapter {
+  id: string;
+  addedAt: number;
+  deletedAt?: number;
+  storedAt?: number;
+  pageCount?: number;
+  pageReadNumber?: number;
   title: string;
   url: string;
 }
-export interface ISeriesDetail {
+export interface ILibraryDetailSeries {
   authors: string[];
-  chapters: ISeriesDetailChapter[];
   genres: string[];
   image: string;
   isCompleted: boolean;
   summary?: string;
   title: string;
+  url: string;
 }
-export interface ISeriesDetailChapter {
+export interface IRemoteList {
+  hasMorePages: boolean;
+  items: IRemoteListItem[];
+}
+export interface IRemoteListItem {
+  image: string;
+  title: string;
+  url: string;
+}
+export interface IRemoteDetail {
+  authors: string[];
+  chapters: IRemoteDetailChapter[];
+  genres: string[];
+  image: string;
+  isCompleted: boolean;
+  summary?: string;
+  title: string;
+  url: string;
+}
+export interface IRemoteDetailChapter {
   title: string;
   url: string;
 }
 export interface ISessionListItem {
-  id: number;
+  id: string;
   pageCount: number;
   url: string;
 }
 export interface ISessionPage {
   image: string;
+}
+export interface ILibraryCreateSeriesContext {
+  query: {
+    url: IProviderSeriesUrl;
+  };
 }
 export interface IRemotePopularContext {
   query: {
@@ -66,15 +111,17 @@ export interface IRemoteStartContext {
 }
 export interface ISessionPageContext {
   path: {
-    sessionId: number;
+    sessionId: string;
   };
   query: {
     pageNumber: number;
   };
 }
 
-export type IRemotePopularResponse = ISeriesList;
-export type IRemoteSearchResponse = ISeriesList;
-export type IRemoteSeriesResponse = ISeriesDetail;
+export type ILibraryCreateSeriesResponse = ILibraryId;
+export type IRemotePopularResponse = IRemoteList;
+export type IRemoteSearchResponse = IRemoteList;
+export type IRemoteSeriesResponse = IRemoteDetail;
 export type IRemoteStartResponse = ISessionListItem;
+export type ISessionListResponse = ISessionList;
 export type ISessionPageResponse = ISessionPage;

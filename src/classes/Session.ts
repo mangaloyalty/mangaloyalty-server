@@ -1,5 +1,4 @@
 import * as app from '..';
-let previousId = 0;
 
 export class Session implements app.ISessionListItem {
   private readonly _images: app.FutureMap<string>;
@@ -7,7 +6,7 @@ export class Session implements app.ISessionListItem {
   constructor(images: app.FutureMap<string>, pageCount: number, url: string) {
     Object.defineProperty(this, '_images', {enumerable: false, writable: true});
     this._images = images;
-    this.id = ++previousId;
+    this.id = app.createUniqueId();
     this.pageCount = pageCount;
     this.url = url;
   }
@@ -17,7 +16,7 @@ export class Session implements app.ISessionListItem {
     return await this._images.getAsync(String(pageNumber));
   }
 
-  readonly id: number;
+  readonly id: string;
   readonly pageCount: number;
   readonly url: string;
 }
