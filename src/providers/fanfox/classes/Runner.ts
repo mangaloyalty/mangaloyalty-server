@@ -25,15 +25,15 @@ export class Runner {
 
   private async _runAsync() {
     try {
-      await app.browserManager.pageAsync(async (page) => {
+      await app.core.browser.pageAsync(async (page) => {
         const watch = new app.Watch(page);
         await page.goto(this._url, {waitUntil: 'domcontentloaded'});
         await ensureAdultAsync(page);
         while (await this._stepAsync(page, watch));
       });
     } catch (error) {
-      this._images.reject(app.errorManager.create(error));
-      this._session.reject(app.errorManager.create(error)); 
+      this._images.reject(app.core.error.create(error));
+      this._session.reject(app.core.error.create(error)); 
     }
   }
 

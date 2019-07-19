@@ -11,7 +11,7 @@ export const fanfoxProvider = {
   },
 
   async popularAsync(pageNumber?: number) {
-    return await app.browserManager.pageAsync(async (page) => {
+    return await app.core.browser.pageAsync(async (page) => {
       const watch = new app.Watch(page);
       await page.goto(`${baseUrl}/directory/${pageNumber && pageNumber > 1 ? `${pageNumber}.html` : ''}`, {waitUntil: 'domcontentloaded'});
       const results = await page.evaluate(seriesList.evaluator);
@@ -21,7 +21,7 @@ export const fanfoxProvider = {
   },
 
   async searchAsync(title: string, pageNumber?: number) {
-    return await app.browserManager.pageAsync(async (page) => {
+    return await app.core.browser.pageAsync(async (page) => {
       const watch = new app.Watch(page);
       await page.goto(`${baseUrl}/search?title=${encodeURIComponent(title)}${pageNumber && pageNumber > 1 ? `&page=${pageNumber}` : ''}`, {waitUntil: 'domcontentloaded'});
       const results = await page.evaluate(seriesList.evaluator);
@@ -31,7 +31,7 @@ export const fanfoxProvider = {
   },
 
   async seriesAsync(url: string) {
-    return await app.browserManager.pageAsync(async (page) => {
+    return await app.core.browser.pageAsync(async (page) => {
       const watch = new app.Watch(page);
       await page.goto(url, {waitUntil: 'domcontentloaded'});
       await ensureAdultAsync(page);
@@ -44,7 +44,7 @@ export const fanfoxProvider = {
   async startAsync(url: string) {
     const runner = new Runner(url).run();
     const session = await runner.getAsync();
-    app.sessionManager.add(session);
+    app.core.session.add(session);
     return session;
   }
 };
