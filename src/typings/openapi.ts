@@ -101,6 +101,11 @@ export interface ILibraryDetailContext {
     id: string;
   };
 }
+export interface ILibraryUpdateContext {
+  path: {
+    id: string;
+  };
+}
 export interface IRemotePopularContext {
   query: {
     providerName: IProviderName;
@@ -136,6 +141,7 @@ export interface ISessionPageContext {
 export type ILibraryListResponse = ILibraryList;
 export type ILibraryCreateResponse = ILibraryId;
 export type ILibraryDetailResponse = ILibraryDetail;
+export type ILibraryUpdateResponse = ILibraryDetail;
 export type IRemotePopularResponse = IRemoteList;
 export type IRemoteSearchResponse = IRemoteList;
 export type IRemoteSeriesResponse = IRemoteDetail;

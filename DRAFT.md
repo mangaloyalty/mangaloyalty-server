@@ -34,12 +34,6 @@ PUT /library
   - server refreshes metadata for ALL series
   - return result AS GET
 
-
-PUT /library/{seriesId}
-  200, 404
-  - server refreshes metadata for THIS series
-  - return result as GET
-
 PATCH /library/{seriesId} ({automationFrequency, automationStoreAll})
   200, 404
   - sets new options for series
