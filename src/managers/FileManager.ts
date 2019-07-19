@@ -7,6 +7,12 @@ export class FileManager {
     await fs.remove(path.join(app.settings.basePath, relativePath));
   }
   
+  async moveAsync(relativeFromPath: string, relativeToPath: string) {
+    const absoluteFromPath = path.join(app.settings.basePath, relativeFromPath);
+    const absoluteToPath = path.join(app.settings.basePath, relativeToPath);
+    await fs.move(absoluteFromPath, absoluteToPath);
+  }
+
   async readdirAsync(relativePath: string) {
     const absolutePath = path.join(app.settings.basePath, relativePath);
     await fs.ensureDir(absolutePath);

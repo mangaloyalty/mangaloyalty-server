@@ -2,10 +2,19 @@ import * as api from 'express-openapi-json';
 import * as app from '..';
 
 export class LibraryController {
-  @api.createOperation('LibraryAdd')
-  async addAsync(model: app.ILibraryAddContext): Promise<api.Result<app.ILibraryAddResponse>> {
-    const id = await app.core.library.addAsync(model.query.url);
+  @api.createOperation('LibraryCreate')
+  async createAsync(model: app.ILibraryCreateContext): Promise<api.Result<app.ILibraryCreateResponse>> {
+    const id = await app.core.library.createAsync(model.query.url);
     return api.json({id});
+  }
+
+  @api.createOperation('LibraryDelete')
+  async deleteAsync(model: app.ILibraryDeleteContext): Promise<api.Result<app.ILibraryDetailResponse>> {
+    if (await app.core.library.deleteAsync(model.path.id)) {
+      return api.status(200);
+    } else {
+      return api.status(404);
+    }
   }
 
   @api.createOperation('LibraryDetail')

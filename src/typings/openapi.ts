@@ -86,9 +86,14 @@ export interface ILibraryListContext {
     pageNumber?: number;
   };
 }
-export interface ILibraryAddContext {
+export interface ILibraryCreateContext {
   query: {
     url: IProviderSeriesUrl;
+  };
+}
+export interface ILibraryDeleteContext {
+  path: {
+    id: string;
   };
 }
 export interface ILibraryDetailContext {
@@ -129,7 +134,7 @@ export interface ISessionPageContext {
 }
 
 export type ILibraryListResponse = ILibraryList;
-export type ILibraryAddResponse = ILibraryId;
+export type ILibraryCreateResponse = ILibraryId;
 export type ILibraryDetailResponse = ILibraryDetail;
 export type IRemotePopularResponse = IRemoteList;
 export type IRemoteSearchResponse = IRemoteList;
