@@ -1,9 +1,6 @@
-import * as app from '..';
-
-export interface ISession {
-  expire(): void;
-  getData(): app.ISessionListItem;
-  getImageAsync(pageNumber: number): Promise<string | undefined>;
-  readonly id: string;
-  readonly isValid: boolean;
+export interface IAdaptor {
+  expire(pageNumber: number): void;
+  getAsync(pageNumber: number): Promise<string>;
+  setAsync(pageNumber: number, value: string): Promise<void>;
+  successAsync(): Promise<void>;
 }

@@ -20,6 +20,7 @@ export class Runner {
         await page.goto(this._url, {waitUntil: 'domcontentloaded'});
         await ensureAdultAsync(page);
         while (await this._stepAsync(page, watch));
+        await this._session.successAsync();
       });
     } catch (error) {
       this._session.expire(app.core.error.create(error));

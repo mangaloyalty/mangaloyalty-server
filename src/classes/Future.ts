@@ -4,7 +4,7 @@ export class Future<T> {
   private _hasResolve?: boolean;
   private _reject?: Error;
   private _resolve?: T;
-  private _resolver: (error?: Error, result?: T) => void;
+  private _resolver: (error?: Error, value?: T) => void;
 
   constructor(timeout = 0) {
     this._resolver = () => undefined;
@@ -33,22 +33,22 @@ export class Future<T> {
     this._resolver(error);
   }
 
-  resolve(result: T) {
+  resolve(value: T) {
     if (this._hasReject || this._hasResolve) return;
     this._hasResolve = true;
-		this._resolve = result;
-    this._resolver(undefined, result);
+		this._resolve = value;
+    this._resolver(undefined, value);
   }
   
-  private _ensure(resolve: (result: T) => void, reject: (error?: Error) => void) {
+  private _ensure(resolve: (value: T) => void, reject: (error?: Error) => void) {
     const previousResolver = this._resolver;
-    this._resolver = (error, result) => {
+    this._resolver = (error, value) => {
       if (error) {
         previousResolver(error);
         reject(error);
       } else {
-        previousResolver(error, result);
-        resolve(result!);
+        previousResolver(error, value);
+        resolve(value!);
       }
     };
   }

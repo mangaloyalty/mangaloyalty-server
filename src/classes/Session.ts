@@ -1,18 +1,16 @@
 import * as app from '..';
 
-export class Session implements app.ISession {
-  private readonly _cache: app.Cache;
+export class Session {
+  private readonly _adaptor: app.IAdaptor;
   private readonly _id: string;
-  private readonly _images: app.FutureMap<string>;
   private readonly _isActive: app.Future<void>;
   private readonly _url: string;
   private _hasReject?: boolean;
   private _pageCount?: number;
 
-  constructor(cache: app.Cache, id: string, url: string) {
-    this._cache = cache;
+  constructor(adaptor: app.IAdaptor, id: string, url: string) {
+    this._adaptor = adaptor;
     this._id = id;
-    this._images = new app.FutureMap();
     this._isActive = new app.Future();
     this._url = url;
   }
@@ -20,9 +18,8 @@ export class Session implements app.ISession {
   expire(error?: Error) {
     if (this._hasReject) return;
     this._hasReject = true;
-    this._images.reject(error);
     this._isActive.reject(error);
-    for (let i = 1; i <= (this._pageCount || 0); i++) this._cache.expire(`${this._id}/${i}`);
+    for (let i = 1; i <= (this._pageCount || 0); i++) this._adaptor.expire(i);
   }
 
   getData() {
@@ -34,9 +31,7 @@ export class Session implements app.ISession {
 
   async getImageAsync(pageNumber: number) {
     if (this._hasReject || pageNumber <= 0 || pageNumber > (this._pageCount || 0)) return;
-    const key = await this._images.getAsync(String(pageNumber));
-    const image = await this._cache.getAsync<string>(key);
-    return image;
+    return await this._adaptor.getAsync(pageNumber);
   }
 
   get id() {
@@ -44,20 +39,23 @@ export class Session implements app.ISession {
   }
 
   get isValid() {
-    return !this._hasReject && Boolean(this._pageCount);
+    return Boolean(!this._hasReject && this._pageCount);
   }
 
   async setImageAsync(pageNumber: number, image: string) {
     if (this._hasReject || pageNumber <= 0 || pageNumber > (this._pageCount || 0)) return;
-    const key = `${this._id}/${pageNumber}`;
-    await this._cache.getOrAddAsync(key, () => image);
-    this._images.resolve(String(pageNumber), key);
+    await this._adaptor.setAsync(pageNumber, image);
   }
 
   setPageCount(pageCount: number) {
     if (this._hasReject) return;
     this._pageCount = this._pageCount || pageCount;
     this._isActive.resolve();
+  }
+
+  async successAsync() {
+    if (this._hasReject) return;
+    await this._adaptor.successAsync();
   }
 
   async waitAsync() {

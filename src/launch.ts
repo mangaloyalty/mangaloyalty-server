@@ -1,4 +1,3 @@
-// TECH: Session writes to file, then immediately reads, when it's concurrency. It's nicer if that's transient like cache (immediate result w/o additional read).
 // TECH: Watch should clear in-memory persistence (including puppeteer.Response) for non-required/processed responses, and clear buffers asap.
 // TECH: Cache responses should use file-to-response-streaming to avoid unnecessary serialization/deserialization steps.
 // TECH: Chapters should split images across files for an efficient file-to-response-stream and no in-memory necessary.
