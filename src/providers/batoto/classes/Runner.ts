@@ -19,6 +19,7 @@ export class Runner {
         const watch = new app.Watch(page);
         await page.goto(this._url, {waitUntil: 'domcontentloaded'});
         while (await this._stepAsync(page, watch));
+        await this._session.successAsync();
       });
     } catch (error) {
       this._session.expire(app.core.error.create(error));

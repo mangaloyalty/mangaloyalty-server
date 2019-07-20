@@ -29,19 +29,8 @@ ENUMERATORS:
 
 API:
 
-PUT /library
-  200
-  - server refreshes metadata for ALL series
-  - return result AS GET
-
-PATCH /library/{seriesId} ({automationFrequency, automationStoreAll})
-  200, 404
-  - sets new options for series
-  - empty result
-
 GET /library/{seriesId}/{chapterId}
   200, 404
-  - if automation.storeAll is set, this will be saved locally as well
   - creates session for chapter (either online or local)
   - return session id/pageCount
 
@@ -56,6 +45,18 @@ PUT /library/{seriesId}/{chapterId}
   - unlike a GET, this always stores the library locally as well (even if automation.storeAll == false).
   - return result as GET
   
+
+AUTOMATION::
+
+GET /library/{seriesId}/{chapterId}
+  200, 404
+  - if automation.storeAll is set, this will be saved locally as well
+
+PATCH /library/{seriesId} ({automationFrequency, automationStoreAll})
+  200, 404
+  - sets new options for series
+  - empty result
+
 PATCH /library/{seriesId}/{chapterId} ({pageNumber})
   200, 404
   - status update signal to update where you're currently reading
