@@ -2,28 +2,18 @@ import puppeteer from 'puppeteer';
 import * as app from '../../..';
 import * as chapter from '../evaluators/chapter';
 
-// TECH: Clean me up.
 export class Runner {
-  private readonly _images: app.FutureMap<string>;
-  private readonly _session: app.Future<app.Session>;
+  private readonly _session: app.Session;
   private readonly _url: string;
-  private _hasSession: boolean;
   private _pageNumber: number;
 
-  constructor(url: string) {
-    this._hasSession = false;
-    this._images = new app.FutureMap<string>();
+  constructor(session: app.Session, url: string) {
     this._pageNumber = 0;
-    this._session = new app.Future<app.Session>();
+    this._session = session;
     this._url = url;
   }
   
-  run() {
-    this._runAsync();
-    return this._session;
-  }
-
-  private async _runAsync() {
+  async runAsync() {
     try {
       await app.core.browser.pageAsync(async (page) => {
         const watch = new app.Watch(page);
@@ -32,27 +22,14 @@ export class Runner {
         while (await this._stepAsync(page, watch));
       });
     } catch (error) {
-      this._images.reject(app.core.error.create(error));
-      this._session.reject(app.core.error.create(error)); 
+      this._session.expire(app.core.error.create(error));
     }
   }
 
   private async _stepAsync(page: puppeteer.Page, watch: app.Watch) {
     const result = await page.evaluate(chapter.evaluatorAsync);
-
-    // Initialize the session.
-    if (!this._hasSession) {
-      this._session.resolve(new app.Session(this._images, result.pageCount, this._url));
-      this._hasSession = true;
-    }
-    
-    // Initialize the images.
-    for (const image of result.images) {
-      this._pageNumber++;
-      this._images.resolve(String(this._pageNumber), await watch.getAsync(image));
-    }
-
-    // Initialize the continuation.
+    this._session.setPageCount(result.pageCount);
+    for (const image of result.images) await this._session.setImageAsync(++this._pageNumber, await watch.getAsync(image));
     return result.shouldContinue;
   }
 }
@@ -60,5 +37,5 @@ export class Runner {
 async function ensureAdultAsync(page: puppeteer.Page) {
   const waitPromise = page.waitForNavigation();
   if (await page.evaluate(chapter.shouldWaitAdultEvaluator)) await waitPromise;
-  else waitPromise.catch(() => {});
+  else waitPromise.catch(() => undefined);
 }

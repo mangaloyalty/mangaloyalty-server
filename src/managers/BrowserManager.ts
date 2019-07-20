@@ -8,7 +8,7 @@ export class BrowserManager {
   private _numberOfPages: number;
 
   constructor() {
-    this._exitTimeout = setTimeout(() => {}, 0);
+    this._exitTimeout = setTimeout(() => undefined, 0);
     this._numberOfPages = 0;
   }
 
@@ -49,12 +49,12 @@ export class BrowserManager {
       const browser = await this._browser;
       if (!browser || this._numberOfPages) return;
       this._browser = undefined;
-      await cleanAsync(browser);
+      await closeWithTraceAsync(browser);
     }, app.settings.browserExitTimeout);
   }
 }
 
-async function cleanAsync(browser: puppeteer.Browser) {
+async function closeWithTraceAsync(browser: puppeteer.Browser) {
   try {
     await browser.close();
   } catch (error) {

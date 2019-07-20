@@ -13,9 +13,10 @@ export class LibraryManager {
 
   async deleteAsync(id: string) {
     try {
+      const seriesPath = path.join(app.settings.libraryCore, id);
       const deletePath = path.join(app.settings.libraryCore, `_${id}`);
-      await app.core.file.moveAsync(path.join(app.settings.libraryCore, id), deletePath);
-      await app.core.file.deleteAsync(deletePath);
+      await app.core.file.moveAsync(seriesPath, deletePath);
+      await app.core.file.removeAsync(deletePath);
       return true;
     } catch (error) {
       if (error && error.code === 'ENOENT') return false;

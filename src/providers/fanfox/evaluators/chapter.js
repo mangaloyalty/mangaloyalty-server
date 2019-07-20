@@ -13,7 +13,7 @@ async function evaluatorAsync() {
       const image = validateStrict(imageNode && imageNode.src);
       if (!/\/loading\.gif$/.test(image)) resolve([image]);
       else if (!imageNode) reject();
-      else imageNode.addEventListener('load', () => resolve(getImagesAsync(imageNode)));
+      else imageNode.addEventListener('load', () => resolve([validateStrict(imageNode && imageNode.src)]));
     });
   }
 

@@ -13,3 +13,4 @@ export * from './controllers/SessionController';
 export * from './providers/batoto/batotoProvider';
 export * from './providers/fanfox/fanfoxProvider';
 export * from './typings/openapi';
+export * from './typings/system';

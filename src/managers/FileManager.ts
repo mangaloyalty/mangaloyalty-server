@@ -3,10 +3,6 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 
 export class FileManager {
-  async deleteAsync(relativePath: string) {
-    await fs.remove(path.join(app.settings.basePath, relativePath));
-  }
-  
   async moveAsync(relativeFromPath: string, relativeToPath: string) {
     const absoluteFromPath = path.join(app.settings.basePath, relativeFromPath);
     const absoluteToPath = path.join(app.settings.basePath, relativeToPath);
@@ -21,6 +17,10 @@ export class FileManager {
 
   async readJsonAsync<T>(relativePath: string) {
     return await fs.readJson(path.join(app.settings.basePath, relativePath)) as T;
+  }
+
+  async removeAsync(relativePath: string) {
+    await fs.remove(path.join(app.settings.basePath, relativePath));
   }
 
   async writeJsonAsync<T>(relativePath: string, value: T) {

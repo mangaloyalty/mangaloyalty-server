@@ -1,14 +1,12 @@
 export class Future<T> {
   private readonly _timeout: number;
-  private _hasReject: boolean;
-  private _hasResolve: boolean;
+  private _hasReject?: boolean;
+  private _hasResolve?: boolean;
   private _reject?: Error;
   private _resolve?: T;
   private _resolver: (error?: Error, result?: T) => void;
 
   constructor(timeout = 0) {
-    this._hasReject = false;
-    this._hasResolve = false;
     this._resolver = () => undefined;
     this._timeout = timeout;
   }
@@ -45,12 +43,12 @@ export class Future<T> {
   private _ensure(resolve: (result: T) => void, reject: (error?: Error) => void) {
     const previousResolver = this._resolver;
     this._resolver = (error, result) => {
-      if (result) {
-        previousResolver(error, result);
-        resolve(result);
-      } else {
+      if (error) {
         previousResolver(error);
         reject(error);
+      } else {
+        previousResolver(error, result);
+        resolve(result!);
       }
     };
   }

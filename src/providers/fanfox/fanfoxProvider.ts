@@ -42,15 +42,14 @@ export const fanfoxProvider = {
   },
 
   async startAsync(url: string) {
-    const runner = new Runner(url).run();
-    const session = await runner.getAsync();
-    app.core.session.add(session);
-    return session;
+    const session = app.core.session.createWithCache(url);
+    new Runner(session, url).runAsync();
+    return await session.waitAsync();
   }
 };
 
 async function ensureAdultAsync(page: puppeteer.Page) {
   const waitPromise = page.waitForNavigation();
   if (await page.evaluate(seriesDetail.shouldWaitAdultEvaluator)) await waitPromise;
-  else waitPromise.catch(() => {});
+  else waitPromise.catch(() => undefined);
 }
