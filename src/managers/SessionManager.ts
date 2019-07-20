@@ -2,7 +2,7 @@ import * as app from '..';
 
 export class SessionManager {
   private readonly _timeouts: {[id: string]: NodeJS.Timeout};
-  private readonly _values: {[id: string]: app.ISession};
+  private readonly _values: {[id: string]: app.Session};
   private _cache?: app.Cache;
 
   constructor() {
@@ -10,13 +10,14 @@ export class SessionManager {
     this._values = {};
   }
 
-  add<T extends app.ISession>(session: T) {
+  add<T extends app.Session>(session: T) {
     this._values[session.id] = session;
     this._updateTimeout(session.id);
   }
 
   createWithCache(url: string) {
-    const session = new app.Session(this._cache || (this._cache = new app.Cache(app.settings.cacheSessionName)), app.createUniqueId(), url);
+    const adaptor = new app.CacheAdaptor(this._ensureCache(), app.createUniqueId());
+    const session = new app.Session(adaptor, app.createUniqueId(), url);
     this.add(session);
     return session;
   }
@@ -33,6 +34,12 @@ export class SessionManager {
       .map((session) => session.getData());
   }
   
+  private _ensureCache() {
+    if (this._cache) return this._cache;
+    this._cache = new app.Cache(app.settings.cacheSessionName);
+    return this._cache;
+  }
+
   private _updateTimeout(id: string) {
     clearTimeout(this._timeouts[id]);
     this._timeouts[id] = setTimeout(() => {
@@ -44,7 +51,7 @@ export class SessionManager {
   }
 }
 
-async function expireWithTrace(session: app.ISession) {
+function expireWithTrace(session: app.Session) {
   try {
     session.expire();
   } catch (error) {

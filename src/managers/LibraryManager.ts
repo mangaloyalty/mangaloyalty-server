@@ -47,6 +47,7 @@ export class LibraryManager {
       const seriesPath = path.join(app.settings.libraryCore, id, app.settings.librarySeriesName);
       const detail = await app.core.file.readJsonAsync<app.ILibraryDetail>(seriesPath);
       const remote = await remoteAsync(detail.series.url);
+      detail.lastSyncAt = Date.now();
       detail.series = createDetailSeries(remote);
       synchronize(detail, remote);
       await app.core.file.writeJsonAsync(seriesPath, detail);

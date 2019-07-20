@@ -13,9 +13,9 @@ export class RemoteController {
     const cacheKey = `${model.query.providerName}/${model.query.pageNumber || 1}`;
     switch (model.query.providerName) {
       case 'batoto':
-        return api.json(await this._cache.getOrAddAsync(cacheKey, () => app.batotoProvider.popularAsync(model.query.pageNumber)));
+        return api.json(await this._cache.getAsync(cacheKey, () => app.batotoProvider.popularAsync(model.query.pageNumber)));
       case 'fanfox':
-        return api.json(await this._cache.getOrAddAsync(cacheKey, () => app.fanfoxProvider.popularAsync(model.query.pageNumber)));
+        return api.json(await this._cache.getAsync(cacheKey, () => app.fanfoxProvider.popularAsync(model.query.pageNumber)));
       default:
         throw new Error();
     }
@@ -26,9 +26,9 @@ export class RemoteController {
     const cacheKey = `${model.query.providerName}/${model.query.title}/${model.query.pageNumber || 1}`;
     switch (model.query.providerName) {
       case 'batoto':
-        return api.json(await this._cache.getOrAddAsync(cacheKey, () => app.batotoProvider.searchAsync(model.query.title, model.query.pageNumber)));
+        return api.json(await this._cache.getAsync(cacheKey, () => app.batotoProvider.searchAsync(model.query.title, model.query.pageNumber)));
       case 'fanfox':
-        return api.json(await this._cache.getOrAddAsync(cacheKey, () => app.fanfoxProvider.searchAsync(model.query.title, model.query.pageNumber)));
+        return api.json(await this._cache.getAsync(cacheKey, () => app.fanfoxProvider.searchAsync(model.query.title, model.query.pageNumber)));
       default:
         throw new Error();
     }
@@ -38,9 +38,9 @@ export class RemoteController {
   async seriesAsync(model: app.IRemoteSeriesContext): Promise<api.Result<app.IRemoteSeriesResponse>> {
     const cacheKey = model.query.url;
     if (app.batotoProvider.isSupported(model.query.url)) {
-      return api.json(await this._cache.getOrAddAsync(cacheKey, () => app.batotoProvider.seriesAsync(model.query.url)));
+      return api.json(await this._cache.getAsync(cacheKey, () => app.batotoProvider.seriesAsync(model.query.url)));
     } else if (app.fanfoxProvider.isSupported(model.query.url)) {
-      return api.json(await this._cache.getOrAddAsync(cacheKey, () => app.fanfoxProvider.seriesAsync(model.query.url)));
+      return api.json(await this._cache.getAsync(cacheKey, () => app.fanfoxProvider.seriesAsync(model.query.url)));
     } else {
       throw new Error();
     }

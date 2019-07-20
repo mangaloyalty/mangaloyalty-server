@@ -2,6 +2,7 @@ export * from './core';
 export * from './services';
 export * from './settings';
 export * from './classes/Cache';
+export * from './classes/CacheAdaptor';
 export * from './classes/Exclusive';
 export * from './classes/Future';
 export * from './classes/FutureMap';
