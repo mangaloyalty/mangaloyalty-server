@@ -3,11 +3,10 @@ import * as app from '..';
 export class FutureMap<T> {
   private readonly _results: {[key: string]: app.Future<T>};
   private readonly _timeout: number;
-  private _hasReject: boolean;
+  private _hasReject?: boolean;
   private _reject?: Error;
 
   constructor(timeout = 0) {
-    this._hasReject = false;
     this._results = {};
     this._timeout = timeout;
   }
@@ -28,6 +27,7 @@ export class FutureMap<T> {
   }
 
   resolve(key: string, result: T) {
+    if (this._hasReject) return;
     this._ensure(key).resolve(result);
   }
 

@@ -40,9 +40,8 @@ export const batotoProvider = {
   },
 
   async startAsync(url: string) {
-    const runner = new Runner(url).run();
-    const session = await runner.getAsync();
-    app.core.session.add(session);
-    return session;
+    const session = app.core.session.createWithCache(url);
+    new Runner(session, url).runAsync();
+    return await session.waitAsync();
   }
 };
