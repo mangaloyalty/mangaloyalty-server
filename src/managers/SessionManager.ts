@@ -2,7 +2,7 @@ import * as app from '..';
 
 export class SessionManager {
   private readonly _timeouts: {[id: string]: NodeJS.Timeout};
-  private readonly _values: {[id: string]: app.Session};
+  private readonly _values: {[id: string]: app.ISession};
   private _cache?: app.Cache;
 
   constructor() {
@@ -10,8 +10,7 @@ export class SessionManager {
     this._values = {};
   }
 
-  create(adaptor: app.IAdaptor, url: string) {
-    const session = new app.Session(adaptor, url);
+  add<T extends app.ISession>(session: T) {
     const id = session.getData().id;
     this._values[id] = session;
     this._updateTimeout(id);
@@ -51,7 +50,7 @@ export class SessionManager {
   }
 }
 
-async function expireWithTraceAsync(session: app.Session) {
+async function expireWithTraceAsync(session: app.ISession) {
   try {
     await session.expireAsync();
   } catch (error) {

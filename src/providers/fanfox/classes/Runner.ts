@@ -3,11 +3,11 @@ import * as app from '../../..';
 import * as chapter from '../evaluators/chapter';
 
 export class Runner {
-  private readonly _session: app.Session;
+  private readonly _session: app.SessionRunnable;
   private readonly _url: string;
   private _pageNumber: number;
 
-  constructor(session: app.Session, url: string) {
+  constructor(session: app.SessionRunnable, url: string) {
     this._pageNumber = 0;
     this._session = session;
     this._url = url;

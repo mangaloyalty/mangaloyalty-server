@@ -106,6 +106,12 @@ export interface ILibrarySeriesUpdateContext {
     seriesId: string;
   };
 }
+export interface ILibraryChapterReadContext {
+  path: {
+    seriesId: string;
+    chapterId: string;
+  };
+}
 export interface ILibraryChapterUpdateContext {
   path: {
     seriesId: string;
@@ -148,6 +154,7 @@ export type ILibraryListResponse = ILibraryList;
 export type ILibrarySeriesCreateResponse = ILibraryId;
 export type ILibrarySeriesDetailResponse = ILibraryDetail;
 export type ILibrarySeriesUpdateResponse = ILibraryDetail;
+export type ILibraryChapterReadResponse = ISessionListItem;
 export type ILibraryChapterUpdateResponse = ISessionListItem;
 export type IRemotePopularResponse = IRemoteList;
 export type IRemoteSearchResponse = IRemoteList;

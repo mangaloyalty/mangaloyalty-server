@@ -8,7 +8,7 @@ export class LibraryAdaptor implements app.IAdaptor {
   private readonly _pages: app.FutureMap<void>;
   private readonly _seriesId: string;
   private readonly _syncId: string;
-  private _isInLibrary?: boolean;
+  private _isSynchronized?: boolean;
 
   constructor(context: app.LibraryContext, seriesId: string, chapterId: string) {
     this._chapterId = chapterId;
@@ -21,23 +21,22 @@ export class LibraryAdaptor implements app.IAdaptor {
 
   async expireAsync(pageCount: number) {
     await this._lock.acquireAsync(async () => {
-      if (!pageCount || this._isInLibrary) return;
-      const syncPath = path.join(app.settings.syncCore, this._syncId);
-      await app.core.file.removeAsync(syncPath);
+      if (!pageCount || this._isSynchronized) return;
+      await app.core.file.removeAsync(path.join(app.settings.syncCore, this._syncId));
     });
   }
 
   async getAsync(pageNumber: number) {
     await this._pages.getAsync(String(pageNumber));
     return await this._lock.acquireAsync(async () => {
-      const page = await app.core.file.readJsonAsync<app.ISessionPage>(this._createPath(pageNumber));
+      const page = await app.core.file.readJsonAsync<app.ISessionPage>(this._fetchPath(pageNumber));
       return page;
     });
   }
 
   async setAsync(pageNumber: number, page: app.ISessionPage) {
     return await this._lock.acquireAsync(async () => {
-      await app.core.file.writeJsonAsync(this._createPath(pageNumber), page);
+      await app.core.file.writeJsonAsync(this._fetchPath(pageNumber), page);
       await this._pages.resolve(String(pageNumber));
     });
   }
@@ -56,7 +55,7 @@ export class LibraryAdaptor implements app.IAdaptor {
             chapter.syncAt = Date.now();
             await this._moveAsync();
             await app.core.file.writeJsonAsync(detailPath, detail);
-            this._isInLibrary = true;
+            this._isSynchronized = true;
           }
         } catch (error) {
           if (error && error.code === 'ENOENT') return;
@@ -66,12 +65,10 @@ export class LibraryAdaptor implements app.IAdaptor {
     });
   }
   
-  private _createPath(pageNumber: number) {
-    if (this._isInLibrary) {
-      return path.join(app.settings.libraryCore, this._seriesId, this._chapterId, serializePageNumber(pageNumber));
-    } else {
-      return path.join(app.settings.syncCore, this._syncId, serializePageNumber(pageNumber));
-    }
+  private _fetchPath(pageNumber: number) {
+    const fileName = app.createZeroPadding(pageNumber, 3);
+    if (this._isSynchronized) return path.join(app.settings.libraryCore, this._seriesId, this._chapterId, fileName);
+    return path.join(app.settings.syncCore, this._syncId, fileName);
   }
 
   private async _moveAsync() {
@@ -79,10 +76,4 @@ export class LibraryAdaptor implements app.IAdaptor {
     const syncPath = path.join(app.settings.syncCore, this._syncId);
     await app.core.file.moveAsync(syncPath, libraryPath);
   }
-}
-
-function serializePageNumber(value: number) {
-  let pageNumber = String(value);
-  while (pageNumber.length < 3) pageNumber = `0${pageNumber}`;
-  return pageNumber;
 }
