@@ -70,6 +70,28 @@ export class LibraryManager {
     });
   }
 
+  async chapterDeleteAsync(seriesId: string, chapterId: string) {
+    return await this._ensureContext().lockSeriesAsync(seriesId, async () => {
+      try {
+        const detailPath = path.join(app.settings.libraryCore, seriesId, app.settings.librarySeriesName);
+        const detail = await app.core.file.readJsonAsync<app.ILibraryDetail>(detailPath);
+        const chapter = detail.chapters.find((chapter) => chapter.id === chapterId);
+        if (chapter) {
+          delete chapter.syncAt;
+          if (chapter.deletedAt) detail.chapters.splice(detail.chapters.indexOf(chapter), 1);
+          await app.core.file.removeAsync(path.join(app.settings.libraryCore, seriesId, chapterId));
+          await app.core.file.writeJsonAsync(detailPath, detail);
+          return true;
+        } else {
+          return false;
+        }
+      } catch (error) {
+        if (error && error.code === 'ENOENT') return false;
+        throw error;
+      }
+    });
+  }
+
   async chapterReadAsync(seriesId: string, chapterId: string) {
     return await this._ensureContext().lockSeriesAsync(seriesId, async () => {
       try {
