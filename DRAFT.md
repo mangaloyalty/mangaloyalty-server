@@ -8,7 +8,7 @@ SERIES.JSON:
     {
       automation: {
         frequency: Frequency                // at which frequency should the online check be automated?
-        storeAll: boolean                   // should new chapters be stored automatically?
+        syncAll: boolean                   // should new chapters be stored automatically?
       }
     }
 
@@ -28,11 +28,6 @@ ENUMERATORS:
     }
 
 API:
-
-GET /library/{seriesId}/{chapterId}
-  200, 404
-  - creates session for chapter (either online or local)
-  - return session id/pageCount
 
 DELETE /library/{seriesId}/{chapterId}
   200, 404

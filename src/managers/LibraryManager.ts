@@ -70,13 +70,33 @@ export class LibraryManager {
     });
   }
 
+  async chapterReadAsync(seriesId: string, chapterId: string) {
+    return await this._ensureContext().lockSeriesAsync(seriesId, async () => {
+      try {
+        const detailPath = path.join(app.settings.libraryCore, seriesId, app.settings.librarySeriesName);
+        const detail = await app.core.file.readJsonAsync<app.ILibraryDetail>(detailPath);
+        const chapter = detail.chapters.find((chapter) => chapter.id === chapterId);
+        if (chapter && chapter.pageCount && chapter.syncAt) {
+          return app.core.session.add(new app.SessionLocal(seriesId, chapterId, chapter.pageCount)).getData();
+        } else if (chapter) {
+          return await remoteStartAsync(new app.CacheAdaptor(app.core.session.getOrCreateCache()), chapter.url);
+        } else {
+          return undefined;
+        }
+      } catch (error) {
+        if (error && error.code === 'ENOENT') return undefined;
+        throw error;
+      }
+    });
+  }
+
   async chapterUpdateAsync(seriesId: string, chapterId: string) {
     return await this._ensureContext().lockSeriesAsync(seriesId, async () => {
       try {
         const detailPath = path.join(app.settings.libraryCore, seriesId, app.settings.librarySeriesName);
         const detail = await app.core.file.readJsonAsync<app.ILibraryDetail>(detailPath);
         const chapter = detail.chapters.find((chapter) => chapter.id === chapterId);
-        return chapter && remoteStartAsync(new app.LibraryAdaptor(this._ensureContext(), seriesId, chapterId), chapter.url);
+        return chapter && await remoteStartAsync(new app.LibraryAdaptor(this._ensureContext(), seriesId, chapterId), chapter.url);
       } catch (error) {
         if (error && error.code === 'ENOENT') return undefined;
         throw error;
