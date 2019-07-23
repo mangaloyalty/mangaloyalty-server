@@ -39,8 +39,8 @@ export const batotoProvider = {
     });
   },
 
-  async startAsync(url: string) {
-    const session = app.core.session.createWithCache(url);
+  async startAsync(adaptor: app.IAdaptor, url: string) {
+    const session = app.core.session.create(adaptor, url);
     new Runner(session, url).runAsync();
     return await session.waitAsync();
   }

@@ -10,18 +10,14 @@ export class SessionManager {
     this._values = {};
   }
 
-  add<T extends app.Session>(session: T) {
-    this._values[session.id] = session;
-    this._updateTimeout(session.id);
-  }
-
-  createWithCache(url: string) {
-    const adaptor = new app.CacheAdaptor(this._ensureCache(), app.createUniqueId());
-    const session = new app.Session(adaptor, app.createUniqueId(), url);
-    this.add(session);
+  create(adaptor: app.IAdaptor, url: string) {
+    const session = new app.Session(adaptor, url);
+    const id = session.getData().id;
+    this._values[id] = session;
+    this._updateTimeout(id);
     return session;
   }
-
+  
   get(id: string) {
     if (!this._values[id]) return undefined;
     this._updateTimeout(id);
@@ -30,10 +26,14 @@ export class SessionManager {
 
   getAll() {
     return Object.values(this._values)
-      .filter((session) => session.isValid)
-      .map((session) => session.getData());
+      .map((session) => session.getData())
+      .filter((data) => Boolean(data.pageCount));
   }
   
+  getOrCreateCache() {
+    return this._ensureCache();
+  }
+
   private _ensureCache() {
     if (this._cache) return this._cache;
     this._cache = new app.Cache(app.settings.cacheSessionName);
@@ -46,14 +46,14 @@ export class SessionManager {
       const session = this._values[id];
       delete this._timeouts[id];
       delete this._values[id];
-      expireWithTrace(session);
+      expireWithTraceAsync(session);
     }, app.settings.sessionTimeout);
   }
 }
 
-function expireWithTrace(session: app.Session) {
+async function expireWithTraceAsync(session: app.Session) {
   try {
-    session.expire();
+    await session.expireAsync();
   } catch (error) {
     app.core.error.trace(error);
   }

@@ -25,7 +25,7 @@ export interface ILibraryListItem {
 export interface ILibraryDetail {
   id: string;
   addedAt: number;
-  lastChapterAddedAt?: number;
+  lastChapterSyncAt?: number;
   lastPageReadAt?: number;
   lastSyncAt: number;
   chapters: ILibraryDetailChapter[];
@@ -35,7 +35,7 @@ export interface ILibraryDetailChapter {
   id: string;
   addedAt: number;
   deletedAt?: number;
-  storedAt?: number;
+  syncAt?: number;
   pageCount?: number;
   pageReadNumber?: number;
   title: string;
@@ -86,24 +86,30 @@ export interface ILibraryListContext {
     pageNumber?: number;
   };
 }
-export interface ILibraryCreateContext {
+export interface ILibrarySeriesCreateContext {
   query: {
     url: IProviderSeriesUrl;
   };
 }
-export interface ILibraryDeleteContext {
+export interface ILibrarySeriesDeleteContext {
   path: {
-    id: string;
+    seriesId: string;
   };
 }
-export interface ILibraryDetailContext {
+export interface ILibrarySeriesDetailContext {
   path: {
-    id: string;
+    seriesId: string;
   };
 }
-export interface ILibraryUpdateContext {
+export interface ILibrarySeriesUpdateContext {
   path: {
-    id: string;
+    seriesId: string;
+  };
+}
+export interface ILibraryChapterUpdateContext {
+  path: {
+    seriesId: string;
+    chapterId: string;
   };
 }
 export interface IRemotePopularContext {
@@ -131,7 +137,7 @@ export interface IRemoteStartContext {
 }
 export interface ISessionPageContext {
   path: {
-    id: string;
+    sessionId: string;
   };
   query: {
     pageNumber: number;
@@ -139,9 +145,10 @@ export interface ISessionPageContext {
 }
 
 export type ILibraryListResponse = ILibraryList;
-export type ILibraryCreateResponse = ILibraryId;
-export type ILibraryDetailResponse = ILibraryDetail;
-export type ILibraryUpdateResponse = ILibraryDetail;
+export type ILibrarySeriesCreateResponse = ILibraryId;
+export type ILibrarySeriesDetailResponse = ILibraryDetail;
+export type ILibrarySeriesUpdateResponse = ILibraryDetail;
+export type ILibraryChapterUpdateResponse = ISessionListItem;
 export type IRemotePopularResponse = IRemoteList;
 export type IRemoteSearchResponse = IRemoteList;
 export type IRemoteSeriesResponse = IRemoteDetail;

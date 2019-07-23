@@ -12,7 +12,7 @@ export class BrowserManager {
     this._numberOfPages = 0;
   }
 
-  async pageAsync<T>(handlerAsync: (page: puppeteer.Page) => Promise<T>) {
+  async pageAsync<T>(handlerAsync: (page: puppeteer.Page) => Promise<T> | T) {
     let page: puppeteer.Page | undefined;
     try {
       this._numberOfPages++;

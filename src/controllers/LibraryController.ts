@@ -1,25 +1,32 @@
 import * as api from 'express-openapi-json';
 import * as app from '..';
 
+// TODO: Add cache to listAsync. Make sure mutations clean the cache.
 export class LibraryController {
-  @api.createOperation('LibraryCreate')
-  async createAsync(model: app.ILibraryCreateContext): Promise<api.Result<app.ILibraryCreateResponse>> {
-    const id = await app.core.library.createAsync(model.query.url);
+  @api.createOperation('LibraryList')
+  async listAsync(model: app.ILibraryListContext): Promise<api.Result<app.ILibraryListResponse>> {
+    return api.json(await app.core.library.listAsync(model.query.pageNumber));
+  }
+
+  @api.createOperation('LibrarySeriesCreate')
+  async seriesCreateAsync(model: app.ILibrarySeriesCreateContext): Promise<api.Result<app.ILibrarySeriesCreateResponse>> {
+    const id = await app.core.library.seriesCreateAsync(model.query.url);
     return api.json({id});
   }
 
-  @api.createOperation('LibraryDelete')
-  async deleteAsync(model: app.ILibraryDeleteContext): Promise<api.Result<app.ILibraryDetailResponse>> {
-    if (await app.core.library.deleteAsync(model.path.id)) {
+  @api.createOperation('LibrarySeriesDelete')
+  async seriesDeleteAsync(model: app.ILibrarySeriesDeleteContext): Promise<api.Result<app.ILibrarySeriesDetailResponse>> {
+    const success = await app.core.library.seriesDeleteAsync(model.path.seriesId);
+    if (success) {
       return api.status(200);
     } else {
       return api.status(404);
     }
   }
 
-  @api.createOperation('LibraryDetail')
-  async detailAsync(model: app.ILibraryDetailContext): Promise<api.Result<app.ILibraryDetailResponse>> {
-    const detail = await app.core.library.detailAsync(model.path.id);
+  @api.createOperation('LibrarySeriesDetail')
+  async seriesDetailAsync(model: app.ILibrarySeriesDetailContext): Promise<api.Result<app.ILibrarySeriesDetailResponse>> {
+    const detail = await app.core.library.seriesDetailAsync(model.path.seriesId);
     if (detail) {
       return api.json(detail);
     } else {
@@ -27,16 +34,21 @@ export class LibraryController {
     }
   }
   
-  @api.createOperation('LibraryList')
-  async listAsync(model: app.ILibraryListContext): Promise<api.Result<app.ILibraryListResponse>> {
-    return api.json(await app.core.library.listAsync(model.query.pageNumber));
-  }
-
-  @api.createOperation('LibraryUpdate')
-  async updateAsync(model: app.ILibraryUpdateContext): Promise<api.Result<app.ILibraryUpdateResponse>> {
-    const detail = await app.core.library.updateAsync(model.path.id);
+  @api.createOperation('LibrarySeriesUpdate')
+  async seriesUpdateAsync(model: app.ILibrarySeriesUpdateContext): Promise<api.Result<app.ILibrarySeriesUpdateResponse>> {
+    const detail = await app.core.library.seriesUpdateAsync(model.path.seriesId);
     if (detail) {
       return api.json(detail);
+    } else {
+      return api.status(404);
+    }
+  }
+
+  @api.createOperation('LibraryChapterUpdate')
+  async chapterUpdateAsync(model: app.ILibraryChapterUpdateContext): Promise<api.Result<app.ILibraryChapterUpdateResponse>> {
+    const session = await app.core.library.chapterUpdateAsync(model.path.seriesId, model.path.chapterId);
+    if (session) {
+      return api.json(session);
     } else {
       return api.status(404);
     }

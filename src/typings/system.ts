@@ -1,6 +1,8 @@
+import * as app from '..';
+
 export interface IAdaptor {
-  expire(pageNumber: number): void;
-  getAsync(pageNumber: number): Promise<string>;
-  setAsync(pageNumber: number, value: string): Promise<void>;
-  successAsync(): Promise<void>;
+  expireAsync(pageCount: number): Promise<void>;
+  getAsync(pageNumber: number): Promise<app.ISessionPage>;
+  setAsync(pageNumber: number, page: app.ISessionPage): Promise<void>;
+  successAsync(pageCount: number): Promise<void>;
 }
