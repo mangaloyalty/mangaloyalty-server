@@ -44,6 +44,16 @@ export class LibraryController {
     }
   }
 
+  @api.createOperation('LibraryChapterRead')
+  async chapterOpenAsync(model: app.ILibraryChapterReadContext): Promise<api.Result<app.ILibraryChapterReadResponse>> {
+    const session = await app.core.library.chapterReadAsync(model.path.seriesId, model.path.chapterId);
+    if (session) {
+      return api.json(session);
+    } else {
+      return api.status(404);
+    }
+  }
+
   @api.createOperation('LibraryChapterUpdate')
   async chapterUpdateAsync(model: app.ILibraryChapterUpdateContext): Promise<api.Result<app.ILibraryChapterUpdateResponse>> {
     const session = await app.core.library.chapterUpdateAsync(model.path.seriesId, model.path.chapterId);
