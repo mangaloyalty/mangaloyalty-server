@@ -8,18 +8,18 @@ export class Session {
   private _hasReject?: boolean;
   private _pageCount?: number;
 
-  constructor(adaptor: app.IAdaptor, id: string, url: string) {
+  constructor(adaptor: app.IAdaptor, url: string) {
     this._adaptor = adaptor;
-    this._id = id;
+    this._id = app.createUniqueId();
     this._isActive = new app.Future();
     this._url = url;
   }
 
-  expire(error?: Error) {
+  async expireAsync(error?: Error) {
     if (this._hasReject) return;
     this._hasReject = true;
     this._isActive.reject(error);
-    for (let i = 1; i <= (this._pageCount || 0); i++) this._adaptor.expire(i);
+    await this._adaptor.expireAsync(this._pageCount || 0);
   }
 
   getData() {
@@ -29,22 +29,14 @@ export class Session {
     return {id, pageCount, url};
   }
 
-  async getImageAsync(pageNumber: number) {
-    if (this._hasReject || pageNumber <= 0 || pageNumber > (this._pageCount || 0)) return;
+  async getPageAsync(pageNumber: number) {
+    if (pageNumber <= 0 || pageNumber > (this._pageCount || 0)) return;
     return await this._adaptor.getAsync(pageNumber);
-  }
-
-  get id() {
-    return this._id;
-  }
-
-  get isValid() {
-    return Boolean(!this._hasReject && this._pageCount);
   }
 
   async setImageAsync(pageNumber: number, image: string) {
     if (this._hasReject || pageNumber <= 0 || pageNumber > (this._pageCount || 0)) return;
-    await this._adaptor.setAsync(pageNumber, image);
+    await this._adaptor.setAsync(pageNumber, {image});
   }
 
   setPageCount(pageCount: number) {
@@ -55,7 +47,7 @@ export class Session {
 
   async successAsync() {
     if (this._hasReject) return;
-    await this._adaptor.successAsync();
+    await this._adaptor.successAsync(this._pageCount || 0);
   }
 
   async waitAsync() {

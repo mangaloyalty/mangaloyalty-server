@@ -1,63 +1,97 @@
 import * as app from '..';
 import * as path from 'path';
 
-// TODO: where will be cache?
-// TODO: where will be syncroot? concurrent access on singular series must be protected
 export class LibraryManager {
-  async createAsync(url: string) {
-    const detail = createDetail(await remoteAsync(url));
-    const seriesPath = path.join(app.settings.libraryCore, detail.id, app.settings.librarySeriesName);
-    await app.core.file.writeJsonAsync(seriesPath, detail);
-    return detail.id;
-  }
-
-  async deleteAsync(id: string) {
-    try {
-      const seriesPath = path.join(app.settings.libraryCore, id);
-      const deletePath = path.join(app.settings.libraryCore, `_${id}`);
-      await app.core.file.moveAsync(seriesPath, deletePath);
-      await app.core.file.removeAsync(deletePath);
-      return true;
-    } catch (error) {
-      if (error && error.code === 'ENOENT') return false;
-      throw error;
-    }
-  }
-
-  async detailAsync(id: string) {
-    try {
-      const seriesPath = path.join(app.settings.libraryCore, id, app.settings.librarySeriesName);
-      return await app.core.file.readJsonAsync<app.ILibraryDetail>(seriesPath);
-    } catch (error) {
-      if (error && error.code === 'ENOENT') return undefined;
-      throw error;
-    }
-  }
+  private _context?: app.LibraryContext;
 
   async listAsync(pageNumber?: number) {
-    const ids = await app.core.file.readdirAsync(app.settings.libraryCore);
-    const seriesPaths = ids.filter((id) => !id.startsWith('_')).map((id) => path.join(app.settings.libraryCore, id, app.settings.librarySeriesName));
-    const results = await Promise.all(seriesPaths.map((seriesPath) => app.core.file.readJsonAsync<app.ILibraryDetail>(seriesPath)));
-    results.sort((a, b) => (b.lastChapterAddedAt || b.addedAt) - (a.lastChapterAddedAt || a.addedAt));
-    return createPageResults(results, pageNumber);
+    return await this._ensureContext().lockMainAsync(async () => {
+      const ids = await app.core.file.readdirAsync(app.settings.libraryCore);
+      const items = await Promise.all(ids.filter((id) => /^[0-9a-f]{48}$/.test(id)).map((id) => this.seriesDetailAsync(id)));
+      const validItems = items.filter(Boolean).map((detail) => detail!);
+      validItems.sort((a, b) => (b.lastChapterSyncAt || b.addedAt) - (a.lastChapterSyncAt || a.addedAt));
+      return createPageResults(validItems, pageNumber);
+    });
   }
 
-  async updateAsync(id: string) {
-    try {
-      const seriesPath = path.join(app.settings.libraryCore, id, app.settings.librarySeriesName);
-      const detail = await app.core.file.readJsonAsync<app.ILibraryDetail>(seriesPath);
-      const remote = await remoteAsync(detail.series.url);
-      detail.lastSyncAt = Date.now();
-      detail.series = createDetailSeries(remote);
-      synchronize(detail, remote);
-      await app.core.file.writeJsonAsync(seriesPath, detail);
-      return detail;
-    } catch (error) {
-      if (error && error.code === 'ENOENT') return undefined;
-      throw error;
-    }
+  async seriesCreateAsync(url: string) {
+    return await this._ensureContext().lockMainAsync(async () => {
+      const source = await remoteSeriesAsync(url);
+      const detail = createDetail(source);
+      const detailPath = path.join(app.settings.libraryCore, detail.id, app.settings.librarySeriesName);
+      await app.core.file.writeJsonAsync(detailPath, detail);
+      return detail.id;
+    });
+  }
+
+  async seriesDeleteAsync(seriesId: string) {
+    return await this._ensureContext().lockSeriesAsync(seriesId, async () => {
+      try {
+        const seriesPath = path.join(app.settings.libraryCore, seriesId);
+        const deletePath = path.join(app.settings.libraryCore, `_${seriesId}`);
+        await app.core.file.moveAsync(seriesPath, deletePath);
+        await app.core.file.removeAsync(deletePath);
+        return true;
+      } catch (error) {
+        if (error && error.code === 'ENOENT') return false;
+        throw error;
+      }
+    });
+  }
+
+  async seriesDetailAsync(seriesId: string) {
+    return await this._ensureContext().lockSeriesAsync(seriesId, async () => {
+      try {
+        const detailPath = path.join(app.settings.libraryCore, seriesId, app.settings.librarySeriesName);
+        const detail = await app.core.file.readJsonAsync<app.ILibraryDetail>(detailPath);
+        return detail;
+      } catch (error) {
+        if (error && error.code === 'ENOENT') return undefined;
+        throw error;
+      }
+    });
+  }
+
+  async seriesUpdateAsync(seriesId: string) {
+    return await this._ensureContext().lockSeriesAsync(seriesId, async () => {
+      try {
+        const detailPath = path.join(app.settings.libraryCore, seriesId, app.settings.librarySeriesName);
+        const detail = await app.core.file.readJsonAsync<app.ILibraryDetail>(detailPath);
+        const source = await remoteSeriesAsync(detail.series.url);
+        detail.lastSyncAt = Date.now();
+        detail.series = createDetailSeries(source);
+        synchronize(detail, source);
+        await app.core.file.writeJsonAsync(detailPath, detail);
+        return detail;
+      } catch (error) {
+        if (error && error.code === 'ENOENT') return undefined;
+        throw error;
+      }
+    });
+  }
+
+  async chapterUpdateAsync(seriesId: string, chapterId: string) {
+    return await this._ensureContext().lockSeriesAsync(seriesId, async () => {
+      try {
+        const detailPath = path.join(app.settings.libraryCore, seriesId, app.settings.librarySeriesName);
+        const detail = await app.core.file.readJsonAsync<app.ILibraryDetail>(detailPath);
+        const chapter = detail.chapters.find((chapter) => chapter.id === chapterId);
+        return chapter && remoteStartAsync(new app.LibraryAdaptor(this._ensureContext(), seriesId, chapterId), chapter.url);
+      } catch (error) {
+        if (error && error.code === 'ENOENT') return undefined;
+        throw error;
+      }
+    });
+  }
+
+  private _ensureContext() {
+    if (this._context) return this._context;
+    this._context = new app.LibraryContext();
+    return this._context;
   }
 }
+
+// TODO: Clean below.
 
 function createPageResults(results: app.ILibraryDetail[], pageNumber?: number) {
   const startIndex = ((pageNumber || 1) - 1) * app.settings.librarySeriesPerPage;
@@ -67,26 +101,27 @@ function createPageResults(results: app.ILibraryDetail[], pageNumber?: number) {
   return {hasMorePages, items};
 }
 
-function createDetail(detail: app.IRemoteDetail): app.ILibraryDetail {
+function createDetail(source: app.IRemoteDetail): app.ILibraryDetail {
   const id = app.createUniqueId();
-  const result = {id, addedAt: Date.now(), lastSyncAt: Date.now(), chapters: [], series: createDetailSeries(detail)};
-  synchronize(result, detail);
+  const now = Date.now();
+  const result = {id, addedAt: now, lastSyncAt: now, chapters: [], series: createDetailSeries(source)};
+  synchronize(result, source);
   return result;
 }
 
-function createDetailSeries(detail: app.IRemoteDetail): app.ILibraryDetailSeries {
+function createDetailSeries(source: app.IRemoteDetail): app.ILibraryDetailSeries {
   return {
-    authors: detail.authors,
-    genres: detail.genres,
-    image: detail.image,
-    isCompleted: detail.isCompleted,
-    summary: detail.summary,
-    title: detail.title,
-    url: detail.url
+    authors: source.authors,
+    genres: source.genres,
+    image: source.image,
+    isCompleted: source.isCompleted,
+    summary: source.summary,
+    title: source.title,
+    url: source.url
   };
 }
 
-async function remoteAsync(url: string) {
+async function remoteSeriesAsync(url: string) {
   if (app.batotoProvider.isSupported(url)) {
     return await app.batotoProvider.seriesAsync(url);
   } else if (app.fanfoxProvider.isSupported(url)) {
@@ -96,9 +131,20 @@ async function remoteAsync(url: string) {
   }
 }
 
+async function remoteStartAsync(adaptor: app.IAdaptor, url: string) {
+  if (app.batotoProvider.isSupported(url)) {
+    return await app.batotoProvider.startAsync(adaptor, url);
+  } else if (app.fanfoxProvider.isSupported(url)) {
+    return await app.fanfoxProvider.startAsync(adaptor, url);
+  } else {
+    throw new Error();
+  }
+}
+
 // TODO: Clean me up
 function synchronize(destination: app.ILibraryDetail, source: app.IRemoteDetail) {
   const knownIds: {[id: string]: boolean} = {};
+  const now = Date.now();
 
   for (const sourceChapter of source.chapters) {
     const destinationChapter = destination.chapters.find((chapter) => chapter.url === source.url);
@@ -107,7 +153,7 @@ function synchronize(destination: app.ILibraryDetail, source: app.IRemoteDetail)
       knownIds[destinationChapter.id] = true;
     } else {
       const id = app.createUniqueId();
-      destination.chapters.push({id, addedAt: Date.now(), title: sourceChapter.title, url: sourceChapter.url});
+      destination.chapters.push({id, addedAt: now, title: sourceChapter.title, url: sourceChapter.url});
       knownIds[id] = true;
     }
   }
@@ -115,6 +161,6 @@ function synchronize(destination: app.ILibraryDetail, source: app.IRemoteDetail)
   // TODO: should I remove non-stored chapters?
   for (const destinationChapter of destination.chapters) {
     if (knownIds[destinationChapter.id]) continue;
-    if (!destinationChapter.deletedAt) destinationChapter.deletedAt = Date.now();
+    if (!destinationChapter.deletedAt) destinationChapter.deletedAt = now;
   }
 }

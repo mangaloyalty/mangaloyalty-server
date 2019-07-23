@@ -16,4 +16,5 @@ export const settings = {
   librarySeriesName: 'series',
   librarySeriesPerPage: 70,
   sessionTimeout: 600000,
+  syncCore: 'sync'
 };
