@@ -15,7 +15,7 @@ export class LibraryController {
   }
 
   @api.createOperation('LibrarySeriesDelete')
-  async seriesDeleteAsync(model: app.ILibrarySeriesDeleteContext): Promise<api.Result<app.ILibrarySeriesDetailResponse>> {
+  async seriesDeleteAsync(model: app.ILibrarySeriesDeleteContext): Promise<api.Result<void>> {
     const success = await app.core.library.seriesDeleteAsync(model.path.seriesId);
     if (success) {
       return api.status(200);
@@ -44,8 +44,18 @@ export class LibraryController {
     }
   }
 
+  @api.createOperation('LibraryChapterDelete')
+  async chapterDeleteAsync(model: app.ILibraryChapterDeleteContext): Promise<api.Result<void>> {
+    const success = await app.core.library.chapterDeleteAsync(model.path.seriesId, model.path.chapterId);
+    if (success) {
+      return api.status(200);
+    } else {
+      return api.status(404);
+    }
+  }
+
   @api.createOperation('LibraryChapterRead')
-  async chapterOpenAsync(model: app.ILibraryChapterReadContext): Promise<api.Result<app.ILibraryChapterReadResponse>> {
+  async chapterReadAsync(model: app.ILibraryChapterReadContext): Promise<api.Result<app.ILibraryChapterReadResponse>> {
     const session = await app.core.library.chapterReadAsync(model.path.seriesId, model.path.chapterId);
     if (session) {
       return api.json(session);
