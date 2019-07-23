@@ -49,9 +49,9 @@ export class RemoteController {
   @api.createOperation('RemoteStart')
   async startAsync(model: app.IRemoteStartContext): Promise<api.Result<app.IRemoteStartResponse>> {
     if (app.batotoProvider.isSupported(model.query.url)) {
-      return api.json(await app.batotoProvider.startAsync(model.query.url));
+      return api.json(await app.batotoProvider.startAsync(new app.CacheAdaptor(app.core.session.getOrCreateCache()), model.query.url));
     } else if (app.fanfoxProvider.isSupported(model.query.url)) {
-      return api.json(await app.fanfoxProvider.startAsync(model.query.url));
+      return api.json(await app.fanfoxProvider.startAsync(new app.CacheAdaptor(app.core.session.getOrCreateCache()), model.query.url));
     } else {
       throw new Error();
     }

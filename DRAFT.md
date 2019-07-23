@@ -38,15 +38,13 @@ DELETE /library/{seriesId}/{chapterId}
   200, 404
   - force delete of chapter regardless of how many users have it (that's only for series listings to preserve list/states).
   - empty result
-
-PUT /library/{seriesId}/{chapterId}
-  200, 404
-  - forces refresh for chapter, creates session while getting the new one from online
-  - unlike a GET, this always stores the library locally as well (even if automation.storeAll == false).
-  - return result as GET
   
+PATCH /library/{seriesId}/{chapterId} ({pageNumber})
+  200, 404
+  - status update signal to update where you're currently reading
+  - empty result
 
-AUTOMATION::
+AUTOMATION:
 
 GET /library/{seriesId}/{chapterId}
   200, 404
@@ -55,9 +53,4 @@ GET /library/{seriesId}/{chapterId}
 PATCH /library/{seriesId} ({automationFrequency, automationStoreAll})
   200, 404
   - sets new options for series
-  - empty result
-
-PATCH /library/{seriesId}/{chapterId} ({pageNumber})
-  200, 404
-  - status update signal to update where you're currently reading
   - empty result
