@@ -106,6 +106,12 @@ export interface ILibrarySeriesUpdateContext {
     seriesId: string;
   };
 }
+export interface ILibraryChapterDeleteContext {
+  path: {
+    seriesId: string;
+    chapterId: string;
+  };
+}
 export interface ILibraryChapterReadContext {
   path: {
     seriesId: string;

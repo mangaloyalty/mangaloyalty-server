@@ -28,11 +28,6 @@ ENUMERATORS:
     }
 
 API:
-
-DELETE /library/{seriesId}/{chapterId}
-  200, 404
-  - force delete of chapter regardless of how many users have it (that's only for series listings to preserve list/states).
-  - empty result
   
 PATCH /library/{seriesId}/{chapterId} ({pageNumber})
   200, 404
