@@ -18,7 +18,7 @@ export class SessionManager {
   }
   
   get(id: string) {
-    if (!this._values[id]) return undefined;
+    if (!this._values[id]) return;
     this._updateTimeout(id);
     return this._values[id];
   }

@@ -31,7 +31,7 @@ export class Runner {
     const result = await page.evaluate(chapter.evaluatorAsync);
     this._session.setPageCount(result.pageCount);
     for (const image of result.images) await this._session.setImageAsync(++this._pageNumber, await watch.getAsync(image));
-    return result.shouldContinue;
+    return this._session.isActive && result.shouldContinue;
   }
 }
 

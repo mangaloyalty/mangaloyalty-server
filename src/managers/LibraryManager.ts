@@ -46,7 +46,7 @@ export class LibraryManager {
         const detail = await app.core.file.readJsonAsync<app.ILibraryDetail>(detailPath);
         return detail;
       } catch (error) {
-        if (error && error.code === 'ENOENT') return undefined;
+        if (error && error.code === 'ENOENT') return;
         throw error;
       }
     });
@@ -64,7 +64,7 @@ export class LibraryManager {
         await app.core.file.writeJsonAsync(detailPath, detail);
         return detail;
       } catch (error) {
-        if (error && error.code === 'ENOENT') return undefined;
+        if (error && error.code === 'ENOENT') return;
         throw error;
       }
     });
@@ -76,7 +76,7 @@ export class LibraryManager {
         const detailPath = path.join(app.settings.libraryCore, seriesId, app.settings.librarySeriesName);
         const detail = await app.core.file.readJsonAsync<app.ILibraryDetail>(detailPath);
         const chapter = detail.chapters.find((chapter) => chapter.id === chapterId);
-        if (chapter) {
+        if (chapter && chapter.syncAt) {
           delete chapter.syncAt;
           if (chapter.deletedAt) detail.chapters.splice(detail.chapters.indexOf(chapter), 1);
           await app.core.file.removeAsync(path.join(app.settings.libraryCore, seriesId, chapterId));
@@ -101,12 +101,14 @@ export class LibraryManager {
         if (chapter && chapter.pageCount && chapter.syncAt) {
           return app.core.session.add(new app.SessionLocal(seriesId, chapterId, chapter.pageCount)).getData();
         } else if (chapter) {
-          return await remoteStartAsync(new app.CacheAdaptor(app.core.session.getOrCreateCache()), chapter.url);
+          const session = await remoteStartAsync(new app.CacheAdaptor(app.core.session.getOrCreateCache()), chapter.url);
+          await this._ensurePageCountAsync(detail, chapter, session.pageCount);
+          return session;
         } else {
-          return undefined;
+          return;
         }
       } catch (error) {
-        if (error && error.code === 'ENOENT') return undefined;
+        if (error && error.code === 'ENOENT') return;
         throw error;
       }
     });
@@ -118,9 +120,15 @@ export class LibraryManager {
         const detailPath = path.join(app.settings.libraryCore, seriesId, app.settings.librarySeriesName);
         const detail = await app.core.file.readJsonAsync<app.ILibraryDetail>(detailPath);
         const chapter = detail.chapters.find((chapter) => chapter.id === chapterId);
-        return chapter && await remoteStartAsync(new app.LibraryAdaptor(this._ensureContext(), seriesId, chapterId), chapter.url);
+        if (chapter) {
+          const session = await remoteStartAsync(new app.LibraryAdaptor(this._ensureContext(), seriesId, chapterId), chapter.url);
+          await this._ensurePageCountAsync(detail, chapter, session.pageCount);
+          return session;
+        } else {
+          return;
+        }
       } catch (error) {
-        if (error && error.code === 'ENOENT') return undefined;
+        if (error && error.code === 'ENOENT') return;
         throw error;
       }
     });
@@ -130,6 +138,12 @@ export class LibraryManager {
     if (this._context) return this._context;
     this._context = new app.LibraryContext();
     return this._context;
+  }
+
+  private async _ensurePageCountAsync(detail: app.ILibraryDetail, chapter: app.ILibraryDetailChapter, pageCount: number) {
+    const detailPath = path.join(app.settings.libraryCore, detail.id, app.settings.librarySeriesName);
+    chapter.pageCount = pageCount;
+    await app.core.file.writeJsonAsync(detailPath, detail);
   }
 }
 
