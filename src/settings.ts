@@ -12,9 +12,9 @@ export const settings = {
   cacheRemoteName: 'remote',
   cacheRemoteTimeout: 600000,
   cacheSessionName: 'session',
+  cacheSyncName: 'sync',
   libraryCore: 'library',
   librarySeriesName: 'series',
   librarySeriesPerPage: 70,
   sessionTimeout: 600000,
-  syncCore: 'sync'
 };
