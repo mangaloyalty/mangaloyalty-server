@@ -34,8 +34,12 @@ export class SessionRunnable implements app.ISession {
     return await this._adaptor.getAsync(pageNumber);
   }
 
+  get isActive() {
+    return !this._hasReject;
+  }
+  
   async setImageAsync(pageNumber: number, image: string) {
-    if (pageNumber <= 0 || pageNumber > (this._pageCount || 0)) return;
+    if (this._hasReject || pageNumber <= 0 || pageNumber > (this._pageCount || 0)) return;
     await this._adaptor.setAsync(pageNumber, {image});
   }
 

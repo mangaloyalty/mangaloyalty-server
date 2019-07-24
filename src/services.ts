@@ -6,7 +6,7 @@ export function createUniqueId() {
   return buffer.toString('hex');
 }
 
-export function createZeroPadding(value: number | string, length: number) {
+export function zeroPrefix(value: number | string, length: number) {
   let result = String(value);
   while (result.length < length) result = `0${result}`;
   return result;
