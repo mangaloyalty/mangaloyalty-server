@@ -24,9 +24,9 @@ export class LibraryController {
     }
   }
 
-  @api.createOperation('LibrarySeriesDetail')
-  async seriesDetailAsync(model: app.ILibrarySeriesDetailContext): Promise<api.Result<app.ILibrarySeriesDetailResponse>> {
-    const detail = await app.core.library.seriesDetailAsync(model.path.seriesId);
+  @api.createOperation('LibrarySeriesRead')
+  async seriesReadAsync(model: app.ILibrarySeriesReadContext): Promise<api.Result<app.ILibrarySeriesReadResponse>> {
+    const detail = await app.core.library.seriesReadAsync(model.path.seriesId);
     if (detail) {
       return api.json(detail);
     } else {
@@ -59,6 +59,16 @@ export class LibraryController {
     const session = await app.core.library.chapterReadAsync(model.path.seriesId, model.path.chapterId);
     if (session) {
       return api.json(session);
+    } else {
+      return api.status(404);
+    }
+  }
+
+  @api.createOperation('LibraryChapterPatch')
+  async chapterPatchAsync(model: app.ILibraryChapterPatchContext): Promise<api.Result<void>> {
+    const success = await app.core.library.chapterPatchAsync(model.path.seriesId, model.path.chapterId, model.query.pageReadNumber);
+    if (success) {
+      return api.status(200);
     } else {
       return api.status(404);
     }

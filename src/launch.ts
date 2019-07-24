@@ -12,7 +12,6 @@ import * as path from 'path';
 
 // Initialize the cache.
 fs.removeSync(path.join(app.settings.basePath, app.settings.cacheCore));
-fs.removeSync(path.join(app.settings.basePath, app.settings.syncCore));
 
 // Initialize the openapi data.
 const openapiData = require('../openapi.json');

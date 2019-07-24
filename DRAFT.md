@@ -26,14 +26,7 @@ ENUMERATORS:
       Daily
       Weekly
     }
-
-API:
   
-PATCH /library/{seriesId}/{chapterId} ({pageNumber})
-  200, 404
-  - status update signal to update where you're currently reading
-  - empty result
-
 AUTOMATION:
 
 GET /library/{seriesId}/{chapterId}
