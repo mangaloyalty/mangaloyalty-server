@@ -96,7 +96,7 @@ export interface ILibrarySeriesDeleteContext {
     seriesId: string;
   };
 }
-export interface ILibrarySeriesDetailContext {
+export interface ILibrarySeriesReadContext {
   path: {
     seriesId: string;
   };
@@ -122,6 +122,15 @@ export interface ILibraryChapterUpdateContext {
   path: {
     seriesId: string;
     chapterId: string;
+  };
+}
+export interface ILibraryChapterPatchContext {
+  path: {
+    seriesId: string;
+    chapterId: string;
+  };
+  query: {
+    pageReadNumber: number;
   };
 }
 export interface IRemotePopularContext {
@@ -158,7 +167,7 @@ export interface ISessionPageContext {
 
 export type ILibraryListResponse = ILibraryList;
 export type ILibrarySeriesCreateResponse = ILibraryId;
-export type ILibrarySeriesDetailResponse = ILibraryDetail;
+export type ILibrarySeriesReadResponse = ILibraryDetail;
 export type ILibrarySeriesUpdateResponse = ILibraryDetail;
 export type ILibraryChapterReadResponse = ISessionListItem;
 export type ILibraryChapterUpdateResponse = ISessionListItem;

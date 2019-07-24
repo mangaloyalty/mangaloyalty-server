@@ -23,7 +23,7 @@ export class LibraryAdaptor implements app.IAdaptor {
     if (!pageCount) return;
     await this._lock.acquireAsync(async () => {
       if (this._isSynchronized) return;
-      await app.core.file.removeAsync(path.join(app.settings.syncCore, this._syncId));
+      await app.core.file.removeAsync(path.join(app.settings.cacheCore, app.settings.cacheSyncName, this._syncId));
     });
   }
 
@@ -68,12 +68,12 @@ export class LibraryAdaptor implements app.IAdaptor {
   private _fetchPath(pageNumber: number) {
     const fileName = app.zeroPrefix(pageNumber, 3);
     if (this._isSynchronized) return path.join(app.settings.libraryCore, this._seriesId, this._chapterId, fileName);
-    return path.join(app.settings.syncCore, this._syncId, fileName);
+    return path.join(app.settings.cacheCore, app.settings.cacheSyncName, this._syncId, fileName);
   }
 
   private async _moveAsync() {
     const libraryPath = path.join(app.settings.libraryCore, this._seriesId, this._chapterId)
-    const syncPath = path.join(app.settings.syncCore, this._syncId);
+    const syncPath = path.join(app.settings.cacheCore, app.settings.cacheSyncName, this._syncId);
     await app.core.file.moveAsync(syncPath, libraryPath);
   }
 }

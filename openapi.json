@@ -78,7 +78,7 @@
         }
       },
       "get": {
-        "operationId": "LibrarySeriesDetail",
+        "operationId": "LibrarySeriesRead",
         "tags": ["Library"], 
         "description": "Retrieves the series.",
         "parameters": [{
@@ -211,6 +211,38 @@
                 "schema": {"$ref": "#/components/schemas/SessionListItem"}
               }
             }
+          },
+          "400": {"$ref": "#/components/responses/BadRequest"},
+          "404": {"$ref": "#/components/responses/NotFound"},
+          "500": {"$ref": "#/components/responses/InternalServerError"}
+        }
+      },
+      "patch": {
+        "operationId": "LibraryChapterPatch",
+        "tags": ["Library"], 
+        "description": "Patches the chapter status.",
+        "parameters": [{
+          "in": "path",
+          "name": "seriesId",
+          "description": "The series identifier.",
+          "required": true,
+          "schema": {"type": "string"}
+        }, {
+          "in": "path",
+          "name": "chapterId",
+          "description": "The chapter identifier.",
+          "required": true,
+          "schema": {"type": "string"}
+        }, {
+          "in": "query",
+          "name": "pageReadNumber",
+          "description": "The page read number.",
+          "required": true,
+          "schema": {"type": "number", "minimum": 1}
+        }],
+        "responses": {
+          "200": {
+            "description": "Success"
           },
           "400": {"$ref": "#/components/responses/BadRequest"},
           "404": {"$ref": "#/components/responses/NotFound"},

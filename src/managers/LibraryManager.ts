@@ -7,7 +7,7 @@ export class LibraryManager {
   async listAsync(pageNumber?: number) {
     return await this._ensureContext().lockMainAsync(async () => {
       const ids = await app.core.file.readdirAsync(app.settings.libraryCore);
-      const items = await Promise.all(ids.filter((id) => /^[0-9a-f]{48}$/.test(id)).map((id) => this.seriesDetailAsync(id)));
+      const items = await Promise.all(ids.filter((id) => /^[0-9a-f]{48}$/.test(id)).map((id) => this.seriesReadAsync(id)));
       const validItems = items.filter(Boolean).map((detail) => detail!);
       validItems.sort((a, b) => (b.lastChapterSyncAt || b.addedAt) - (a.lastChapterSyncAt || a.addedAt));
       return createPageResults(validItems, pageNumber);
@@ -39,7 +39,7 @@ export class LibraryManager {
     });
   }
 
-  async seriesDetailAsync(seriesId: string) {
+  async seriesReadAsync(seriesId: string) {
     return await this._ensureContext().lockSeriesAsync(seriesId, async () => {
       try {
         const detailPath = path.join(app.settings.libraryCore, seriesId, app.settings.librarySeriesName);
@@ -106,6 +106,26 @@ export class LibraryManager {
           return session;
         } else {
           return;
+        }
+      } catch (error) {
+        if (error && error.code === 'ENOENT') return;
+        throw error;
+      }
+    });
+  }
+
+  async chapterPatchAsync(seriesId: string, chapterId: string, pageReadNumber: number) {
+    return await this._ensureContext().lockSeriesAsync(seriesId, async () => {
+      try {
+        const detailPath = path.join(app.settings.libraryCore, seriesId, app.settings.librarySeriesName);
+        const detail = await app.core.file.readJsonAsync<app.ILibraryDetail>(detailPath);
+        const chapter = detail.chapters.find((chapter) => chapter.id === chapterId);
+        if (chapter && chapter.pageCount) {
+          chapter.pageReadNumber = Math.max(1, Math.min(pageReadNumber, chapter.pageCount));
+          await app.core.file.writeJsonAsync(detailPath, detail);
+          return true;
+        } else {
+          return false;
         }
       } catch (error) {
         if (error && error.code === 'ENOENT') return;
@@ -203,7 +223,7 @@ function synchronize(destination: app.ILibraryDetail, source: app.IRemoteDetail)
   const now = Date.now();
 
   for (const sourceChapter of source.chapters) {
-    const destinationChapter = destination.chapters.find((chapter) => chapter.url === source.url);
+    const destinationChapter = destination.chapters.find((chapter) => chapter.url === sourceChapter.url);
     if (destinationChapter) {
       destinationChapter.title = sourceChapter.title;
       knownIds[destinationChapter.id] = true;
