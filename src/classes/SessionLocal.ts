@@ -26,9 +26,10 @@ export class SessionLocal implements app.ISession {
   async getPageAsync(pageNumber: number) {
     try {
       if (pageNumber <= 0 || pageNumber > this._pageCount) return;
-      return await app.core.file.readJsonAsync<app.ISessionPage>(path.join(this._basePath, app.createZeroPadding(pageNumber, 3)));
+      const pagePath = path.join(this._basePath, app.zeroPrefix(pageNumber, 3));
+      return await app.core.file.readJsonAsync<app.ISessionPage>(pagePath);
     } catch (error) {
-      if (error && error.code === 'ENOENT') return undefined;
+      if (error && error.code === 'ENOENT') return;
       throw error;
     }
   }

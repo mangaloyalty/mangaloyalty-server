@@ -20,8 +20,9 @@ export class LibraryAdaptor implements app.IAdaptor {
   }
 
   async expireAsync(pageCount: number) {
+    if (!pageCount) return;
     await this._lock.acquireAsync(async () => {
-      if (!pageCount || this._isSynchronized) return;
+      if (this._isSynchronized) return;
       await app.core.file.removeAsync(path.join(app.settings.syncCore, this._syncId));
     });
   }
@@ -42,8 +43,8 @@ export class LibraryAdaptor implements app.IAdaptor {
   }
   
   async successAsync(pageCount: number) {
+    if (!pageCount) return;
     await this._lock.acquireAsync(async () => {
-      if (!pageCount) return;
       await this._context.lockSeriesAsync(this._seriesId, async () => {
         try {
           const detailPath = path.join(app.settings.libraryCore, this._seriesId, app.settings.librarySeriesName);
@@ -51,7 +52,6 @@ export class LibraryAdaptor implements app.IAdaptor {
           const chapter = detail.chapters.find((chapter) => chapter.id === this._chapterId);
           if (chapter) {
             detail.lastChapterSyncAt = Date.now();
-            chapter.pageCount = pageCount;
             chapter.syncAt = Date.now();
             await this._moveAsync();
             await app.core.file.writeJsonAsync(detailPath, detail);
@@ -66,7 +66,7 @@ export class LibraryAdaptor implements app.IAdaptor {
   }
   
   private _fetchPath(pageNumber: number) {
-    const fileName = app.createZeroPadding(pageNumber, 3);
+    const fileName = app.zeroPrefix(pageNumber, 3);
     if (this._isSynchronized) return path.join(app.settings.libraryCore, this._seriesId, this._chapterId, fileName);
     return path.join(app.settings.syncCore, this._syncId, fileName);
   }
