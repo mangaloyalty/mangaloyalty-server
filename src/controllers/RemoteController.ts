@@ -28,6 +28,7 @@ export class RemoteController {
 
   @api.createOperation('RemoteStart')
   async startAsync(model: app.IRemoteStartContext): Promise<api.Result<app.IRemoteStartResponse>> {
-    return api.json(await app.provider.startAsync(new app.CacheAdaptor(app.core.session.getOrCreateCache()), model.query.url));
+    const session = await app.provider.startAsync(new app.CacheAdaptor(app.core.session.getOrCreateCache()), model.query.url);
+    return api.json(session.getData());
   }
 }

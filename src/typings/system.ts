@@ -8,7 +8,7 @@ export interface IAdaptor {
 }
 
 export interface ISession {
-  expireAsync(): Promise<void>;
+  endAsync(error?: any): Promise<void>;
   getData(): app.ISessionListItem;
   getPageAsync(pageNumber: number): Promise<app.ISessionPage | undefined>;
 }

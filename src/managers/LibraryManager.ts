@@ -53,6 +53,22 @@ export class LibraryManager {
     });
   }
 
+  async seriesPatchAsync(seriesId: string, frequency: app.ILibraryFrequency, sync: boolean) {
+    return await this._ensureContext().lockSeriesAsync(seriesId, async () => {
+      try {
+        const detailPath = path.join(app.settings.library, seriesId, app.settings.librarySeries);
+        const detail = await app.core.system.readJsonAsync<app.ILibraryDetail>(detailPath);
+        detail.automation.frequency = frequency;
+        detail.automation.sync = sync;
+        await app.core.system.writeJsonAsync(detailPath, detail);
+        return true;
+      } catch (error) {
+        if (error && error.code === 'ENOENT') return false;
+        throw error;
+      }
+    });
+  }
+
   async seriesUpdateAsync(seriesId: string) {
     return await this._ensureContext().lockSeriesAsync(seriesId, async () => {
       try {
@@ -105,9 +121,9 @@ export class LibraryManager {
         const detail = await app.core.system.readJsonAsync<app.ILibraryDetail>(detailPath);
         const chapter = detail.chapters.find((chapter) => chapter.id === chapterId);
         if (chapter && chapter.pageCount && chapter.syncAt) {
-          return app.core.session.add(new app.SessionLocal(seriesId, chapterId, chapter.pageCount)).getData();
+          return app.core.session.add(new app.SessionLocal(seriesId, chapterId, chapter.pageCount));
         } else if (chapter) {
-          return await this._sessionAsync(new app.CacheAdaptor(app.core.session.getOrCreateCache()), detail, chapter);
+          return await this._sessionAsync(this._createAdaptor(detail, chapter, detail.automation.sync), detail, chapter);
         } else {
           return;
         }
@@ -145,7 +161,7 @@ export class LibraryManager {
         const detail = await app.core.system.readJsonAsync<app.ILibraryDetail>(detailPath);
         const chapter = detail.chapters.find((chapter) => chapter.id === chapterId);
         if (chapter) {
-          return await this._sessionAsync(new app.LibraryAdaptor(this._ensureContext(), seriesId, chapterId), detail, chapter);
+          return await this._sessionAsync(this._createAdaptor(detail, chapter, true), detail, chapter);
         } else {
           return;
         }
@@ -156,6 +172,12 @@ export class LibraryManager {
     });
   }
 
+  private _createAdaptor(detail: app.ILibraryDetail, chapter: app.ILibraryDetailChapter, sync: boolean) {
+    return sync
+      ? new app.LibraryAdaptor(this._ensureContext(), detail.id, chapter.id)
+      : new app.CacheAdaptor(app.core.session.getOrCreateCache());
+  }
+  
   private _ensureContext() {
     if (this._context) return this._context;
     this._context = new app.LibraryContext();
@@ -165,7 +187,7 @@ export class LibraryManager {
   private async _sessionAsync(adaptor: app.IAdaptor, detail: app.ILibraryDetail, chapter: app.ILibraryDetailChapter) {
     const detailPath = path.join(app.settings.library, detail.id, app.settings.librarySeries);
     const session = await app.provider.startAsync(adaptor, chapter.url);
-    chapter.pageCount = session.pageCount;
+    chapter.pageCount = session.getData().pageCount;
     await app.core.system.writeJsonAsync(detailPath, detail);
     return session;
   }
@@ -175,9 +197,10 @@ function createDetail(source: app.IRemoteDetail): app.ILibraryDetail {
   const id = app.createUniqueId();
   const addedAt = Date.now();
   const lastSyncAt = Date.now();
+  const automation: app.ILibraryDetailAutomation = {frequency: 'never', sync: false};
   const chapters: app.ILibraryDetailChapter[] = [];
   const series = createDetailSeries(source);
-  return {id, addedAt, lastSyncAt, chapters, series};
+  return {id, addedAt, lastSyncAt, automation, chapters, series};
 }
 
 function createDetailSeries(source: app.IRemoteDetail): app.ILibraryDetailSeries {
