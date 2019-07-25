@@ -35,7 +35,7 @@ export class SessionManager {
 
   private _ensureCache() {
     if (this._cache) return this._cache;
-    this._cache = new app.Cache(app.settings.cacheSessionName);
+    this._cache = new app.Cache(app.settings.cacheSession);
     return this._cache;
   }
 
@@ -54,6 +54,6 @@ async function expireWithTraceAsync(session: app.ISession) {
   try {
     await session.expireAsync();
   } catch (error) {
-    app.core.error.trace(error);
+    app.traceError(error);
   }
 }

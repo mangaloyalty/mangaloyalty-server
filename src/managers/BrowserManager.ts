@@ -34,7 +34,7 @@ export class BrowserManager {
     try {
       if (this._browser) return this._browser;
       const headless = app.settings.browserHeadless;
-      const userDataDir = path.join(app.settings.basePath, app.settings.browserCache);
+      const userDataDir = path.join(app.settings.basePath, app.settings.browser);
       this._browser = puppeteer.launch({headless, userDataDir});
       return await this._browser;
     } catch (error) {
@@ -58,6 +58,6 @@ async function closeWithTraceAsync(browser: puppeteer.Browser) {
   try {
     await browser.close();
   } catch (error) {
-    app.core.error.trace(error);
+    app.traceError(error);
   }
 }

@@ -1,7 +1,6 @@
 import * as api from 'express-openapi-json';
 import * as app from '..';
 
-// TODO: Add cache to listAsync. Make sure mutations clean the cache.
 export class LibraryController {
   @api.createOperation('LibraryList')
   async listAsync(model: app.ILibraryListContext): Promise<api.Result<app.ILibraryListResponse>> {

@@ -2,9 +2,9 @@ export class Future<T> {
   private readonly _timeout: number;
   private _hasReject?: boolean;
   private _hasResolve?: boolean;
-  private _reject?: Error;
+  private _reject?: any;
   private _resolve?: T;
-  private _resolver: (error?: Error, value?: T) => void;
+  private _resolver: (error?: any, value?: T) => void;
 
   constructor(timeout = 0) {
     this._resolver = () => undefined;
@@ -26,7 +26,7 @@ export class Future<T> {
 		});
   }
 
-  reject(error?: Error) {
+  reject(error?: any) {
     if (this._hasReject || this._hasResolve) return;
     this._hasReject = true;
     this._reject = error;
@@ -40,7 +40,7 @@ export class Future<T> {
     this._resolver(undefined, value);
   }
   
-  private queue(resolve: (value: T) => void, reject: (error?: Error) => void) {
+  private queue(resolve: (value: T) => void, reject: (error?: any) => void) {
     const previousResolver = this._resolver;
     this._resolver = (error, value) => {
       if (error) {
