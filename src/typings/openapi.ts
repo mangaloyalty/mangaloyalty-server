@@ -22,6 +22,7 @@ export interface ILibraryListItem {
   id: string;
   image: string;
   title: string;
+  unreadCount: number;
 }
 export interface ILibraryDetail {
   id: string;
