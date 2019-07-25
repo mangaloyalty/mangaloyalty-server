@@ -8,7 +8,7 @@ export class LibraryAdaptor implements app.IAdaptor {
   private readonly _pages: app.FutureMap<void>;
   private readonly _seriesId: string;
   private readonly _syncId: string;
-  private _isSynchronized?: boolean;
+  private _isSyncSuccess?: boolean;
 
   constructor(context: app.LibraryContext, seriesId: string, chapterId: string) {
     this._chapterId = chapterId;
@@ -20,42 +20,43 @@ export class LibraryAdaptor implements app.IAdaptor {
   }
 
   async expireAsync(pageCount: number) {
-    if (!pageCount) return;
     await this._lock.acquireAsync(async () => {
-      if (this._isSynchronized) return;
-      await app.core.file.removeAsync(path.join(app.settings.cacheCore, app.settings.cacheSyncName, this._syncId));
+      if (!pageCount || this._isSyncSuccess) return;
+      await app.core.system.removeAsync(path.join(app.settings.sync, this._syncId));
     });
   }
 
   async getAsync(pageNumber: number) {
     await this._pages.getAsync(String(pageNumber));
     return await this._lock.acquireAsync(async () => {
-      const page = await app.core.file.readJsonAsync<app.ISessionPage>(this._fetchPath(pageNumber));
+      const page = await app.core.system.readJsonAsync<app.ISessionPage>(this._createPath(pageNumber));
       return page;
     });
   }
 
   async setAsync(pageNumber: number, page: app.ISessionPage) {
     return await this._lock.acquireAsync(async () => {
-      await app.core.file.writeJsonAsync(this._fetchPath(pageNumber), page);
+      await app.core.system.writeJsonAsync(this._createPath(pageNumber), page);
       await this._pages.resolve(String(pageNumber));
     });
   }
   
   async successAsync(pageCount: number) {
-    if (!pageCount) return;
     await this._lock.acquireAsync(async () => {
+      if (!pageCount) return;
       await this._context.lockSeriesAsync(this._seriesId, async () => {
         try {
-          const detailPath = path.join(app.settings.libraryCore, this._seriesId, app.settings.librarySeriesName);
-          const detail = await app.core.file.readJsonAsync<app.ILibraryDetail>(detailPath);
+          const detailPath = path.join(app.settings.library, this._seriesId, app.settings.librarySeries);
+          const detail = await app.core.system.readJsonAsync<app.ILibraryDetail>(detailPath);
           const chapter = detail.chapters.find((chapter) => chapter.id === this._chapterId);
           if (chapter) {
             detail.lastChapterSyncAt = Date.now();
             chapter.syncAt = Date.now();
-            await this._moveAsync();
-            await app.core.file.writeJsonAsync(detailPath, detail);
-            this._isSynchronized = true;
+            const libraryPath = path.join(app.settings.library, this._seriesId, this._chapterId)
+            const syncPath = path.join(app.settings.sync, this._syncId);
+            await app.core.system.moveAsync(syncPath, libraryPath);
+            await app.core.system.writeJsonAsync(detailPath, detail);
+            this._isSyncSuccess = true;
           }
         } catch (error) {
           if (error && error.code === 'ENOENT') return;
@@ -65,15 +66,13 @@ export class LibraryAdaptor implements app.IAdaptor {
     });
   }
   
-  private _fetchPath(pageNumber: number) {
-    const fileName = app.zeroPrefix(pageNumber, 3);
-    if (this._isSynchronized) return path.join(app.settings.libraryCore, this._seriesId, this._chapterId, fileName);
-    return path.join(app.settings.cacheCore, app.settings.cacheSyncName, this._syncId, fileName);
-  }
-
-  private async _moveAsync() {
-    const libraryPath = path.join(app.settings.libraryCore, this._seriesId, this._chapterId)
-    const syncPath = path.join(app.settings.cacheCore, app.settings.cacheSyncName, this._syncId);
-    await app.core.file.moveAsync(syncPath, libraryPath);
+  private _createPath(pageNumber: number) {
+    if (this._isSyncSuccess) {
+      const fileName = app.createPrefix(pageNumber, 3);
+      return path.join(app.settings.library, this._seriesId, this._chapterId, fileName);
+    } else {
+      const fileName = app.createPrefix(pageNumber, 3);
+      return path.join(app.settings.sync, this._syncId, fileName);
+    }
   }
 }

@@ -2,7 +2,7 @@ import * as app from '..';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 
-export class FileManager {
+export class SystemManager {
   async moveAsync(relativeFromPath: string, relativeToPath: string) {
     const absoluteFromPath = path.join(app.settings.basePath, relativeFromPath);
     const absoluteToPath = path.join(app.settings.basePath, relativeToPath);

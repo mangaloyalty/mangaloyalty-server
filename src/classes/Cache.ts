@@ -8,7 +8,7 @@ export class Cache {
   private readonly _values: {[key: string]: app.Future<any> | Promise<any> | string};
 
   constructor(name: string, timeout?: number) {
-    this._basePath = path.join(app.settings.cacheCore, name);
+    this._basePath = path.join(app.settings.cache, name);
     this._expireTimeout = timeout;
     this._timeouts = {};
     this._values = {};
@@ -44,7 +44,7 @@ export class Cache {
     } else if (typeof value !== 'string') {
       return await value as T;
     } else try {
-      return await app.core.file.readJsonAsync<T>(path.join(this._basePath, value));
+      return await app.core.system.readJsonAsync<T>(path.join(this._basePath, value));
     } catch (error) {
       if (error && error.code === 'ENOENT') return await this.getAsync(key, valueFactory);
       throw error;
@@ -64,7 +64,7 @@ export class Cache {
       const id = app.createUniqueId();
       const value = await valuePromise;
       if (previousValue instanceof app.Future) previousValue.resolve(value);
-      await app.core.file.writeJsonAsync(path.join(this._basePath, id), value);
+      await app.core.system.writeJsonAsync(path.join(this._basePath, id), value);
       this._values[key] = id;
       this._updateTimeout(key);
       return value;
@@ -86,14 +86,14 @@ function expireWithTrace(cache: Cache, key: string) {
   try {
     cache.expire(key);
   } catch (error) {
-    app.core.error.trace(error);
+    app.traceError(error);
   }
 }
 
 async function removeWithTraceAsync(path: string) {
   try {
-    await app.core.file.removeAsync(path);
+    await app.core.system.removeAsync(path);
   } catch (error) {
-    app.core.error.trace(error);
+    app.traceError(error);
   }
 }

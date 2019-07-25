@@ -3,18 +3,18 @@ import * as path from 'path';
 
 export const settings = {
   basePath: path.resolve(os.homedir(), 'mangaloyalty'),
-  browserCache: 'chromeCache',
+  browser: 'chromeCache',
   browserHeadless: true,
   browserExitTimeout: 60000,
   browserNavigationTimeout: 30000,
   browserViewport: {width: 1920, height: 974},
-  cacheCore: 'coreCache',
-  cacheRemoteName: 'remote',
+  cache: 'coreCache',
+  cacheRemote: 'remote',
   cacheRemoteTimeout: 600000,
-  cacheSessionName: 'session',
-  cacheSyncName: 'sync',
-  libraryCore: 'library',
-  librarySeriesName: 'series',
-  librarySeriesPerPage: 70,
+  cacheSession: 'session',
+  library: 'library',
+  librarySeries: 'series',
+  librarySeriesPageSize: 70,
   sessionTimeout: 600000,
+  sync: 'sync'
 };

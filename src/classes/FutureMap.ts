@@ -4,7 +4,7 @@ export class FutureMap<T> {
   private readonly _timeout: number;
   private readonly _values: {[key: string]: app.Future<T>};
   private _hasReject?: boolean;
-  private _reject?: Error;
+  private _reject?: any;
 
   constructor(timeout = 0) {
     this._timeout = timeout;
@@ -19,7 +19,7 @@ export class FutureMap<T> {
     }
   }
 
-  reject(error?: Error) {
+  reject(error?: any) {
     if (this._hasReject) return;
     this._hasReject = true;
     this._reject = error;

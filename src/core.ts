@@ -1,13 +1,11 @@
-import {BrowserManager} from './managers/browserManager';
-import {ErrorManager} from './managers/errorManager';
-import {FileManager} from './managers/fileManager';
+import {BrowserManager} from './managers/BrowserManager';
 import {LibraryManager} from './managers/LibraryManager';
-import {SessionManager} from './managers/sessionManager';
+import {SessionManager} from './managers/SessionManager';
+import {SystemManager} from './managers/SystemManager';
 
 export const core = {
   browser: new BrowserManager(),
-  error: new ErrorManager(),
-  file: new FileManager(),
   library: new LibraryManager(),
-  session: new SessionManager()
+  session: new SessionManager(),
+  system: new SystemManager()
 };
