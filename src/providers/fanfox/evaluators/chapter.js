@@ -1,7 +1,7 @@
 async function evaluatorAsync() {
   const images = await getImagesAsync(document.querySelector('img.reader-main-img'));
   const pageCount = getPageCount(document.querySelectorAll('.cp-pager-list a[data-page]'));
-  const shouldContinue = getShouldContinue(document.querySelector('.cp-pager-list a:last-of-type'), images);
+  const shouldContinue = getShouldContinue(document.querySelector('.cp-pager-list span a:last-of-type'), images);
   return {images, pageCount, shouldContinue};
 
   /**

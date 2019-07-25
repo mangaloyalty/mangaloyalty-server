@@ -8,6 +8,7 @@
 export type IProviderName = "batoto" | "fanfox";
 export type IProviderSeriesUrl = string;
 export type IProviderChapterUrl = string;
+export type ILibraryFrequency = "never" | "hourly" | "daily" | "weekly";
 export type ISessionList = ISessionListItem[];
 
 export interface ILibraryId {
@@ -28,8 +29,13 @@ export interface ILibraryDetail {
   lastChapterSyncAt?: number;
   lastPageReadAt?: number;
   lastSyncAt: number;
+  automation: ILibraryDetailAutomation;
   chapters: ILibraryDetailChapter[];
   series: ILibraryDetailSeries;
+}
+export interface ILibraryDetailAutomation {
+  frequency: ILibraryFrequency;
+  sync: boolean;
 }
 export interface ILibraryDetailChapter {
   id: string;
@@ -104,6 +110,15 @@ export interface ILibrarySeriesReadContext {
 export interface ILibrarySeriesUpdateContext {
   path: {
     seriesId: string;
+  };
+}
+export interface ILibrarySeriesPatchContext {
+  path: {
+    seriesId: string;
+  };
+  query: {
+    frequency: ILibraryFrequency;
+    sync: boolean;
   };
 }
 export interface ILibraryChapterDeleteContext {

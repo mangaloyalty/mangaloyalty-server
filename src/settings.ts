@@ -13,6 +13,7 @@ export const settings = {
   cacheRemoteTimeout: 600000,
   cacheSession: 'session',
   library: 'library',
+  libraryAutomationInterval: 60000,
   librarySeries: 'series',
   librarySeriesPageSize: 70,
   sessionTimeout: 600000,
