@@ -64,7 +64,7 @@ export class Cache {
       const id = app.createUniqueId();
       const value = await valuePromise;
       if (previousValue instanceof app.Future) previousValue.resolve(value);
-      await app.core.system.writeJsonAsync(path.join(this._basePath, id), value);
+      await app.core.system.writeFileAsync(path.join(this._basePath, id), value);
       this._values[key] = id;
       this._updateTimeout(key);
       return value;

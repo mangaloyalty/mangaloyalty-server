@@ -1,9 +1,9 @@
 // TECH: Automation should retain the sync properties in memory and hook up to API changes, to avoid re-reading files (and waking up HDD) unnecessarily.
 // TECH: Library listings should retain the sortable properties in memory and only read the necessary files when requested.
+// TECH: Move from strictly JSON over the API in favor of binary responses for pages (thus losing all validation in the process). The 30% bandwidth hit is too severe.
 // TECH: Watch should clear in-memory persistence (including puppeteer.Response) for non-required/processed responses, and clear buffers asap.
-// TECH: Cache responses should use file-to-response-streaming to avoid unnecessary serialization/deserialization steps.
-// TECH: Chapters should split images across files for an efficient file-to-response-stream and no in-memory necessary.
-// TECH: GZip compression, including pre-compression for cache files, to avoid compression overhead on each hit.
+// TECH: Cache and library responses should use file-to-response-streaming to avoid unnecessary serialization/deserialization steps.
+// TECH: GZip compression, including pre-compression for cache files, to avoid compression overhead on each hit. Only for non-binary files!
 // UX: Core: Support an actual logger (logging into files, timestamps, traces).
 // UX: Core: Support basePath configuration from CLI (e.g. "mangaloyalty-server C:\manga")
 // UX: Core: Support custom configuration and expose listen port (read settings.json in basePath and merge).

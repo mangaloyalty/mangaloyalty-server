@@ -29,14 +29,15 @@ export class LibraryAdaptor implements app.IAdaptor {
   async getAsync(pageNumber: number) {
     await this._pages.getAsync(String(pageNumber));
     return await this._lock.acquireAsync(async () => {
-      const page = await app.core.system.readJsonAsync<app.ISessionPage>(this._createPath(pageNumber));
-      return page;
+      const buffer = await app.core.system.readFileAsync(this._createPath(pageNumber));
+      const image = buffer.toString('base64');
+      return {image};
     });
   }
 
-  async setAsync(pageNumber: number, page: app.ISessionPage) {
+  async setAsync(pageNumber: number, buffer: Buffer) {
     return await this._lock.acquireAsync(async () => {
-      await app.core.system.writeJsonAsync(this._createPath(pageNumber), page);
+      await app.core.system.writeFileAsync(this._createPath(pageNumber), buffer);
       await this._pages.resolve(String(pageNumber));
     });
   }
@@ -55,7 +56,7 @@ export class LibraryAdaptor implements app.IAdaptor {
             const libraryPath = path.join(app.settings.library, this._seriesId, this._chapterId)
             const syncPath = path.join(app.settings.sync, this._syncId);
             await app.core.system.moveAsync(syncPath, libraryPath);
-            await app.core.system.writeJsonAsync(detailPath, detail);
+            await app.core.system.writeFileAsync(detailPath, detail);
             this._isSyncSuccess = true;
           }
         } catch (error) {
