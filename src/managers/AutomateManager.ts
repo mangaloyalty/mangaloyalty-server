@@ -37,7 +37,8 @@ export class AutomateManager {
   }
   
   private async _chapterAsync(detail: app.ILibraryDetail) {
-    for (const chapter of detail.chapters.reverse().filter((chapter) => !chapter.syncAt)) {
+    for (const chapter of detail.chapters.reverse()) {
+      if (chapter.syncAt) continue;
       console.log(`[Automation] Fetching ${detail.series.title} -> ${chapter.title}`);
       const session = await app.core.library.chapterUpdateAsync(detail.id, chapter.id);
       if (session && await session.waitFinishedAsync()) {

@@ -215,11 +215,17 @@ function createDetailSeries(source: app.IRemoteDetail): app.ILibraryDetailSeries
 }
 
 function createPageResults(results: app.ILibraryDetail[], pageNumber?: number) {
-  const startIndex = ((pageNumber || 1) - 1) * app.settings.librarySeriesPageSize;
-  const stopIndex = startIndex + app.settings.librarySeriesPageSize;
-  const hasMorePages = results.length > stopIndex;
-  const items = results.slice(startIndex, stopIndex).map((detail) => ({id: detail.id, image: detail.series.image, title: detail.series.title}));
+  const start = ((pageNumber || 1) - 1) * app.settings.librarySeriesPageSize;
+  const stop = start + app.settings.librarySeriesPageSize;
+  const hasMorePages = results.length > stop;
+  const items = results.slice(start, stop).map((detail) => ({id: detail.id, image: detail.series.image, title: detail.series.title, unreadCount: computeUnreadCount(detail)}));
   return {hasMorePages, items};
+}
+
+function computeUnreadCount(detail: app.ILibraryDetail) {
+  const chapters = detail.chapters;
+  const unreadChapters = chapters.filter((chapter) => !chapter.pageCount || !chapter.pageReadNumber || chapter.pageReadNumber < chapter.pageCount);
+  return unreadChapters.length;
 }
 
 function synchronize(detail: app.ILibraryDetailChapter[], source: app.IRemoteDetailChapter[]) {

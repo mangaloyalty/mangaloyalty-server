@@ -508,11 +508,12 @@
       },
       "LibraryListItem": {
         "type": "object",
-        "required": ["id", "image", "title"],
+        "required": ["id", "image", "title", "unreadCount"],
         "properties": {
           "id": {"type": "string"},
           "image": {"type": "string"},
-          "title": {"type": "string"}
+          "title": {"type": "string"},
+          "unreadCount": {"type": "number"}
         }
       },
       "LibraryDetail": {
