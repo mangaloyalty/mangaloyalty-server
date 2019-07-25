@@ -14,7 +14,6 @@ export * from './classes/Watch';
 export * from './controllers/LibraryController';
 export * from './controllers/RemoteController';
 export * from './controllers/SessionController';
-export * from './providers/batoto/batotoProvider';
-export * from './providers/fanfox/fanfoxProvider';
+export * from './providers';
 export * from './typings/openapi';
 export * from './typings/system';

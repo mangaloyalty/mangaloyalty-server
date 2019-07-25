@@ -15,7 +15,7 @@ export class SessionRunnable implements app.ISession {
     this._url = url;
   }
 
-  async expireAsync(error?: Error) {
+  async expireAsync(error?: any) {
     if (this._hasReject) return;
     this._hasReject = true;
     this._hasStarted.reject(error);
