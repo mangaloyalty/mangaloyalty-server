@@ -14,9 +14,8 @@ export class Watch {
   async getAsync(url: string) {
     const response = await this._responses.getAsync(url);
     const responseBuffer = response && await response.buffer();
-    const image = responseBuffer && responseBuffer.toString('base64');
-    if (!image) throw new Error();
-    return image;
+    if (!responseBuffer) throw new Error();
+    return responseBuffer;
   }
 
   // TECH: Constraints for value[key] is string|undefined
@@ -25,7 +24,7 @@ export class Watch {
     for (const value of values) {
       const property = value[key];
       const image = typeof property === 'string' && await this.getAsync(property);
-      value[key] = image || value[key];
+      value[key] = (image && image.toString('base64')) || value[key];
     }
   }
 }

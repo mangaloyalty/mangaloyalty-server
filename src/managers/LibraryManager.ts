@@ -20,7 +20,7 @@ export class LibraryManager {
       const detail = createDetail(source);
       const detailPath = path.join(app.settings.library, detail.id, app.settings.librarySeries);
       synchronize(detail.chapters, source.chapters);
-      await app.core.system.writeJsonAsync(detailPath, detail);
+      await app.core.system.writeFileAsync(detailPath, detail);
       return detail.id;
     });
   }
@@ -60,7 +60,7 @@ export class LibraryManager {
         const detail = await app.core.system.readJsonAsync<app.ILibraryDetail>(detailPath);
         detail.automation.frequency = frequency;
         detail.automation.sync = sync;
-        await app.core.system.writeJsonAsync(detailPath, detail);
+        await app.core.system.writeFileAsync(detailPath, detail);
         return true;
       } catch (error) {
         if (error && error.code === 'ENOENT') return false;
@@ -78,7 +78,7 @@ export class LibraryManager {
         detail.lastSyncAt = Date.now();
         detail.series = createDetailSeries(source);
         synchronize(detail.chapters, source.chapters);
-        await app.core.system.writeJsonAsync(detailPath, detail);
+        await app.core.system.writeFileAsync(detailPath, detail);
         return detail;
       } catch (error) {
         if (error && error.code === 'ENOENT') return;
@@ -97,12 +97,12 @@ export class LibraryManager {
         if (chapter && chapter.deletedAt) {
           detail.chapters.splice(detail.chapters.indexOf(chapter), 1);
           await app.core.system.removeAsync(chapterPath);
-          await app.core.system.writeJsonAsync(detailPath, detail);
+          await app.core.system.writeFileAsync(detailPath, detail);
           return true;
         } else if (chapter && chapter.syncAt) {
           delete chapter.syncAt;
           await app.core.system.removeAsync(chapterPath);
-          await app.core.system.writeJsonAsync(detailPath, detail);
+          await app.core.system.writeFileAsync(detailPath, detail);
           return true;
         } else {
           return false;
@@ -142,7 +142,7 @@ export class LibraryManager {
         const chapter = detail.chapters.find((chapter) => chapter.id === chapterId);
         if (chapter && chapter.pageCount) {
           chapter.pageReadNumber = Math.max(1, Math.min(pageReadNumber, chapter.pageCount));
-          await app.core.system.writeJsonAsync(detailPath, detail);
+          await app.core.system.writeFileAsync(detailPath, detail);
           return true;
         } else {
           return false;
@@ -188,7 +188,7 @@ export class LibraryManager {
     const detailPath = path.join(app.settings.library, detail.id, app.settings.librarySeries);
     const session = await app.provider.startAsync(adaptor, chapter.url);
     chapter.pageCount = session.getData().pageCount;
-    await app.core.system.writeJsonAsync(detailPath, detail);
+    await app.core.system.writeFileAsync(detailPath, detail);
     return session;
   }
 }

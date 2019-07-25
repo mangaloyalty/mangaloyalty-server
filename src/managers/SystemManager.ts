@@ -15,6 +15,10 @@ export class SystemManager {
     return await fs.readdir(absolutePath);
   }
 
+  async readFileAsync(relativePath: string) {
+    return await fs.readFile(path.join(app.settings.basePath, relativePath));
+  }
+
   async readJsonAsync<T>(relativePath: string) {
     return await fs.readJson(path.join(app.settings.basePath, relativePath)) as T;
   }
@@ -23,16 +27,25 @@ export class SystemManager {
     await fs.remove(path.join(app.settings.basePath, relativePath));
   }
 
-  async writeJsonAsync<T>(relativePath: string, value: T) {
+  async writeFileAsync<T>(relativePath: string, value: T) {
     const absolutePath = path.join(app.settings.basePath, relativePath);
     const absolutePathTmp = `${absolutePath}.tmp`;
     await fs.ensureDir(path.dirname(absolutePath));
-    await fs.writeJson(absolutePathTmp, value, {spaces: 2});
-    try {
-      await fs.move(absolutePathTmp, absolutePath, {overwrite: true});
-    } catch (error) {
-      await fs.remove(absolutePathTmp);
-      throw error;
+    if (Buffer.isBuffer(value)) {
+      await fs.writeFile(absolutePathTmp, value);
+      await finalizeAsync(absolutePathTmp, absolutePath);
+    } else {
+      await fs.writeJson(absolutePathTmp, value, {spaces: 2});
+      await finalizeAsync(absolutePathTmp, absolutePath);
     }
+  }
+}
+
+async function finalizeAsync(absolutePathTmp: string, absolutePath: string) {
+  try {
+    await fs.move(absolutePathTmp, absolutePath, { overwrite: true });
+  } catch (error) {
+    await fs.remove(absolutePathTmp);
+    throw error;
   }
 }

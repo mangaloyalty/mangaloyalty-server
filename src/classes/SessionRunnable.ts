@@ -44,10 +44,10 @@ export class SessionRunnable implements app.ISession {
     return !this._hasEnded;
   }
   
-  async setImageAsync(pageNumber: number, image: string) {
+  async setImageAsync(pageNumber: number, buffer: Buffer) {
     if (this._hasEnded) throw this._error;
     if (pageNumber <= 0 || pageNumber > (this._pageCount || 0)) return;
-    await this._adaptor.setAsync(pageNumber, {image});
+    await this._adaptor.setAsync(pageNumber, buffer);
   }
 
   setPageCount(pageCount: number) {
