@@ -45,14 +45,14 @@ export class SessionManager {
       const session = this._values[id];
       delete this._timeouts[id];
       delete this._values[id];
-      expireWithTraceAsync(session);
+      endWithTraceAsync(session);
     }, app.settings.sessionTimeout);
   }
 }
 
-async function expireWithTraceAsync(session: app.ISession) {
+async function endWithTraceAsync(session: app.ISession) {
   try {
-    await session.expireAsync();
+    await session.endAsync();
   } catch (error) {
     app.traceError(error);
   }
