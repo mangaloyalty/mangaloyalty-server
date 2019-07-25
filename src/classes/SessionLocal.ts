@@ -28,8 +28,9 @@ export class SessionLocal implements app.ISession {
   async getPageAsync(pageNumber: number) {
     try {
       if (pageNumber <= 0 || pageNumber > this._pageCount) return;
-      const pagePath = path.join(this._basePath, app.createPrefix(pageNumber, 3));
-      return await app.core.system.readJsonAsync<app.ISessionPage>(pagePath);
+      const buffer = await app.core.system.readFileAsync(path.join(this._basePath, app.createPrefix(pageNumber, 3)));
+      const image = buffer.toString('base64');
+      return {image};
     } catch (error) {
       if (error && error.code === 'ENOENT') return;
       throw error;
