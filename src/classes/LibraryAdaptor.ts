@@ -51,7 +51,6 @@ export class LibraryAdaptor implements app.IAdaptor {
           const detail = await app.core.system.readJsonAsync<app.ILibraryDetail>(detailPath);
           const chapter = detail.chapters.find((chapter) => chapter.id === this._chapterId);
           if (chapter) {
-            detail.lastChapterSyncAt = Date.now();
             chapter.syncAt = Date.now();
             const libraryPath = path.join(app.settings.library, this._seriesId, this._chapterId)
             const syncPath = path.join(app.settings.sync, this._syncId);

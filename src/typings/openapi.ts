@@ -27,7 +27,7 @@ export interface ILibraryListItem {
 export interface ILibraryDetail {
   id: string;
   addedAt: number;
-  lastChapterSyncAt?: number;
+  lastChapterAddedAt?: number;
   lastPageReadAt?: number;
   lastSyncAt: number;
   automation: ILibraryDetailAutomation;

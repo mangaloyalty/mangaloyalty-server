@@ -9,7 +9,7 @@ export class LibraryManager {
       const ids = await app.core.system.readdirAsync(app.settings.library);
       const items = await Promise.all(ids.filter((id) => /^[0-9a-f]{48}$/.test(id)).map((id) => this.seriesReadAsync(id)));
       const validItems = items.filter(Boolean).map((detail) => detail!);
-      validItems.sort((a, b) => (b.lastChapterSyncAt || b.addedAt) - (a.lastChapterSyncAt || a.addedAt));
+      validItems.sort((a, b) => (b.lastChapterAddedAt || b.addedAt) - (a.lastChapterAddedAt || a.addedAt));
       return createPageResults(validItems, pageNumber);
     });
   }
@@ -19,7 +19,7 @@ export class LibraryManager {
       const source = await app.provider.seriesAsync(url);
       const detail = createDetail(source);
       const detailPath = path.join(app.settings.library, detail.id, app.settings.librarySeries);
-      synchronize(detail.chapters, source.chapters);
+      synchronize(detail, source.chapters);
       await app.core.system.writeFileAsync(detailPath, detail);
       return detail.id;
     });
@@ -77,7 +77,7 @@ export class LibraryManager {
         const source = await app.provider.seriesAsync(detail.series.url);
         detail.lastSyncAt = Date.now();
         detail.series = createDetailSeries(source);
-        synchronize(detail.chapters, source.chapters);
+        synchronize(detail, source.chapters);
         await app.core.system.writeFileAsync(detailPath, detail);
         return detail;
       } catch (error) {
@@ -228,34 +228,35 @@ function computeUnreadCount(detail: app.ILibraryDetail) {
   return unreadChapters.length;
 }
 
-function synchronize(detail: app.ILibraryDetailChapter[], source: app.IRemoteDetailChapter[]) {
+function synchronize(detail: app.ILibraryDetail, source: app.IRemoteDetailChapter[]) {
   const validIds: {[id: string]: boolean} = {};
   synchronizeExisting(detail, source, validIds);
   synchronizeRemoved(detail, validIds);
 }
 
-function synchronizeExisting(detail: app.ILibraryDetailChapter[], source: app.IRemoteDetailChapter[], validIds: {[id: string]: boolean}) {
+function synchronizeExisting(detail: app.ILibraryDetail, source: app.IRemoteDetailChapter[], validIds: {[id: string]: boolean}) {
   for (const sourceChapter of source) {
-    const detailChapter = detail.find((chapter) => chapter.url === sourceChapter.url);
+    const detailChapter = detail.chapters.find((chapter) => chapter.url === sourceChapter.url);
     if (detailChapter) {
       detailChapter.title = sourceChapter.title;
       validIds[detailChapter.id] = true;
     } else {
       const id = app.createUniqueId();
-      validIds[id] = Boolean(detail.push({id, addedAt: Date.now(), title: sourceChapter.title, url: sourceChapter.url}));
+      detail.lastChapterAddedAt = Date.now();
+      validIds[id] = Boolean(detail.chapters.push({id, addedAt: Date.now(), title: sourceChapter.title, url: sourceChapter.url}));
     }
   }
 }
 
-function synchronizeRemoved(detail: app.ILibraryDetailChapter[], validIds: {[id: string]: boolean}) {
-  for (let i = 0; i < detail.length; i++) {
-    const detailChapter = detail[i];
+function synchronizeRemoved(detail: app.ILibraryDetail, validIds: {[id: string]: boolean}) {
+  for (let i = 0; i < detail.chapters.length; i++) {
+    const detailChapter = detail.chapters[i];
     if (validIds[detailChapter.id]) {
       continue;
     } else if (detailChapter.syncAt) {
       detailChapter.deletedAt = detailChapter.deletedAt || Date.now();
     } else {
-      detail.splice(i, 1);
+      detail.chapters.splice(i, 1);
       i--;
     }
   }
