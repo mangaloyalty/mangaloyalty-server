@@ -4,7 +4,10 @@ import * as app from '..';
 export class LibraryController {
   @api.createOperation('LibraryList')
   async listAsync(model: app.ILibraryListContext): Promise<api.Result<app.ILibraryListResponse>> {
-    return api.json(await app.core.library.listAsync(model.query.sortBy, model.query.title, model.query.pageNumber));
+    const readStatus = model.query.readStatus;
+    const seriesStatus = model.query.seriesStatus;
+    const sortKey = model.query.sortKey;
+    return api.json(await app.core.library.listAsync(readStatus, seriesStatus, sortKey, model.query.title, model.query.pageNumber));
   }
 
   @api.createOperation('LibrarySeriesCreate')

@@ -19,7 +19,7 @@ export class AutomateManager {
 
   private async _mainAsync() {
     for (let pageNumber = 1; ; pageNumber++) {
-      const result = await app.core.library.listAsync('addedAt', undefined, pageNumber);
+      const result = await app.core.library.listAsync('all', 'all', 'addedAt', undefined, pageNumber);
       for (const item of result.items) await this._seriesAsync(item);
       if (!result.hasMorePages) break;
     }

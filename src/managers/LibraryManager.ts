@@ -4,13 +4,12 @@ import * as path from 'path';
 export class LibraryManager {
   private _context?: app.LibraryContext;
 
-  async listAsync(sortBy: app.IEnumeratorSortBy, title?: string, pageNumber?: number) {
+  async listAsync(readStatus: app.IEnumeratorReadStatus, seriesStatus: app.IEnumeratorSeriesStatus, sortKey: app.IEnumeratorSortKey, title?: string, pageNumber?: number) {
     return await this._ensureContext().lockMainAsync(async () => {
       const ids = await app.core.system.readdirAsync(app.settings.library);
       const items = await Promise.all(ids.filter((id) => /^[0-9a-f]{48}$/.test(id)).map((id) => this.seriesReadAsync(id)));
-      const validItems = items.filter(createSeriesFilter(title)).map((detail) => detail!);
-      validItems.sort(createSeriesSort(sortBy));
-      return createPageResults(validItems, pageNumber);
+      const validItems = items.filter(Boolean).map((detail) => ({detail: detail!, unreadCount: computeUnreadCount(detail!)}));
+      return createPageResults(validItems.filter(createSeriesFilter(readStatus, seriesStatus, title)).sort(createSeriesSorter(sortKey)), pageNumber);
     });
   }
 
@@ -214,30 +213,32 @@ function createDetailSeries(source: app.IRemoteDetail): app.ILibraryDetailSeries
   return {authors, genres, image, isCompleted, summary, title, url};
 }
 
-function createPageResults(results: app.ILibraryDetail[], pageNumber?: number) {
+function createPageResults(results: {detail: app.ILibraryDetail, unreadCount: number}[], pageNumber?: number) {
   const start = ((pageNumber || 1) - 1) * app.settings.librarySeriesPageSize;
   const stop = start + app.settings.librarySeriesPageSize;
   const hasMorePages = results.length > stop;
-  const items = results.slice(start, stop).map((detail) => ({id: detail.id, image: detail.series.image, title: detail.series.title, unreadCount: computeUnreadCount(detail)}));
+  const items = results.slice(start, stop).map((data) => ({id: data.detail.id, image: data.detail.series.image, title: data.detail.series.title, unreadCount: data.unreadCount}));
   return {hasMorePages, items};
 }
 
-function createSeriesFilter(title?: string) {
-  const pieces = title && title.split(/\s+/);
-  return (detail?: app.ILibraryDetail) => {
-    if (!detail || !pieces || !pieces.length) return Boolean(detail);
-    const lowerCaseTitle = detail.series.title.toLocaleLowerCase();
-    return pieces.every((piece) => lowerCaseTitle.includes(piece.toLocaleLowerCase()));
+function createSeriesFilter(readStatus: app.IEnumeratorReadStatus, seriesStatus: app.IEnumeratorSeriesStatus, title?: string) {
+  return (data: {detail: app.ILibraryDetail, unreadCount: number}) => {
+    if (readStatus === 'read' && data.unreadCount) return false;
+    if (readStatus === 'unread' && !data.unreadCount) return false;
+    if (seriesStatus === 'completed' && !data.detail.series.isCompleted) return false;
+    if (seriesStatus === 'ongoing' && data.detail.series.isCompleted) return false;
+    if (title && !title.split(/\s+/).every((piece) => data.detail.series.title.toLocaleLowerCase().includes(piece.toLocaleLowerCase()))) return false;
+    return true;
   }
 }
 
-function createSeriesSort(sortBy: app.IEnumeratorSortBy) {
-  return (a: app.ILibraryDetail, b: app.ILibraryDetail) => {
+function createSeriesSorter(sortBy: app.IEnumeratorSortKey) {
+  return (a: {detail: app.ILibraryDetail}, b: {detail: app.ILibraryDetail}) => {
     switch (sortBy) {
-      case 'addedAt': return b.addedAt - a.addedAt;
-      case 'lastChapterAddedAt': return (b.lastChapterAddedAt || b.addedAt) - (a.lastChapterAddedAt || a.addedAt);
-      case 'lastPageReadAt': return (b.lastPageReadAt || b.addedAt) - (a.lastPageReadAt || a.addedAt);
-      case 'title': return a.series.title.toLocaleLowerCase().localeCompare(b.series.title.toLocaleLowerCase());
+      case 'addedAt': return b.detail.addedAt - a.detail.addedAt;
+      case 'lastChapterAddedAt': return (b.detail.lastChapterAddedAt || b.detail.addedAt) - (a.detail.lastChapterAddedAt || a.detail.addedAt);
+      case 'lastPageReadAt': return (b.detail.lastPageReadAt || b.detail.addedAt) - (a.detail.lastPageReadAt || a.detail.addedAt);
+      case 'title': return a.detail.series.title.toLocaleLowerCase().localeCompare(b.detail.series.title.toLocaleLowerCase());
     }
   };
 }
