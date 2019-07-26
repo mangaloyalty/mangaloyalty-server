@@ -5,24 +5,15 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
-export type IProviderName = "batoto" | "fanfox";
-export type IProviderSeriesUrl = string;
+export type IEnumeratorFrequency = "never" | "hourly" | "daily" | "weekly";
+export type IEnumeratorProvider = "batoto" | "fanfox";
+export type IEnumeratorSortBy = "addedAt" | "lastChapterAddedAt" | "lastPageReadAt" | "title";
 export type IProviderChapterUrl = string;
-export type ILibraryFrequency = "never" | "hourly" | "daily" | "weekly";
+export type IProviderSeriesUrl = string;
 export type ISessionList = ISessionListItem[];
 
-export interface ILibraryId {
+export interface ILibraryCreate {
   id: string;
-}
-export interface ILibraryList {
-  hasMorePages: boolean;
-  items: ILibraryListItem[];
-}
-export interface ILibraryListItem {
-  id: string;
-  image: string;
-  title: string;
-  unreadCount: number;
 }
 export interface ILibraryDetail {
   id: string;
@@ -35,7 +26,7 @@ export interface ILibraryDetail {
   series: ILibraryDetailSeries;
 }
 export interface ILibraryDetailAutomation {
-  frequency: ILibraryFrequency;
+  frequency: IEnumeratorFrequency;
   sync: boolean;
 }
 export interface ILibraryDetailChapter {
@@ -57,14 +48,15 @@ export interface ILibraryDetailSeries {
   title: string;
   url: string;
 }
-export interface IRemoteList {
+export interface ILibraryList {
   hasMorePages: boolean;
-  items: IRemoteListItem[];
+  items: ILibraryListItem[];
 }
-export interface IRemoteListItem {
+export interface ILibraryListItem {
+  id: string;
   image: string;
   title: string;
-  url: string;
+  unreadCount: number;
 }
 export interface IRemoteDetail {
   authors: string[];
@@ -80,6 +72,15 @@ export interface IRemoteDetailChapter {
   title: string;
   url: string;
 }
+export interface IRemoteList {
+  hasMorePages: boolean;
+  items: IRemoteListItem[];
+}
+export interface IRemoteListItem {
+  image: string;
+  title: string;
+  url: string;
+}
 export interface ISessionListItem {
   id: string;
   pageCount: number;
@@ -91,6 +92,8 @@ export interface ISessionPage {
 export interface ILibraryListContext {
   query: {
     pageNumber?: number;
+    sortBy?: IEnumeratorSortBy;
+    title?: string;
   };
 }
 export interface ILibrarySeriesCreateContext {
@@ -118,7 +121,7 @@ export interface ILibrarySeriesPatchContext {
     seriesId: string;
   };
   query: {
-    frequency: ILibraryFrequency;
+    frequency: IEnumeratorFrequency;
     sync: boolean;
   };
 }
@@ -151,13 +154,13 @@ export interface ILibraryChapterPatchContext {
 }
 export interface IRemotePopularContext {
   query: {
-    providerName: IProviderName;
+    providerName: IEnumeratorProvider;
     pageNumber?: number;
   };
 }
 export interface IRemoteSearchContext {
   query: {
-    providerName: IProviderName;
+    providerName: IEnumeratorProvider;
     title: string;
     pageNumber?: number;
   };
@@ -182,7 +185,7 @@ export interface ISessionPageContext {
 }
 
 export type ILibraryListResponse = ILibraryList;
-export type ILibrarySeriesCreateResponse = ILibraryId;
+export type ILibrarySeriesCreateResponse = ILibraryCreate;
 export type ILibrarySeriesReadResponse = ILibraryDetail;
 export type ILibrarySeriesUpdateResponse = ILibraryDetail;
 export type ILibraryChapterReadResponse = ISessionListItem;
