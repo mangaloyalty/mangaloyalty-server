@@ -522,7 +522,7 @@
         "properties": {
           "id": {"type": "string"},
           "addedAt": {"type": "number"},
-          "lastChapterSyncAt": {"type": "number"},
+          "lastChapterAddedAt": {"type": "number"},
           "lastPageReadAt": {"type": "number"},
           "lastSyncAt": {"type": "number"},
           "automation": {"$ref": "#/components/schemas/LibraryDetailAutomation"},

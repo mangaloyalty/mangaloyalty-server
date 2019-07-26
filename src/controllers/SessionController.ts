@@ -3,12 +3,12 @@ import * as app from '..';
 
 export class SessionController {
   @api.createOperation('SessionList')
-  sessionList(): api.Result<app.ISessionListResponse> {
+  list(): api.Result<app.ISessionListResponse> {
     return api.json(app.core.session.getAll());
   }
 
   @api.createOperation('SessionPage')
-  async sessionPageAsync(model: app.ISessionPageContext): Promise<api.Result<app.ISessionPageResponse>> {
+  async pageAsync(model: app.ISessionPageContext): Promise<api.Result<app.ISessionPageResponse>> {
     const session = app.core.session.get(model.path.sessionId);
     const page = session && await session.getPageAsync(model.query.pageNumber);
     if (page) {
