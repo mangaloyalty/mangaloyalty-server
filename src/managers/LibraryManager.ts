@@ -4,7 +4,7 @@ import * as path from 'path';
 export class LibraryManager {
   private _context?: app.LibraryContext;
 
-  async listAsync(pageNumber?: number, sortBy?: app.IEnumeratorSortBy, title?: string) {
+  async listAsync(sortBy: app.IEnumeratorSortBy, title?: string, pageNumber?: number) {
     return await this._ensureContext().lockMainAsync(async () => {
       const ids = await app.core.system.readdirAsync(app.settings.library);
       const items = await Promise.all(ids.filter((id) => /^[0-9a-f]{48}$/.test(id)).map((id) => this.seriesReadAsync(id)));
@@ -231,13 +231,13 @@ function createSeriesFilter(title?: string) {
   }
 }
 
-function createSeriesSort(sortBy?: app.IEnumeratorSortBy) {
+function createSeriesSort(sortBy: app.IEnumeratorSortBy) {
   return (a: app.ILibraryDetail, b: app.ILibraryDetail) => {
     switch (sortBy) {
       case 'addedAt': return b.addedAt - a.addedAt;
       case 'lastChapterAddedAt': return (b.lastChapterAddedAt || b.addedAt) - (a.lastChapterAddedAt || a.addedAt);
       case 'lastPageReadAt': return (b.lastPageReadAt || b.addedAt) - (a.lastPageReadAt || a.addedAt);
-      default: return a.series.title.toLocaleLowerCase().localeCompare(b.series.title.toLocaleLowerCase());
+      case 'title': return a.series.title.toLocaleLowerCase().localeCompare(b.series.title.toLocaleLowerCase());
     }
   };
 }

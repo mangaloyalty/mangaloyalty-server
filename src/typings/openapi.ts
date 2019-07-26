@@ -91,9 +91,9 @@ export interface ISessionPage {
 }
 export interface ILibraryListContext {
   query: {
-    pageNumber?: number;
-    sortBy?: IEnumeratorSortBy;
+    sortBy: IEnumeratorSortBy;
     title?: string;
+    pageNumber?: number;
   };
 }
 export interface ILibrarySeriesCreateContext {
