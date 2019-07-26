@@ -13,10 +13,22 @@
         "description": "Retrieves each series.",
         "parameters": [{
           "in": "query",
-          "name": "sortBy",
+          "name": "readStatus",
+          "description": "The read status.",
+          "required": true,
+          "schema": {"$ref": "#/components/schemas/EnumeratorReadStatus"}
+        }, {
+          "in": "query",
+          "name": "seriesStatus",
+          "description": "The series status.",
+          "required": true,
+          "schema": {"$ref": "#/components/schemas/EnumeratorSeriesStatus"}
+        }, {
+          "in": "query",
+          "name": "sortKey",
           "description": "The sort key.",
           "required": true,
-          "schema": {"$ref": "#/components/schemas/EnumeratorSortBy"}
+          "schema": {"$ref": "#/components/schemas/EnumeratorSortKey"}
         }, {
           "in": "query",
           "name": "title",
@@ -489,7 +501,15 @@
         "type": "string",
         "enum": ["batoto", "fanfox"]
       },
-      "EnumeratorSortBy": {
+      "EnumeratorReadStatus": {
+        "type": "string",
+        "enum": ["all", "unread", "read"]
+      },
+      "EnumeratorSeriesStatus": {
+        "type": "string",
+        "enum": ["all", "ongoing", "completed"]
+      },
+      "EnumeratorSortKey": {
         "type": "string",
         "enum": ["addedAt", "lastChapterAddedAt", "lastPageReadAt", "title"]
       },

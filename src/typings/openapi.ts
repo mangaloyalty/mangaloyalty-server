@@ -7,7 +7,9 @@
 
 export type IEnumeratorFrequency = "never" | "hourly" | "daily" | "weekly";
 export type IEnumeratorProvider = "batoto" | "fanfox";
-export type IEnumeratorSortBy = "addedAt" | "lastChapterAddedAt" | "lastPageReadAt" | "title";
+export type IEnumeratorReadStatus = "all" | "unread" | "read";
+export type IEnumeratorSeriesStatus = "all" | "ongoing" | "completed";
+export type IEnumeratorSortKey = "addedAt" | "lastChapterAddedAt" | "lastPageReadAt" | "title";
 export type IProviderChapterUrl = string;
 export type IProviderSeriesUrl = string;
 export type ISessionList = ISessionListItem[];
@@ -91,7 +93,9 @@ export interface ISessionPage {
 }
 export interface ILibraryListContext {
   query: {
-    sortBy: IEnumeratorSortBy;
+    readStatus: IEnumeratorReadStatus;
+    seriesStatus: IEnumeratorSeriesStatus;
+    sortKey: IEnumeratorSortKey;
     title?: string;
     pageNumber?: number;
   };

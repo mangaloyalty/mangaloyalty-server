@@ -4,6 +4,7 @@
 // TECH: Watch should clear in-memory persistence (including puppeteer.Response) for non-required/processed responses, and clear buffers asap.
 // TECH: Cache and library responses should use file-to-response-streaming to avoid unnecessary serialization/deserialization steps.
 // TECH: GZip compression, including pre-compression for cache files, to avoid compression overhead on each hit. Only for non-binary files!
+// TECH: Filter and Map should be replaced with Linq-equivalents.
 // UX: Core: Support an actual logger (logging into files, timestamps, traces).
 // UX: Core: Support basePath configuration from CLI (e.g. "mangaloyalty-server C:\manga")
 // UX: Core: Support custom configuration and expose listen port (read settings.json in basePath and merge).
