@@ -4,12 +4,12 @@ import * as path from 'path';
 export class LibraryManager {
   private _context?: app.LibraryContext;
 
-  async listAsync(pageNumber?: number) {
+  async listAsync(pageNumber?: number, sortBy?: app.IEnumeratorSortBy, title?: string) {
     return await this._ensureContext().lockMainAsync(async () => {
       const ids = await app.core.system.readdirAsync(app.settings.library);
       const items = await Promise.all(ids.filter((id) => /^[0-9a-f]{48}$/.test(id)).map((id) => this.seriesReadAsync(id)));
-      const validItems = items.filter(Boolean).map((detail) => detail!);
-      validItems.sort((a, b) => (b.lastChapterAddedAt || b.addedAt) - (a.lastChapterAddedAt || a.addedAt));
+      const validItems = items.filter(createSeriesFilter(title)).map((detail) => detail!);
+      validItems.sort(createSeriesSort(sortBy));
       return createPageResults(validItems, pageNumber);
     });
   }
@@ -53,7 +53,7 @@ export class LibraryManager {
     });
   }
 
-  async seriesPatchAsync(seriesId: string, frequency: app.ILibraryFrequency, sync: boolean) {
+  async seriesPatchAsync(seriesId: string, frequency: app.IEnumeratorFrequency, sync: boolean) {
     return await this._ensureContext().lockSeriesAsync(seriesId, async () => {
       try {
         const detailPath = path.join(app.settings.library, seriesId, app.settings.librarySeries);
@@ -220,6 +220,26 @@ function createPageResults(results: app.ILibraryDetail[], pageNumber?: number) {
   const hasMorePages = results.length > stop;
   const items = results.slice(start, stop).map((detail) => ({id: detail.id, image: detail.series.image, title: detail.series.title, unreadCount: computeUnreadCount(detail)}));
   return {hasMorePages, items};
+}
+
+function createSeriesFilter(title?: string) {
+  const pieces = title && title.split(/\s+/);
+  return (detail?: app.ILibraryDetail) => {
+    if (!detail || !pieces || !pieces.length) return Boolean(detail);
+    const lowerCaseTitle = detail.series.title.toLocaleLowerCase();
+    return pieces.every((piece) => lowerCaseTitle.includes(piece.toLocaleLowerCase()));
+  }
+}
+
+function createSeriesSort(sortBy?: app.IEnumeratorSortBy) {
+  return (a: app.ILibraryDetail, b: app.ILibraryDetail) => {
+    switch (sortBy) {
+      case 'addedAt': return b.addedAt - a.addedAt;
+      case 'lastChapterAddedAt': return (b.lastChapterAddedAt || b.addedAt) - (a.lastChapterAddedAt || a.addedAt);
+      case 'lastPageReadAt': return (b.lastPageReadAt || b.addedAt) - (a.lastPageReadAt || a.addedAt);
+      default: return a.series.title.toLocaleLowerCase().localeCompare(b.series.title.toLocaleLowerCase());
+    }
+  };
 }
 
 function computeUnreadCount(detail: app.ILibraryDetail) {

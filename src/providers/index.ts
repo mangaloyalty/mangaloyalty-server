@@ -3,7 +3,7 @@ import {batotoProvider} from './batoto/batotoProvider';
 import {fanfoxProvider} from './fanfox/fanfoxProvider';
 
 export const provider = {
-  async popularAsync(providerName: app.IProviderName, pageNumber?: number) {
+  async popularAsync(providerName: app.IEnumeratorProvider, pageNumber?: number) {
     switch (providerName) {
       case 'batoto':
         return await batotoProvider.popularAsync(pageNumber);
@@ -14,7 +14,7 @@ export const provider = {
     }
   },
 
-  async searchAsync(providerName: app.IProviderName, title: string, pageNumber?: number) {
+  async searchAsync(providerName: app.IEnumeratorProvider, title: string, pageNumber?: number) {
     switch (providerName) {
       case 'batoto':
         return await batotoProvider.searchAsync(title, pageNumber);
