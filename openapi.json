@@ -13,15 +13,9 @@
         "description": "Retrieves each series.",
         "parameters": [{
           "in": "query",
-          "name": "pageNumber",
-          "description": "The page number.",
-          "required": false,
-          "schema": {"type": "number", "minimum": 1}
-        }, {
-          "in": "query",
           "name": "sortBy",
           "description": "The sort key.",
-          "required": false,
+          "required": true,
           "schema": {"$ref": "#/components/schemas/EnumeratorSortBy"}
         }, {
           "in": "query",
@@ -29,6 +23,12 @@
           "description": "The series title to search.",
           "required": false,
           "schema": {"type": "string"}
+        }, {
+          "in": "query",
+          "name": "pageNumber",
+          "description": "The page number.",
+          "required": false,
+          "schema": {"type": "number", "minimum": 1}
         }],
         "responses": {
           "200": {
