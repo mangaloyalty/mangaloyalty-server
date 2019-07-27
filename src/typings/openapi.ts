@@ -38,6 +38,7 @@ export interface ILibrarySeries {
   source: ILibrarySeriesSource;
 }
 export interface ILibrarySeriesAutomation {
+  checkedAt?: number;
   frequency: IEnumeratorFrequency;
   syncAll: boolean;
 }

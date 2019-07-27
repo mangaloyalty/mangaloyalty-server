@@ -15,7 +15,7 @@ export class FutureMap<T> {
     if (this._hasReject && !this._values[key]) {
       return await Promise.reject(this._reject);
     } else {
-      return await this._ensureValue(key).getAsync();
+      return await this._accessValue(key).getAsync();
     }
   }
 
@@ -28,10 +28,10 @@ export class FutureMap<T> {
 
   resolve(key: string, value: T) {
     if (this._hasReject) return;
-    this._ensureValue(key).resolve(value);
+    this._accessValue(key).resolve(value);
   }
 
-  private _ensureValue(key: string) {
+  private _accessValue(key: string) {
     if (this._values[key]) return this._values[key];
     this._values[key] = new app.Future(this._timeout);
     return this._values[key];

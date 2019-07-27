@@ -35,8 +35,9 @@ export class LibraryContextSeries {
 
   async saveAsync() {
     try {
-      if (!this._series || !this._seriesPath) return;
-      await app.core.system.writeFileAsync(this._seriesPath, this._series);
+      if (!this._series || !this._seriesPath) throw new Error();
+      const series = await this._series;
+      await app.core.system.writeFileAsync(this._seriesPath, series);
     } catch (error) {
       delete this._series;
       delete this._seriesPath;
