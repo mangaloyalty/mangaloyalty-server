@@ -30,10 +30,10 @@ export class SessionManager {
   }
   
   getOrCreateCache() {
-    return this._ensureCache();
+    return this._accessCache();
   }
 
-  private _ensureCache() {
+  private _accessCache() {
     if (this._cache) return this._cache;
     this._cache = new app.Cache(app.settings.cacheSession);
     return this._cache;

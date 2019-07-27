@@ -4,8 +4,14 @@ import * as path from 'path';
 export class LibraryManager {
   private _context?: app.LibraryContext;
 
+  accessContext() {
+    if (this._context) return this._context;
+    this._context = new app.LibraryContext();
+    return this._context;
+  }
+
   async listAsync(readStatus: app.IEnumeratorReadStatus, seriesStatus: app.IEnumeratorSeriesStatus, sortKey: app.IEnumeratorSortKey, title?: string, pageNumber?: number) {
-    return await this._ensureContext().lockMainAsync(async () => {
+    return await this.accessContext().lockMainAsync(async () => {
       const ids = await app.core.system.readdirAsync(app.settings.library);
       const items = await Promise.all(ids.filter((id) => /^[0-9a-f]{48}$/.test(id)).map((id) => this.seriesReadAsync(id)));
       const validItems = items.filter(Boolean).map((series) => ({series: series!, unreadCount: computeUnreadCount(series!)}));
@@ -14,7 +20,7 @@ export class LibraryManager {
   }
 
   async seriesCreateAsync(url: string) {
-    return await this._ensureContext().lockMainAsync(async () => {
+    return await this.accessContext().lockMainAsync(async () => {
       const remote = await app.provider.seriesAsync(url);
       const series = createSeries(remote);
       const seriesPath = path.join(app.settings.library, series.id, app.settings.librarySeries);
@@ -25,7 +31,7 @@ export class LibraryManager {
   }
 
   async seriesDeleteAsync(seriesId: string) {
-    return await this._ensureContext().lockSeriesAsync(seriesId, async (seriesContext) => {
+    return await this.accessContext().lockSeriesAsync(seriesId, async (seriesContext) => {
       try {
         const seriesPath = path.join(app.settings.library, seriesId);
         const deletePath = path.join(app.settings.library, `_${seriesId}`);
@@ -41,7 +47,7 @@ export class LibraryManager {
   }
 
   async seriesReadAsync(seriesId: string) {
-    return await this._ensureContext().lockSeriesAsync(seriesId, async (seriesContext) => {
+    return await this.accessContext().lockSeriesAsync(seriesId, async (seriesContext) => {
       try {
         return await seriesContext.getAsync();
       } catch (error) {
@@ -52,7 +58,7 @@ export class LibraryManager {
   }
 
   async seriesPatchAsync(seriesId: string, frequency: app.IEnumeratorFrequency, sync: boolean) {
-    return await this._ensureContext().lockSeriesAsync(seriesId, async (seriesContext) => {
+    return await this.accessContext().lockSeriesAsync(seriesId, async (seriesContext) => {
       try {
         const series = await seriesContext.getAsync();
         series.automation.frequency = frequency;
@@ -67,7 +73,7 @@ export class LibraryManager {
   }
 
   async seriesUpdateAsync(seriesId: string) {
-    return await this._ensureContext().lockSeriesAsync(seriesId, async (seriesContext) => {
+    return await this.accessContext().lockSeriesAsync(seriesId, async (seriesContext) => {
       try {
         const series = await seriesContext.getAsync();
         const remote = await app.provider.seriesAsync(series.source.url);
@@ -84,7 +90,7 @@ export class LibraryManager {
   }
 
   async chapterDeleteAsync(seriesId: string, chapterId: string) {
-    return await this._ensureContext().lockSeriesAsync(seriesId, async (seriesContext) => {
+    return await this.accessContext().lockSeriesAsync(seriesId, async (seriesContext) => {
       try {
         const series = await seriesContext.getAsync();
         const chapterPath = path.join(app.settings.library, seriesId, chapterId);
@@ -110,12 +116,12 @@ export class LibraryManager {
   }
 
   async chapterReadAsync(seriesId: string, chapterId: string) {
-    return await this._ensureContext().lockSeriesAsync(seriesId, async (seriesContext) => {
+    return await this.accessContext().lockSeriesAsync(seriesId, async (seriesContext) => {
       try {
         const series = await seriesContext.getAsync();
         const chapter = series.chapters.find((chapter) => chapter.id === chapterId);
         if (chapter && chapter.pageCount && chapter.syncAt) {
-          return app.core.session.add(new app.SessionLocal(this._ensureContext(), seriesId, chapterId, chapter.pageCount));
+          return app.core.session.add(new app.SessionLocal(this.accessContext(), seriesId, chapterId, chapter.pageCount));
         } else if (chapter) {
           return await this._startSessionAsync(this._createAdaptor(series.id, chapter.id, series.automation.syncAll), chapter, seriesContext);
         } else {
@@ -129,7 +135,7 @@ export class LibraryManager {
   }
 
   async chapterPatchAsync(seriesId: string, chapterId: string, pageReadNumber: number) {
-    return await this._ensureContext().lockSeriesAsync(seriesId, async (seriesContext) => {
+    return await this.accessContext().lockSeriesAsync(seriesId, async (seriesContext) => {
       try {
         const series = await seriesContext.getAsync();
         const chapter = series.chapters.find((chapter) => chapter.id === chapterId);
@@ -148,7 +154,7 @@ export class LibraryManager {
   }
 
   async chapterUpdateAsync(seriesId: string, chapterId: string) {
-    return await this._ensureContext().lockSeriesAsync(seriesId, async (seriesContext) => {
+    return await this.accessContext().lockSeriesAsync(seriesId, async (seriesContext) => {
       try {
         const series = await seriesContext.getAsync();
         const chapter = series.chapters.find((chapter) => chapter.id === chapterId);
@@ -166,16 +172,10 @@ export class LibraryManager {
 
   private _createAdaptor(seriesId: string, chapterId: string, syncAll: boolean) {
     return syncAll
-      ? new app.LibraryAdaptor(this._ensureContext(), seriesId, chapterId)
+      ? new app.LibraryAdaptor(this.accessContext(), seriesId, chapterId)
       : new app.CacheAdaptor(app.core.session.getOrCreateCache());
   }
   
-  private _ensureContext() {
-    if (this._context) return this._context;
-    this._context = new app.LibraryContext();
-    return this._context;
-  }
-
   private async _startSessionAsync(adaptor: app.IAdaptor, chapter: app.ILibrarySeriesChapter, seriesContext: app.LibraryContextSeries) {
     const session = await app.provider.startAsync(adaptor, chapter.url);
     const sessionData = session.getData();

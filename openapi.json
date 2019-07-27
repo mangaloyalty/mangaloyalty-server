@@ -570,6 +570,7 @@
         "type": "object",
         "required": ["frequency", "syncAll"],
         "properties": {
+          "checkedAt": {"type": "number"},
           "frequency": {"$ref": "#/components/schemas/EnumeratorFrequency"},
           "syncAll": {"type": "boolean"}
         }
