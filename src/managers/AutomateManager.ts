@@ -26,35 +26,34 @@ export class AutomateManager {
   }
 
   private async _seriesAsync(item: app.ILibraryListItem) {
-    const detail = await app.core.library.seriesReadAsync(item.id);
-    const nextSyncAt = detail && calculateNextSync(detail);
-    if (detail && nextSyncAt && nextSyncAt <= Date.now()) {
-      console.log(`[Automation] Fetching ${detail.series.title}`);
-      const updatedDetail = await app.core.library.seriesUpdateAsync(detail.id);
-      if (updatedDetail && updatedDetail.automation.sync) await this._chapterAsync(updatedDetail);
-      console.log(`[Automation] Finished ${detail.series.title}`);
+    const series = await app.core.library.seriesReadAsync(item.id);
+    const nextAt = series && computeNextAt(series);
+    if (series && nextAt && nextAt <= Date.now()) {
+      console.log(`[Automation] Updating ${series.source.title}`);
+      const updatedSeries = await app.core.library.seriesUpdateAsync(series.id);
+      if (updatedSeries && updatedSeries.automation.syncAll) await this._chapterAsync(updatedSeries);
     }
   }
   
-  private async _chapterAsync(detail: app.ILibraryDetail) {
-    for (const chapter of detail.chapters.reverse()) {
+  private async _chapterAsync(series: app.ILibrarySeries) {
+    for (const chapter of series.chapters.reverse()) {
       if (chapter.syncAt) continue;
-      console.log(`[Automation] Fetching ${detail.series.title} -> ${chapter.title}`);
-      const session = await app.core.library.chapterUpdateAsync(detail.id, chapter.id);
+      console.log(`[Automation] Fetching ${series.source.title} -> ${chapter.title}`);
+      const session = await app.core.library.chapterUpdateAsync(series.id, chapter.id);
       if (session && await session.waitFinishedAsync()) {
-        console.log(`[Automation] Finished ${detail.series.title} -> ${chapter.title}`);
+        console.log(`[Automation] Finished ${series.source.title} -> ${chapter.title}`);
       } else {
-        console.log(`[Automation] Rejected ${detail.series.title} -> ${chapter.title}`);
+        console.log(`[Automation] Rejected ${series.source.title} -> ${chapter.title}`);
       }
     }
   }
 }
 
-function calculateNextSync(detail: app.ILibraryDetail) {
-  switch (detail.automation.frequency) {
-    case 'hourly': return detail.lastSyncAt + 3600000;
-    case 'daily': return detail.lastSyncAt + 86400000;
-    case 'weekly': return detail.lastSyncAt + 604800000;
-    default: return Number.MAX_SAFE_INTEGER;
+function computeNextAt(series: app.ILibrarySeries) {
+  switch (series.automation.frequency) {
+    case 'hourly': return series.lastSyncAt + 3600000;
+    case 'daily': return series.lastSyncAt + 86400000;
+    case 'weekly': return series.lastSyncAt + 604800000;
+    default: return undefined;
   }
 }

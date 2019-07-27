@@ -45,17 +45,16 @@ export class LibraryAdaptor implements app.IAdaptor {
   async successAsync(pageCount: number) {
     await this._lock.acquireAsync(async () => {
       if (!pageCount) return;
-      await this._context.lockSeriesAsync(this._seriesId, async () => {
+      await this._context.lockSeriesAsync(this._seriesId, async (seriesContext) => {
         try {
-          const detailPath = path.join(app.settings.library, this._seriesId, app.settings.librarySeries);
-          const detail = await app.core.system.readJsonAsync<app.ILibraryDetail>(detailPath);
-          const chapter = detail.chapters.find((chapter) => chapter.id === this._chapterId);
+          const series = await seriesContext.getAsync();
+          const chapter = series.chapters.find((chapter) => chapter.id === this._chapterId);
           if (chapter) {
             chapter.syncAt = Date.now();
             const libraryPath = path.join(app.settings.library, this._seriesId, this._chapterId)
             const syncPath = path.join(app.settings.sync, this._syncId);
             await app.core.system.moveAsync(syncPath, libraryPath);
-            await app.core.system.writeFileAsync(detailPath, detail);
+            await seriesContext.saveAsync();
             this._isSyncSuccess = true;
           }
         } catch (error) {

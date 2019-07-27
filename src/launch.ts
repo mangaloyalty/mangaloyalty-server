@@ -1,5 +1,5 @@
+// TECH: Expire ContextSeries automatically to preserve memory. Automations will cause re-reading until the next point is tacked, too.
 // TECH: Automation should retain the sync properties in memory and hook up to API changes, to avoid re-reading files (and waking up HDD) unnecessarily.
-// TECH: Library listings should retain the sortable properties in memory and only read the necessary files when requested.
 // TECH: Move from strictly JSON over the API in favor of binary responses for pages (thus losing all validation in the process). The 30% bandwidth hit is too severe.
 // TECH: Watch should clear in-memory persistence (including puppeteer.Response) for non-required/processed responses, and clear buffers asap.
 // TECH: Cache and library responses should use file-to-response-streaming to avoid unnecessary serialization/deserialization steps.

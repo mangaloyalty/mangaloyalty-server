@@ -7,6 +7,7 @@ export * from './classes/Future';
 export * from './classes/FutureMap';
 export * from './classes/LibraryAdaptor';
 export * from './classes/LibraryContext';
+export * from './classes/LibraryContextSeries';
 export * from './classes/LibraryLock';
 export * from './classes/SessionLocal';
 export * from './classes/SessionRunnable';

@@ -38,7 +38,7 @@ export class BrowserManager {
       this._browser = puppeteer.launch({headless, userDataDir});
       return await this._browser;
     } catch (error) {
-      this._browser = undefined;
+      delete this._browser;
       throw error;
     }
   }
@@ -48,7 +48,7 @@ export class BrowserManager {
     this._exitTimeout = setTimeout(async () => {
       const browser = await this._browser;
       if (!browser || this._numberOfPages) return;
-      this._browser = undefined;
+      delete this._browser;
       await closeWithTraceAsync(browser);
     }, app.settings.browserExitTimeout);
   }
