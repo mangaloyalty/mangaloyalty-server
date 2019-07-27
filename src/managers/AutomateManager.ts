@@ -54,6 +54,7 @@ function computeNextAt(series: app.ILibrarySeries) {
     case 'hourly': return series.lastSyncAt + 3600000;
     case 'daily': return series.lastSyncAt + 86400000;
     case 'weekly': return series.lastSyncAt + 604800000;
+    case 'monthly': return series.lastSyncAt + 2419200000;
     default: return undefined;
   }
 }
