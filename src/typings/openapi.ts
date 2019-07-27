@@ -5,7 +5,7 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
-export type IEnumeratorFrequency = "never" | "hourly" | "daily" | "weekly";
+export type IEnumeratorFrequency = "never" | "hourly" | "daily" | "weekly" | "monthly";
 export type IEnumeratorProvider = "batoto" | "fanfox";
 export type IEnumeratorReadStatus = "all" | "unread" | "read";
 export type IEnumeratorSeriesStatus = "all" | "ongoing" | "completed";
