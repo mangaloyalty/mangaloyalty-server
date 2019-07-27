@@ -117,7 +117,7 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": {"$ref": "#/components/schemas/LibraryDetail"}
+                "schema": {"$ref": "#/components/schemas/LibrarySeries"}
               }
             }
           },
@@ -142,7 +142,7 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": {"$ref": "#/components/schemas/LibraryDetail"}
+                "schema": {"$ref": "#/components/schemas/LibrarySeries"}
               }
             }
           },
@@ -393,7 +393,7 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": {"$ref": "#/components/schemas/RemoteDetail"}
+                "schema": {"$ref": "#/components/schemas/RemoteSeries"}
               }
             }
           },
@@ -534,55 +534,6 @@
           "id": {"type": "string"}
         }
       },
-      "LibraryDetail": {
-        "type": "object",
-        "required": ["id", "addedAt", "lastSyncAt", "automation", "chapters", "series"],
-        "properties": {
-          "id": {"type": "string"},
-          "addedAt": {"type": "number"},
-          "lastChapterAddedAt": {"type": "number"},
-          "lastPageReadAt": {"type": "number"},
-          "lastSyncAt": {"type": "number"},
-          "automation": {"$ref": "#/components/schemas/LibraryDetailAutomation"},
-          "chapters": {"type": "array", "items": {"$ref": "#/components/schemas/LibraryDetailChapter"}},
-          "series": {"$ref": "#/components/schemas/LibraryDetailSeries"}
-        }
-      },
-      "LibraryDetailAutomation": {
-        "type": "object",
-        "required": ["frequency", "sync"],
-        "properties": {
-          "frequency": {"$ref": "#/components/schemas/EnumeratorFrequency"},
-          "sync": {"type": "boolean"}
-        }
-      },
-      "LibraryDetailChapter": {
-        "type": "object",
-        "required": ["id", "addedAt", "title", "url"],
-        "properties": {
-          "id": {"type": "string"},
-          "addedAt": {"type": "number"},
-          "deletedAt": {"type": "number"},
-          "syncAt": {"type": "number"},
-          "pageCount": {"type": "number"},
-          "pageReadNumber": {"type": "number"},
-          "title": {"type": "string"},
-          "url": {"type": "string"}
-        }
-      },
-      "LibraryDetailSeries": {
-        "type": "object",
-        "required": ["authors", "genres", "image", "isCompleted", "title", "url"],
-        "properties": {
-          "authors": {"type": "array", "items": {"type": "string"}},
-          "genres": {"type": "array", "items": {"type": "string"}},
-          "image": {"type": "string"},
-          "isCompleted": {"type": "boolean"},
-          "summary": {"type": "string"},
-          "title": {"type": "string"},
-          "url": {"type": "string"}
-        }
-      },
       "LibraryList": {
         "type": "object",
         "required": ["hasMorePages", "items"],
@@ -601,24 +552,51 @@
           "unreadCount": {"type": "number"}
         }
       },
-      "RemoteDetail": {
+      "LibrarySeries": {
         "type": "object",
-        "required": ["authors", "chapters", "genres", "image", "isCompleted", "title", "url"],
+        "required": ["id", "addedAt", "lastSyncAt", "automation", "chapters", "source"],
         "properties": {
-          "authors": {"type": "array", "items": {"type": "string"}},
-          "chapters": {"type": "array", "items": {"$ref": "#/components/schemas/RemoteDetailChapter"}},
-          "genres": {"type": "array", "items": {"type": "string"}},
-          "image": {"type": "string"},
-          "isCompleted": {"type": "boolean"},
-          "summary": {"type": "string"},
+          "id": {"type": "string"},
+          "addedAt": {"type": "number"},
+          "lastChapterAddedAt": {"type": "number"},
+          "lastPageReadAt": {"type": "number"},
+          "lastSyncAt": {"type": "number"},
+          "automation": {"$ref": "#/components/schemas/LibrarySeriesAutomation"},
+          "chapters": {"type": "array", "items": {"$ref": "#/components/schemas/LibrarySeriesChapter"}},
+          "source": {"$ref": "#/components/schemas/LibrarySeriesSource"}
+        }
+      },
+      "LibrarySeriesAutomation": {
+        "type": "object",
+        "required": ["frequency", "syncAll"],
+        "properties": {
+          "frequency": {"$ref": "#/components/schemas/EnumeratorFrequency"},
+          "syncAll": {"type": "boolean"}
+        }
+      },
+      "LibrarySeriesChapter": {
+        "type": "object",
+        "required": ["id", "addedAt", "title", "url"],
+        "properties": {
+          "id": {"type": "string"},
+          "addedAt": {"type": "number"},
+          "deletedAt": {"type": "number"},
+          "syncAt": {"type": "number"},
+          "pageCount": {"type": "number"},
+          "pageReadNumber": {"type": "number"},
           "title": {"type": "string"},
           "url": {"type": "string"}
         }
       },
-      "RemoteDetailChapter": {
+      "LibrarySeriesSource": {
         "type": "object",
-        "required": ["title", "url"],
+        "required": ["authors", "genres", "image", "isCompleted", "title", "url"],
         "properties": {
+          "authors": {"type": "array", "items": {"type": "string"}},
+          "genres": {"type": "array", "items": {"type": "string"}},
+          "image": {"type": "string"},
+          "isCompleted": {"type": "boolean"},
+          "summary": {"type": "string"},
           "title": {"type": "string"},
           "url": {"type": "string"}
         }
@@ -636,6 +614,28 @@
         "required": ["image", "title", "url"],
         "properties": {
           "image": {"type": "string"},
+          "title": {"type": "string"},
+          "url": {"type": "string"}
+        }
+      },
+      "RemoteSeries": {
+        "type": "object",
+        "required": ["authors", "chapters", "genres", "image", "isCompleted", "title", "url"],
+        "properties": {
+          "authors": {"type": "array", "items": {"type": "string"}},
+          "chapters": {"type": "array", "items": {"$ref": "#/components/schemas/RemoteSeriesChapter"}},
+          "genres": {"type": "array", "items": {"type": "string"}},
+          "image": {"type": "string"},
+          "isCompleted": {"type": "boolean"},
+          "summary": {"type": "string"},
+          "title": {"type": "string"},
+          "url": {"type": "string"}
+        }
+      },
+      "RemoteSeriesChapter": {
+        "type": "object",
+        "required": ["title", "url"],
+        "properties": {
           "title": {"type": "string"},
           "url": {"type": "string"}
         }

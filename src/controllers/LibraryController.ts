@@ -28,9 +28,9 @@ export class LibraryController {
 
   @api.createOperation('LibrarySeriesRead')
   async seriesReadAsync(model: app.ILibrarySeriesReadContext): Promise<api.Result<app.ILibrarySeriesReadResponse>> {
-    const detail = await app.core.library.seriesReadAsync(model.path.seriesId);
-    if (detail) {
-      return api.json(detail);
+    const series = await app.core.library.seriesReadAsync(model.path.seriesId);
+    if (series) {
+      return api.json(series);
     } else {
       return api.status(404);
     }
@@ -48,9 +48,9 @@ export class LibraryController {
 
   @api.createOperation('LibrarySeriesUpdate')
   async seriesUpdateAsync(model: app.ILibrarySeriesUpdateContext): Promise<api.Result<app.ILibrarySeriesUpdateResponse>> {
-    const detail = await app.core.library.seriesUpdateAsync(model.path.seriesId);
-    if (detail) {
-      return api.json(detail);
+    const series = await app.core.library.seriesUpdateAsync(model.path.seriesId);
+    if (series) {
+      return api.json(series);
     } else {
       return api.status(404);
     }
