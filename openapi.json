@@ -495,7 +495,7 @@
     "schemas": {
       "EnumeratorFrequency": {
         "type": "string",
-        "enum": ["never", "hourly", "daily", "weekly"]
+        "enum": ["never", "hourly", "daily", "weekly", "monthly"]
       },
       "EnumeratorProvider": {
         "type": "string",
