@@ -2,7 +2,7 @@ import * as app from '..';
 
 export class SessionRunnable implements app.ISession {
   private readonly _adaptor: app.IAdaptor;
-  private readonly _hasFinished: app.Future<boolean>;
+  private readonly _hasFinished: app.Future<void>;
   private readonly _hasProgress: app.Future<void>;
   private readonly _sessionId: string;
   private readonly _url: string;
@@ -22,8 +22,8 @@ export class SessionRunnable implements app.ISession {
     if (this._hasEnded) return;
     this._error = error;
     this._hasEnded = true;
-    this._hasFinished.resolve(false);
-    this._hasProgress.reject();
+    this._hasFinished.reject(error);
+    this._hasProgress.reject(error);
     await this._adaptor.expireAsync(this._pageCount || 0);
   }
     
@@ -59,7 +59,7 @@ export class SessionRunnable implements app.ISession {
   async successAsync() {
     if (this._hasEnded) throw this._error;
     await this._adaptor.successAsync(this._pageCount || 0);
-    this._hasFinished.resolve(true);
+    this._hasFinished.resolve();
   }
 
   async waitFinishedAsync() {
