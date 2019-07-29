@@ -25,7 +25,19 @@ export class AutomateManager {
     }
   }
 
-  private async _chapterAsync(series: app.ILibrarySeries) {
+  private async _seriesAsync(item: app.ILibraryListItem) {
+    const series = await app.core.library.seriesReadAsync(item.id);
+    const nextAt = series && computeNextAt(series);
+    if (series && nextAt && nextAt <= Date.now()) {
+      console.log(`[Automation] Fetching ${series.source.title}`);
+      const updatedSeries = await app.core.library.seriesUpdateAsync(series.id);
+      if (updatedSeries && updatedSeries.automation.syncAll) await this._seriesChaptersAsync(updatedSeries);
+      console.log(`[Automation] Finished ${series.source.title}`);
+      await this._trackCheckedAsync(item.id);
+    }
+  }
+  
+  private async _seriesChaptersAsync(series: app.ILibrarySeries) {
     for (const chapter of series.chapters.reverse()) {
       if (chapter.syncAt) continue;
       console.log(`[Automation] Fetching ${series.source.title} -> ${chapter.title}`);
@@ -38,17 +50,6 @@ export class AutomateManager {
     }
   }
 
-  private async _seriesAsync(item: app.ILibraryListItem) {
-    const series = await app.core.library.seriesReadAsync(item.id);
-    const nextAt = series && computeNextAt(series);
-    if (series && nextAt && nextAt <= Date.now()) {
-      console.log(`[Automation] Updating ${series.source.title}`);
-      const updatedSeries = await app.core.library.seriesUpdateAsync(series.id);
-      if (updatedSeries && updatedSeries.automation.syncAll) await this._chapterAsync(updatedSeries);
-      await this._trackCheckedAsync(item.id);
-    }
-  }
-  
   private async _trackCheckedAsync(seriesId: string) {
     await app.core.library.accessContext().lockSeriesAsync(seriesId, async (seriesContext) => {
       const series = await seriesContext.getAsync();
