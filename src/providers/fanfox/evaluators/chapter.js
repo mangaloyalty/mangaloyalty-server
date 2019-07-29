@@ -24,8 +24,9 @@ async function evaluatorAsync() {
     if (!anchorNodes || !anchorNodes.length) throw new Error();
     const pageData = Array.from(anchorNodes).map((anchorNode) => anchorNode.getAttribute('data-page'));
     const pageNumbers = pageData.filter((page) => page && /^[0-9]+$/.test(page)).map((page) => Number(page));
-    if (!pageNumbers.length) throw new Error();
-    return pageNumbers.sort((a, b) => a < b ? 1 : -1)[0];
+    const pageCount = pageNumbers.sort((a, b) => a < b ? 1 : -1)[0];
+    if (!pageCount) throw new Error();
+    return pageCount;
   }
 
   /**
