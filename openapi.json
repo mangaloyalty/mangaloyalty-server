@@ -647,9 +647,10 @@
       },
       "SessionListItem": {
         "type": "object",
-        "required": ["id", "pageCount", "url"],
+        "required": ["id", "isLocal", "pageCount", "url"],
         "properties": {
           "id": {"type": "string"},
+          "isLocal": {"type": "boolean"},
           "pageCount": {"type": "number"},
           "url": {"type": "string"}
         }

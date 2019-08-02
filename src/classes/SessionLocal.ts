@@ -9,13 +9,13 @@ export class SessionLocal implements app.ISession {
   private readonly _sessionId: string;
   private readonly _url: string;
 
-  constructor(context: app.LibraryContext, seriesId: string, chapterId: string, pageCount: number) {
+  constructor(context: app.LibraryContext, seriesId: string, chapterId: string, pageCount: number, url: string) {
     this._chapterId = chapterId;
     this._context = context;
     this._pageCount = pageCount;
     this._seriesId = seriesId;
     this._sessionId = app.createUniqueId();
-    this._url = `${seriesId}/${chapterId}`;
+    this._url = url;
   }
 
   endAsync() {
@@ -24,9 +24,10 @@ export class SessionLocal implements app.ISession {
 
   getData() {
     const id = this._sessionId;
+    const isLocal = true;
     const pageCount = this._pageCount;
     const url = this._url;
-    return {id, pageCount, url};
+    return {id, isLocal, pageCount, url};
   }
 
   async getPageAsync(pageNumber: number) {

@@ -29,9 +29,10 @@ export class SessionRunnable implements app.ISession {
     
   getData() {
     const id = this._sessionId;
+    const isLocal = false;
     const pageCount = this._pageCount || 0;
     const url = this._url;
-    return {id, pageCount, url};
+    return {id, isLocal, pageCount, url};
   }
 
   async getPageAsync(pageNumber: number) {
