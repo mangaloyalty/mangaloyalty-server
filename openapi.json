@@ -169,7 +169,7 @@
           "schema": {"$ref": "#/components/schemas/EnumeratorFrequency"}
         }, {
           "in": "query",
-          "name": "sync",
+          "name": "syncAll",
           "description": "Indicates whether chapters should be synchronized.",
           "required": true,
           "schema": {"type": "boolean"}
