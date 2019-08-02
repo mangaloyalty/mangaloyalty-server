@@ -86,6 +86,7 @@ export interface IRemoteSeriesChapter {
 }
 export interface ISessionListItem {
   id: string;
+  isLocal: boolean;
   pageCount: number;
   url: string;
 }

@@ -121,7 +121,7 @@ export class LibraryManager {
         const series = await seriesContext.getAsync();
         const chapter = series.chapters.find((chapter) => chapter.id === chapterId);
         if (chapter && chapter.pageCount && chapter.syncAt) {
-          return app.core.session.add(new app.SessionLocal(this.accessContext(), seriesId, chapterId, chapter.pageCount));
+          return app.core.session.add(new app.SessionLocal(this.accessContext(), seriesId, chapterId, chapter.pageCount, chapter.url));
         } else if (chapter) {
           return await this._startSessionAsync(this._createAdaptor(series.id, chapter.id, series.automation.syncAll), chapter, seriesContext);
         } else {
