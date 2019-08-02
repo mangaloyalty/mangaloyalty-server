@@ -127,7 +127,7 @@ export interface ILibrarySeriesPatchContext {
   };
   query: {
     frequency: IEnumeratorFrequency;
-    sync: boolean;
+    syncAll: boolean;
   };
 }
 export interface ILibraryChapterDeleteContext {
