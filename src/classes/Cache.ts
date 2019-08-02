@@ -25,7 +25,7 @@ export class Cache {
       clearTimeout(this._timeouts[key]);
       delete this._timeouts[key];
       delete this._values[key];
-      value.reject();
+      value.reject(new Error());
     } else if (value) {
       value.then(() => expireWithTrace(this, key));
     }
