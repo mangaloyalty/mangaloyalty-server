@@ -9,11 +9,14 @@ async function evaluatorAsync() {
    * @return {Promise<string[]>}
    */
   function getImagesAsync(imageNode) {
+    const endTime = Date.now() + 30000;
     return new Promise((resolve, reject) => {
-      const image = validateStrict(imageNode && imageNode.src);
-      if (!/\/loading\.gif$/.test(image)) resolve([image]);
-      else if (!imageNode) reject();
-      else imageNode.addEventListener('load', () => resolve([validateStrict(imageNode && imageNode.src)]));
+      (function tick() {
+        const image = validateStrict(imageNode && imageNode.src);
+        if (!/\/loading\.gif$/.test(image)) resolve([image]);
+        else if (!imageNode || Date.now() >= endTime) reject();
+        else setTimeout(tick, 10);
+      })();
     });
   }
 
