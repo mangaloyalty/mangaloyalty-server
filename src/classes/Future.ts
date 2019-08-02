@@ -29,7 +29,7 @@ export class Future<T> {
   reject(error?: any) {
     if (this._hasReject || this._hasResolve) return;
     this._hasReject = true;
-    this._reject = error;
+    this._reject = error || new Error();
     this._resolver(error);
   }
 

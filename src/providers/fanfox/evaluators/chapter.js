@@ -14,7 +14,7 @@ async function evaluatorAsync() {
       (function tick() {
         const image = validateStrict(imageNode && imageNode.src);
         if (!/\/loading\.gif$/.test(image)) resolve([image]);
-        else if (!imageNode || Date.now() >= endTime) reject();
+        else if (!imageNode || Date.now() >= endTime) reject(new Error());
         else setTimeout(tick, 10);
       })();
     });
