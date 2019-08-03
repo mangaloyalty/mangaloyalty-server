@@ -61,6 +61,7 @@ export class LibraryManager {
     return await this.accessContext().lockSeriesAsync(seriesId, async (seriesContext) => {
       try {
         const series = await seriesContext.getAsync();
+        delete series.automation.checkedAt;
         series.automation.frequency = frequency;
         series.automation.syncAll = sync;
         await seriesContext.saveAsync();
