@@ -1,3 +1,4 @@
+// TODO: Add library change events over a WebSocket. This will allow the client to hook up and update states when the server changes values.
 // TECH: Expire ContextSeries automatically to preserve memory. Automations will cause re-reading until the next point is tacked, too.
 // TECH: Automation should retain the sync properties in memory and hook up to API changes, to avoid re-reading files (and waking up HDD) unnecessarily.
 // TECH: Move from strictly JSON over the API in favor of binary responses for pages (thus losing all validation in the process). The 30% bandwidth hit is too severe.
