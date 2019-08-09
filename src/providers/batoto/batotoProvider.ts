@@ -42,7 +42,7 @@ export const batotoProvider = {
   async startAsync(adaptor: app.IAdaptor, url: string) {
     const session = app.core.session.add(new app.SessionRunnable(adaptor, url));
     new Runner(session, url).runAsync();
-    await session.waitProgressAsync();
+    await session.waitPageCountAsync();
     return session;
   }
 };

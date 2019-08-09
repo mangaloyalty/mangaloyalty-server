@@ -23,10 +23,11 @@ export class SessionManager {
     return this._values[id];
   }
 
-  getAll() {
+  getAll(seriesId?: string) {
     return Object.values(this._values)
       .map((session) => session.getData())
-      .filter((data) => Boolean(data.pageCount));
+      .filter((data) => Boolean(data.pageCount))
+      .filter((data) => !seriesId || (data.library && data.library.seriesId === seriesId));
   }
   
   getOrCreateCache() {
