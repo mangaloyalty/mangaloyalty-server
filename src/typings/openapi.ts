@@ -47,6 +47,7 @@ export interface ILibrarySeriesChapter {
   addedAt: number;
   deletedAt?: number;
   syncAt?: number;
+  isReadCompleted?: boolean;
   pageCount?: number;
   pageReadNumber?: number;
   title: string;
@@ -161,7 +162,8 @@ export interface ILibraryChapterPatchContext {
     chapterId: string;
   };
   query: {
-    pageReadNumber: number;
+    isReadCompleted?: boolean;
+    pageReadNumber?: number;
   };
 }
 export interface IRemotePopularContext {
@@ -189,7 +191,7 @@ export interface IRemoteStartContext {
 }
 export interface ISessionListContext {
   query: {
-    seriesId: string;
+    seriesId?: string;
   };
 }
 export interface ISessionPageContext {
