@@ -78,7 +78,7 @@ export class LibraryController {
 
   @api.createOperation('LibraryChapterPatch')
   async chapterPatchAsync(model: app.ILibraryChapterPatchContext): Promise<api.Result<void>> {
-    const success = await app.core.library.chapterPatchAsync(model.path.seriesId, model.path.chapterId, model.query.pageReadNumber);
+    const success = await app.core.library.chapterPatchAsync(model.path.seriesId, model.path.chapterId, model.query.isReadCompleted, model.query.pageReadNumber);
     if (success) {
       return api.status(200);
     } else {

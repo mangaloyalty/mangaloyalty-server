@@ -135,13 +135,15 @@ export class LibraryManager {
     });
   }
 
-  async chapterPatchAsync(seriesId: string, chapterId: string, pageReadNumber: number) {
+  async chapterPatchAsync(seriesId: string, chapterId: string, isReadCompleted?: boolean, pageReadNumber?: number) {
     return await this.accessContext().lockSeriesAsync(seriesId, async (seriesContext) => {
       try {
         const series = await seriesContext.getAsync();
         const chapter = series.chapters.find((chapter) => chapter.id === chapterId);
         if (chapter && chapter.pageCount) {
-          chapter.pageReadNumber = Math.max(1, Math.min(pageReadNumber, chapter.pageCount));
+          series.lastPageReadAt = Date.now();
+          chapter.isReadCompleted = typeof isReadCompleted === 'boolean' ? isReadCompleted : chapter.isReadCompleted;
+          chapter.pageReadNumber = typeof pageReadNumber === 'number' ? Math.max(1, Math.min(pageReadNumber, chapter.pageCount)) : chapter.pageReadNumber;
           await seriesContext.saveAsync();
           return true;
         } else {
