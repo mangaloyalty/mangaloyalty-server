@@ -433,6 +433,13 @@
         "operationId": "SessionList",
         "tags": ["Session"],
         "description": "Retrieves each session",
+        "parameters": [{
+          "in": "query",
+          "name": "seriesId",
+          "description": "The series identifier.",
+          "required": false,
+          "schema": {"type": "string"}
+        }],
         "responses": {
           "200": {
             "description": "Success",
@@ -651,8 +658,18 @@
         "properties": {
           "id": {"type": "string"},
           "isLocal": {"type": "boolean"},
+          "isSuccessful": {"type": "boolean"},
           "pageCount": {"type": "number"},
-          "url": {"type": "string"}
+          "url": {"type": "string"},
+          "library": {
+            "type": "object",
+            "required": ["seriesId", "chapterId", "sync"],
+            "properties": {
+              "seriesId": {"type": "string"},
+              "chapterId": {"type": "string"},
+              "sync": {"type": "boolean"}
+            }
+          }
         }
       },
       "SessionPage": {

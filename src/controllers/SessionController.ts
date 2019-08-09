@@ -3,8 +3,9 @@ import * as app from '..';
 
 export class SessionController {
   @api.createOperation('SessionList')
-  list(): api.Result<app.ISessionListResponse> {
-    return api.json(app.core.session.getAll());
+  list(model: app.ISessionListContext): api.Result<app.ISessionListResponse> {
+    const seriesId = model.query.seriesId;
+    return api.json(app.core.session.getAll(seriesId));
   }
 
   @api.createOperation('SessionPage')

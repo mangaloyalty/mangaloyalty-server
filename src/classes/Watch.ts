@@ -2,17 +2,17 @@ import * as app from '..';
 import * as puppeteer from 'puppeteer';
 
 export class Watch {
+  private readonly _futureResponses: app.FutureMap<puppeteer.Response | null>;
 	private readonly _page: puppeteer.Page;
-  private readonly _responses: app.FutureMap<puppeteer.Response | null>;
 
   constructor(page: puppeteer.Page) {
+    this._futureResponses = new app.FutureMap(app.settings.browserNavigationTimeout);
     this._page = page;
-    this._page.on('response', (response) => this._responses.resolve(response.url(), response));
-    this._responses = new app.FutureMap(app.settings.browserNavigationTimeout);
+    this._page.on('response', (response) => this._futureResponses.resolve(response.url(), response));
   }
 
   async getAsync(url: string) {
-    const response = await this._responses.getAsync(url);
+    const response = await this._futureResponses.getAsync(url);
     const responseBuffer = response && await response.buffer();
     if (!responseBuffer) throw new Error();
     return responseBuffer;
