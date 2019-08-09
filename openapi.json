@@ -291,9 +291,15 @@
           "schema": {"type": "string"}
         }, {
           "in": "query",
+          "name": "isReadCompleted",
+          "description": "Indicates whether the chapter has been read completely.",
+          "required": false,
+          "schema": {"type": "boolean"}
+        }, {
+          "in": "query",
           "name": "pageReadNumber",
           "description": "The page read number.",
-          "required": true,
+          "required": false,
           "schema": {"type": "number", "minimum": 1}
         }],
         "responses": {
@@ -590,6 +596,7 @@
           "addedAt": {"type": "number"},
           "deletedAt": {"type": "number"},
           "syncAt": {"type": "number"},
+          "isReadCompleted": {"type": "boolean"},
           "pageCount": {"type": "number"},
           "pageReadNumber": {"type": "number"},
           "title": {"type": "string"},
