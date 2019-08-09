@@ -2,18 +2,19 @@ import * as app from '..';
 
 export class SessionRunnable implements app.ISession {
   private readonly _adaptor: app.IAdaptor;
-  private readonly _hasFinished: app.Future<void>;
-  private readonly _hasProgress: app.Future<void>;
+  private readonly _futureFinished: app.Future<void>;
+  private readonly _futurePageCount: app.Future<void>;
   private readonly _sessionId: string;
   private readonly _url: string;
   private _error?: any;
   private _hasEnded?: boolean;
+  private _hasSuccess?: boolean;
   private _pageCount?: number;
 
   constructor(adaptor: app.IAdaptor, url: string) {
     this._adaptor = adaptor;
-    this._hasFinished = new app.Future();
-    this._hasProgress = new app.Future();
+    this._futureFinished = new app.Future();
+    this._futurePageCount = new app.Future();
     this._sessionId = app.createUniqueId();
     this._url = url;
   }
@@ -22,17 +23,20 @@ export class SessionRunnable implements app.ISession {
     if (this._hasEnded) return;
     this._error = error;
     this._hasEnded = true;
-    this._hasFinished.reject(error);
-    this._hasProgress.reject(error);
-    await this._adaptor.expireAsync(this._pageCount || 0);
+    this._hasSuccess = this._hasSuccess || false;
+    this._futureFinished.reject(error);
+    this._futurePageCount.reject(error);
+    await this._adaptor.endAsync(this._pageCount || 0);
   }
-    
+
   getData() {
     const id = this._sessionId;
     const isLocal = false;
+    const isSuccessful = this._hasSuccess;
+    const library = this._adaptor.detailLibrary;
     const pageCount = this._pageCount || 0;
     const url = this._url;
-    return {id, isLocal, pageCount, url};
+    return {id, isLocal, isSuccessful, pageCount, url, library};
   }
 
   async getPageAsync(pageNumber: number) {
@@ -54,22 +58,23 @@ export class SessionRunnable implements app.ISession {
   setPageCount(pageCount: number) {
     if (this._hasEnded) throw this._error;
     this._pageCount = this._pageCount || pageCount;
-    this._hasProgress.resolve();
+    this._futurePageCount.resolve();
   }
 
   async successAsync() {
     if (this._hasEnded) throw this._error;
     await this._adaptor.successAsync(this._pageCount || 0);
-    this._hasFinished.resolve();
+    this._hasSuccess = true;
+    this._futureFinished.resolve();
   }
 
   async waitFinishedAsync() {
     if (this._hasEnded) throw this._error;
-    return await this._hasFinished.getAsync();
+    await this._futureFinished.getAsync();
   }
 
-  async waitProgressAsync() {
+  async waitPageCountAsync() {
     if (this._hasEnded) throw this._error;
-    return await this._hasProgress.getAsync();
+    await this._futurePageCount.getAsync();
   }
 }

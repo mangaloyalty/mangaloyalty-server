@@ -1,7 +1,8 @@
 import * as app from '..';
 
 export interface IAdaptor {
-  expireAsync(pageCount: number): Promise<void>;
+  detailLibrary?: {seriesId: string, chapterId: string, sync: boolean};
+  endAsync(pageCount: number): Promise<void>;
   getAsync(pageNumber: number): Promise<app.ISessionPage>;
   setAsync(pageNumber: number, buffer: Buffer): Promise<void>;
   successAsync(pageCount: number): Promise<void>;

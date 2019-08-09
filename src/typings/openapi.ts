@@ -87,8 +87,14 @@ export interface IRemoteSeriesChapter {
 export interface ISessionListItem {
   id: string;
   isLocal: boolean;
+  isSuccessful?: boolean;
   pageCount: number;
   url: string;
+  library?: {
+    seriesId: string;
+    chapterId: string;
+    sync: boolean;
+  };
 }
 export interface ISessionPage {
   image: string;
@@ -179,6 +185,11 @@ export interface IRemoteSeriesContext {
 export interface IRemoteStartContext {
   query: {
     url: IProviderChapterUrl;
+  };
+}
+export interface ISessionListContext {
+  query: {
+    seriesId: string;
   };
 }
 export interface ISessionPageContext {

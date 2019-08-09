@@ -172,9 +172,11 @@ export class LibraryManager {
   }
 
   private _createAdaptor(seriesId: string, chapterId: string, syncAll: boolean) {
-    return syncAll
-      ? new app.LibraryAdaptor(this.accessContext(), seriesId, chapterId)
-      : new app.CacheAdaptor(app.core.session.getOrCreateCache());
+    if (syncAll) {
+      return new app.LibraryAdaptor(this.accessContext(), seriesId, chapterId)
+    } else {
+      return new app.CacheAdaptor(app.core.session.getOrCreateCache(), seriesId, chapterId);
+    }
   }
   
   private async _startSessionAsync(adaptor: app.IAdaptor, chapter: app.ILibrarySeriesChapter, seriesContext: app.LibraryContextSeries) {
