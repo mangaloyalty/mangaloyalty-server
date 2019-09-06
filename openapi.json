@@ -664,6 +664,7 @@
         "required": ["id", "isLocal", "pageCount", "url"],
         "properties": {
           "id": {"type": "string"},
+          "finishedAt": {"type": "number"},
           "isLocal": {"type": "boolean"},
           "isSuccessful": {"type": "boolean"},
           "pageCount": {"type": "number"},
