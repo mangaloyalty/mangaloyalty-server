@@ -87,6 +87,7 @@ export interface IRemoteSeriesChapter {
 }
 export interface ISessionListItem {
   id: string;
+  finishedAt?: number;
   isLocal: boolean;
   isSuccessful?: boolean;
   pageCount: number;
