@@ -7,6 +7,7 @@ export class SessionRunnable implements app.ISession {
   private readonly _sessionId: string;
   private readonly _url: string;
   private _error?: any;
+  private _finishedAt?: number;
   private _hasEnded?: boolean;
   private _hasSuccess?: boolean;
   private _pageCount?: number;
@@ -23,6 +24,7 @@ export class SessionRunnable implements app.ISession {
     if (this._hasEnded) return;
     this._error = error;
     this._hasEnded = true;
+    this._finishedAt = this._finishedAt || Date.now();
     this._hasSuccess = this._hasSuccess || false;
     this._futureFinished.reject(error);
     this._futurePageCount.reject(error);
@@ -31,12 +33,13 @@ export class SessionRunnable implements app.ISession {
 
   getData() {
     const id = this._sessionId;
+    const finishedAt = this._finishedAt;
     const isLocal = false;
     const isSuccessful = this._hasSuccess;
     const library = this._adaptor.detailLibrary;
     const pageCount = this._pageCount || 0;
     const url = this._url;
-    return {id, isLocal, isSuccessful, pageCount, url, library};
+    return {id, finishedAt, isLocal, isSuccessful, pageCount, url, library};
   }
 
   async getPageAsync(pageNumber: number) {
@@ -64,6 +67,7 @@ export class SessionRunnable implements app.ISession {
   async successAsync() {
     if (this._hasEnded) throw this._error;
     await this._adaptor.successAsync(this._pageCount || 0);
+    this._finishedAt = Date.now();
     this._hasSuccess = true;
     this._futureFinished.resolve();
   }
