@@ -140,10 +140,10 @@ export class LibraryManager {
       try {
         const series = await seriesContext.getAsync();
         const chapter = series.chapters.find((chapter) => chapter.id === chapterId);
-        if (chapter && chapter.pageCount) {
+        if (chapter) {
           series.lastPageReadAt = Date.now();
           chapter.isReadCompleted = typeof isReadCompleted === 'boolean' ? isReadCompleted : chapter.isReadCompleted;
-          chapter.pageReadNumber = typeof pageReadNumber === 'number' ? Math.max(1, Math.min(pageReadNumber, chapter.pageCount)) : chapter.pageReadNumber;
+          chapter.pageReadNumber = typeof pageReadNumber === 'number' ? pageReadNumber : chapter.pageReadNumber;
           await seriesContext.saveAsync();
           return true;
         } else {
