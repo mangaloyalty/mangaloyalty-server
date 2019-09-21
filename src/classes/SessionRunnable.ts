@@ -75,6 +75,7 @@ export class SessionRunnable implements app.ISession {
   async waitFinishedAsync() {
     if (this._hasEnded) throw this._error;
     await this._futureFinished.getAsync();
+    return this._hasSuccess;
   }
 
   async waitPageCountAsync() {
