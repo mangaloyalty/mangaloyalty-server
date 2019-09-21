@@ -195,7 +195,7 @@ function createSeries(remote: app.IRemoteSeries): app.ILibrarySeries {
   const id = app.createUniqueId();
   const addedAt = Date.now();
   const lastSyncAt = Date.now();
-  const automation: app.ILibrarySeriesAutomation = {frequency: 'never', syncAll: false};
+  const automation: app.ILibrarySeriesAutomation = {checkedAt: Date.now(), frequency: 'weekly', syncAll: false};
   const chapters: app.ILibrarySeriesChapter[] = [];
   const source = createSeriesSource(remote);
   return {id, addedAt, lastSyncAt, automation, chapters, source};
