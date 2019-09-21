@@ -19,8 +19,8 @@ function evaluator() {
    * @param {HTMLAnchorElement?} anchorNode
    */
   function getHasMorePages(anchorNode) {
-    const anchorHref = validateStrict(anchorNode && anchorNode.href);
-    const hasMorePages = !anchorHref.startsWith('javascript');
+    const anchorHref = validate(anchorNode && anchorNode.href);
+    const hasMorePages = Boolean(anchorHref && !anchorHref.startsWith('javascript'));
     return hasMorePages;
   }
 
