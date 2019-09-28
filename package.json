@@ -5,7 +5,7 @@
   "main": "server",
   "name": "mangaloyalty-server",
   "repository": "git://github.com/mangaloyalty/mangaloyalty-server",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "bin": {
     "mangaloyalty-server": "./bin/mangaloyalty-server"
   },
@@ -28,11 +28,12 @@
     "@types/node": "12.6.2",
     "@types/puppeteer": "1.12.4",
     "json-schema-to-typescript": "6.1.3",
+    "rimraf": "3.0.0",
     "typescript": "3.5.1"
   },
   "scripts": {
     "prepublish": "openapi2ts openapi.json > src/typings/openapi.ts",
-    "prepare": "tsc",
+    "prepare": "rimraf dist && tsc",
     "start": "node ."
   }
 }
