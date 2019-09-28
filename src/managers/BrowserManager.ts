@@ -33,9 +33,10 @@ export class BrowserManager {
   private async _browserAsync() {
     try {
       if (this._browser) return this._browser;
+      const executablePath = puppeteer.executablePath().replace('app.asar', 'app.asar.unpacked');
       const headless = app.settings.browserHeadless;
       const userDataDir = path.join(app.settings.basePath, app.settings.browser);
-      this._browser = puppeteer.launch({headless, userDataDir});
+      this._browser = puppeteer.launch({executablePath, headless, userDataDir});
       return await this._browser;
     } catch (error) {
       delete this._browser;
