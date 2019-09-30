@@ -661,12 +661,10 @@
       },
       "SessionListItem": {
         "type": "object",
-        "required": ["id", "isLocal", "pageCount", "url"],
+        "required": ["id", "pageCount", "url"],
         "properties": {
           "id": {"type": "string"},
           "finishedAt": {"type": "number"},
-          "isLocal": {"type": "boolean"},
-          "isSuccessful": {"type": "boolean"},
           "pageCount": {"type": "number"},
           "url": {"type": "string"},
           "library": {
