@@ -23,8 +23,8 @@ export class SessionRunnable implements app.ISession {
   async endAsync(error?: any) {
     if (this._hasEnded) return;
     this._error = error;
-    this._hasEnded = true;
     this._finishedAt = this._finishedAt || Date.now();
+    this._hasEnded = true;
     this._hasSuccess = this._hasSuccess || false;
     this._futureFinished.reject(error);
     this._futurePageCount.reject(error);
@@ -34,12 +34,10 @@ export class SessionRunnable implements app.ISession {
   getData() {
     const id = this._sessionId;
     const finishedAt = this._finishedAt;
-    const isLocal = false;
-    const isSuccessful = this._hasSuccess;
     const library = this._adaptor.detailLibrary;
     const pageCount = this._pageCount || 0;
     const url = this._url;
-    return {id, finishedAt, isLocal, isSuccessful, pageCount, url, library};
+    return {id, finishedAt, pageCount, url, library};
   }
 
   async getPageAsync(pageNumber: number) {
