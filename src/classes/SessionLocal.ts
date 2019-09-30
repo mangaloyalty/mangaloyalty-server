@@ -24,11 +24,10 @@ export class SessionLocal implements app.ISession {
 
   getData() {
     const id = this._sessionId;
-    const isLocal = true;
     const library = {seriesId: this._seriesId, chapterId: this._chapterId, sync: false};
     const pageCount = this._pageCount;
     const url = this._url;
-    return {id, isLocal, pageCount, url, library};
+    return {id, pageCount, url, library};
   }
 
   async getPageAsync(pageNumber: number) {
