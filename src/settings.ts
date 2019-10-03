@@ -15,7 +15,7 @@ export const settings = {
   library: 'library',
   libraryAutomationInterval: 30000,
   librarySeries: 'series',
-  librarySeriesPageSize: 70,
+  librarySeriesPageSize: 60,
   sessionTimeout: 600000,
   sync: 'sync'
 };
