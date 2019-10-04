@@ -10,10 +10,11 @@ export class SessionManager {
     this._values = {};
   }
 
-  add<T extends app.ISession>(session: T) {
-    const id = session.getData().id;
-    this._values[id] = session;
-    this._updateTimeout(id);
+  async addAsync<T extends app.ISession>(session: T) {
+    const sessionData = session.getData();
+    this._values[sessionData.id] = session;
+    this._updateTimeout(sessionData.id);
+    await app.core.socket.queueAsync({type: 'SessionCreate', session: sessionData});
     return session;
   }
   
@@ -56,5 +57,7 @@ async function endWithTraceAsync(session: app.ISession) {
     await session.endAsync();
   } catch (error) {
     app.traceError(error);
+  } finally {
+    await app.core.socket.queueAsync({type: 'SessionDelete', session: session.getData()});
   }
 }
