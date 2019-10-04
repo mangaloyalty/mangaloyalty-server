@@ -26,6 +26,7 @@ export class LibraryManager {
       const seriesPath = path.join(app.settings.library, series.id, app.settings.librarySeries);
       synchronize(series, remote.chapters);
       await app.core.system.writeFileAsync(seriesPath, series);
+      await app.core.socket.queueAsync({type: 'SeriesCreate', seriesId: series.id});
       return series.id;
     });
   }
@@ -37,6 +38,7 @@ export class LibraryManager {
         const deletePath = path.join(app.settings.library, `_${seriesId}`);
         await app.core.system.moveAsync(seriesPath, deletePath);
         await app.core.system.removeAsync(deletePath);
+        await app.core.socket.queueAsync({type: 'SeriesDelete', seriesId});
         seriesContext.expire();
         return true;
       } catch (error) {
@@ -57,14 +59,15 @@ export class LibraryManager {
     });
   }
 
-  async seriesPatchAsync(seriesId: string, frequency: app.IEnumeratorFrequency, sync: boolean) {
+  async seriesPatchAsync(seriesId: string, frequency: app.IEnumeratorFrequency, syncAll: boolean) {
     return await this.accessContext().lockSeriesAsync(seriesId, async (seriesContext) => {
       try {
         const series = await seriesContext.getAsync();
         delete series.automation.checkedAt;
         series.automation.frequency = frequency;
-        series.automation.syncAll = sync;
+        series.automation.syncAll = syncAll;
         await seriesContext.saveAsync();
+        await app.core.socket.queueAsync({type: 'SeriesPatch', seriesId});
         return true;
       } catch (error) {
         if (error && error.code === 'ENOENT') return false;
@@ -82,6 +85,7 @@ export class LibraryManager {
         series.source = createSeriesSource(remote);
         synchronize(series, remote.chapters);
         await seriesContext.saveAsync();
+        await app.core.socket.queueAsync({type: 'SeriesUpdate', seriesId});
         return series;
       } catch (error) {
         if (error && error.code === 'ENOENT') return;
@@ -100,11 +104,13 @@ export class LibraryManager {
           await app.core.system.removeAsync(chapterPath);
           series.chapters.splice(series.chapters.indexOf(chapter), 1);
           await seriesContext.saveAsync();
+          await app.core.socket.queueAsync({type: 'ChapterDelete', seriesId, chapterId});
           return true;
         } else if (chapter && chapter.syncAt) {
           await app.core.system.removeAsync(chapterPath);
           delete chapter.syncAt;
           await seriesContext.saveAsync();
+          await app.core.socket.queueAsync({type: 'ChapterDelete', seriesId, chapterId});
           return true;
         } else {
           return false;
@@ -122,9 +128,9 @@ export class LibraryManager {
         const series = await seriesContext.getAsync();
         const chapter = series.chapters.find((chapter) => chapter.id === chapterId);
         if (chapter && chapter.pageCount && chapter.syncAt) {
-          return app.core.session.add(new app.SessionLocal(this.accessContext(), seriesId, chapterId, chapter.pageCount, chapter.url));
+          return await app.core.session.addAsync(new app.SessionLocal(this.accessContext(), seriesId, chapterId, chapter.pageCount, chapter.url));
         } else if (chapter) {
-          return await this._startSessionAsync(this._createAdaptor(series.id, chapter.id, series.automation.syncAll), chapter, seriesContext);
+          return await app.provider.startAsync(this._createAdaptor(series.id, chapter.id, series.automation.syncAll), chapter.url);
         } else {
           return;
         }
@@ -141,10 +147,11 @@ export class LibraryManager {
         const series = await seriesContext.getAsync();
         const chapter = series.chapters.find((chapter) => chapter.id === chapterId);
         if (chapter) {
-          series.lastPageReadAt = Date.now();
           chapter.isReadCompleted = typeof isReadCompleted === 'boolean' ? isReadCompleted : chapter.isReadCompleted;
           chapter.pageReadNumber = typeof pageReadNumber === 'number' ? pageReadNumber : chapter.pageReadNumber;
+          series.lastPageReadAt = Date.now();
           await seriesContext.saveAsync();
+          await app.core.socket.queueAsync({type: 'ChapterPatch', seriesId, chapterId});
           return true;
         } else {
           return false;
@@ -162,7 +169,7 @@ export class LibraryManager {
         const series = await seriesContext.getAsync();
         const chapter = series.chapters.find((chapter) => chapter.id === chapterId);
         if (chapter) {
-          return await this._startSessionAsync(this._createAdaptor(series.id, chapter.id, true), chapter, seriesContext);
+          return await app.provider.startAsync(this._createAdaptor(series.id, chapter.id, true), chapter.url);
         } else {
           return;
         }
@@ -179,15 +186,6 @@ export class LibraryManager {
     } else {
       return new app.CacheAdaptor(app.core.session.getOrCreateCache(), seriesId, chapterId);
     }
-  }
-  
-  private async _startSessionAsync(adaptor: app.IAdaptor, chapter: app.ILibrarySeriesChapter, seriesContext: app.LibraryContextSeries) {
-    const session = await app.provider.startAsync(adaptor, chapter.url);
-    const sessionData = session.getData();
-    if (chapter.pageCount === sessionData.pageCount) return session;
-    chapter.pageCount = sessionData.pageCount;
-    await seriesContext.saveAsync();
-    return session;
   }
 }
 

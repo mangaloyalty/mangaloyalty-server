@@ -1,6 +1,8 @@
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const express = require('express');
+const http = require('http');
+const launchApp = require('./dist/launch');
 const swaggerUi = require('swagger-ui-dist');
 
 // Initialize the server router.
@@ -12,14 +14,16 @@ router.use(cors());
 router.get('/', (_, res) => res.redirect('/api/'));
 router.use('/api', express.static(`${__dirname}/public`));
 router.use('/api', express.static(swaggerUi.absolutePath()));
-router.use(require('./dist/launch'));
+router.use(launchApp.router);
 
 // Initialize the server.
 if (require.main && require.main.filename.startsWith(__dirname)) {
-  const server = express();
-  server.disable('x-powered-by');
-  server.use(router);
+  const serverApp = express();
+  const server = http.createServer(serverApp);
+  launchApp.attachSocket(server);
+  serverApp.disable('x-powered-by');
+  serverApp.use(router);
   server.listen(7783, () => console.log(`Server running on http://localhost:7783/`));
 } else {
-  module.exports = router;
+  module.exports = {attachSocket: launchApp.attachSocket, router};
 }

@@ -16,6 +16,8 @@
 import * as api from 'express-openapi-json';
 import * as app from '.';
 import * as fs from 'fs-extra';
+import * as http from 'http';
+import * as io from 'socket.io';
 import * as path from 'path';
 
 // Initialize the application.
@@ -29,8 +31,17 @@ const packageData = require('../package.json');
 openapiData.info.version = packageData.version;
 
 // Initialize the openapi router.
-module.exports = api.createCore(openapiData)
+export const router = api.createCore(openapiData)
   .controller(new app.LibraryController())
   .controller(new app.RemoteController())
   .controller(new app.SessionController())
   .router();
+  
+// Initialize the socket attach function.
+export function attachSocket(server: http.Server) {
+  const sio = io.default(server);
+  app.core.socket.addEventListener((action) => {
+    sio.emit('action', action);
+    return Promise.resolve();
+  });
+}

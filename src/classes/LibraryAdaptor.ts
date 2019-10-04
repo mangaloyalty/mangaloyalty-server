@@ -8,7 +8,7 @@ export class LibraryAdaptor implements app.IAdaptor {
   private readonly _lock: app.LibraryLock;
   private readonly _seriesId: string;
   private readonly _syncId: string;
-  private _isSyncSuccessful?: boolean;
+  private _hasMoved?: boolean;
 
   constructor(context: app.LibraryContext, seriesId: string, chapterId: string) {
     this._chapterId = chapterId;
@@ -28,7 +28,7 @@ export class LibraryAdaptor implements app.IAdaptor {
 
   async endAsync(pageCount: number) {
     await this._lock.acquireAsync(async () => {
-      if (!pageCount || this._isSyncSuccessful) return;
+      if (!pageCount || this._hasMoved) return;
       await app.core.system.removeAsync(path.join(app.settings.sync, this._syncId));
     });
   }
@@ -57,12 +57,11 @@ export class LibraryAdaptor implements app.IAdaptor {
           const series = await seriesContext.getAsync();
           const chapter = series.chapters.find((chapter) => chapter.id === this._chapterId);
           if (chapter) {
+            await this._moveAsync();
+            chapter.pageCount = pageCount;
             chapter.syncAt = Date.now();
-            const libraryPath = path.join(app.settings.library, this._seriesId, this._chapterId)
-            const syncPath = path.join(app.settings.sync, this._syncId);
-            await app.core.system.moveAsync(syncPath, libraryPath);
             await seriesContext.saveAsync();
-            this._isSyncSuccessful = true;
+            await app.core.socket.queueAsync({type: 'ChapterUpdate', seriesId: this._seriesId, chapterId: this._chapterId});
           }
         } catch (error) {
           if (error && error.code === 'ENOENT') return;
@@ -73,12 +72,15 @@ export class LibraryAdaptor implements app.IAdaptor {
   }
   
   private _createPath(pageNumber: number) {
-    if (this._isSyncSuccessful) {
-      const fileName = app.createPrefix(pageNumber, 3);
-      return path.join(app.settings.library, this._seriesId, this._chapterId, fileName);
-    } else {
-      const fileName = app.createPrefix(pageNumber, 3);
-      return path.join(app.settings.sync, this._syncId, fileName);
-    }
+    return this._hasMoved
+      ? path.join(app.settings.library, this._seriesId, this._chapterId, app.createPrefix(pageNumber, 3))
+      : path.join(app.settings.sync, this._syncId, app.createPrefix(pageNumber, 3));
+  }
+
+  private async _moveAsync() {
+    const libraryPath = path.join(app.settings.library, this._seriesId, this._chapterId);
+    const syncPath = path.join(app.settings.sync, this._syncId);
+    await app.core.system.moveAsync(syncPath, libraryPath);
+    this._hasMoved = true;
   }
 }
