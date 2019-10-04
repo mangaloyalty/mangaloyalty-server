@@ -42,10 +42,10 @@ export const fanfoxProvider = {
   },
 
   async startAsync(adaptor: app.IAdaptor, url: string) {
-    const session = app.core.session.add(new app.SessionRunnable(adaptor, url));
+    const session = new app.SessionRunnable(adaptor, url);
     new Runner(session, url).runAsync();
     await session.waitPageCountAsync();
-    return session;
+    return await app.core.session.addAsync(session);
   }
 };
 

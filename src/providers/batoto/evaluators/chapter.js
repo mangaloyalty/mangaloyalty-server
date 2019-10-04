@@ -16,6 +16,7 @@ function evaluator() {
    * @param {string[]} images
    */
   function getPageCount(images) {
+    if (!images.length) throw new Error();
     return images.length;
   }
 
