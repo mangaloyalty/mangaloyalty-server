@@ -231,7 +231,7 @@ function createSeriesSorter(sortBy: app.IEnumeratorSortKey) {
 
 function computeUnreadCount(series: app.ILibrarySeries) {
   const chapters = series.chapters;
-  const unreadChapters = chapters.filter((chapter) => !chapter.pageCount || !chapter.pageReadNumber || chapter.pageReadNumber < chapter.pageCount);
+  const unreadChapters = chapters.filter((chapter) => !chapter.isReadCompleted);
   return unreadChapters.length;
 }
 
