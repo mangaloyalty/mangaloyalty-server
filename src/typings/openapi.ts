@@ -206,7 +206,6 @@ export type ILibraryListResponse = ILibraryList;
 export type ILibrarySeriesCreateResponse = ILibraryCreate;
 export type ILibrarySeriesReadResponse = ILibrarySeries;
 export type ILibraryChapterReadResponse = ISessionListItem;
-export type ILibraryChapterUpdateResponse = ISessionListItem;
 export type IRemotePopularResponse = IRemoteList;
 export type IRemoteSearchResponse = IRemoteList;
 export type IRemoteSeriesResponse = IRemoteSeries;

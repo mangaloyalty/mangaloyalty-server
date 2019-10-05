@@ -30,23 +30,24 @@ export class AutomateManager {
     const nextAt = series && computeNextAt(series);
     if (series && nextAt && nextAt <= Date.now()) {
       console.log(`[Automation] Fetching ${series.source.title}`);
-      const success = await app.core.library.seriesUpdateAsync(series.id);
-      const updatedSeries = success && await app.core.library.seriesReadAsync(series.id);
-      if (updatedSeries && updatedSeries.automation.syncAll) await this._seriesChaptersAsync(updatedSeries);
+      if (await app.core.library.seriesUpdateAsync(series.id)) await this._seriesChaptersAsync(series.id);
       console.log(`[Automation] Finished ${series.source.title}`);
       await this._trackCheckedAsync(item.id);
     }
   }
   
-  private async _seriesChaptersAsync(series: app.ILibrarySeries) {
-    for (const chapter of series.chapters.slice().reverse()) {
-      if (chapter.syncAt) continue;
+  private async _seriesChaptersAsync(seriesId: string) {
+    const series = await app.core.library.seriesReadAsync(seriesId);
+    const chapter = series && series.chapters.slice().reverse().find((chapter) => !chapter.syncAt);
+    if (series && series.automation.syncAll && chapter) {
       console.log(`[Automation] Fetching ${series.source.title} -> ${chapter.title}`);
-      const session = await app.core.library.chapterUpdateAsync(series.id, chapter.id);
-      if (session && await session.waitFinishedAsync()) {
+      const session = await app.core.library.chapterReadAsync(series.id, chapter.id);
+      if (session instanceof app.SessionRunnable && await session.waitFinishedAsync()) {
         console.log(`[Automation] Finished ${series.source.title} -> ${chapter.title}`);
+        await this._seriesChaptersAsync(seriesId);
       } else {
         console.log(`[Automation] Rejected ${series.source.title} -> ${chapter.title}`);
+        await this._seriesChaptersAsync(seriesId);
       }
     }
   }
