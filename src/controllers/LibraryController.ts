@@ -87,10 +87,10 @@ export class LibraryController {
   }
 
   @api.createOperation('LibraryChapterUpdate')
-  async chapterUpdateAsync(model: app.ILibraryChapterUpdateContext): Promise<api.Result<app.ILibraryChapterUpdateResponse>> {
-    const session = await app.core.library.chapterUpdateAsync(model.path.seriesId, model.path.chapterId);
-    if (session) {
-      return api.json(session.getData());
+  async chapterUpdateAsync(model: app.ILibraryChapterUpdateContext): Promise<api.Result<void>> {
+    const success = await app.core.library.chapterUpdateAsync(model.path.seriesId, model.path.chapterId);
+    if (success) {
+      return api.status(200);
     } else {
       return api.status(404);
     }
