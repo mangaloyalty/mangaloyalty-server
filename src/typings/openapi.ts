@@ -205,7 +205,6 @@ export interface ISessionPageContext {
 export type ILibraryListResponse = ILibraryList;
 export type ILibrarySeriesCreateResponse = ILibraryCreate;
 export type ILibrarySeriesReadResponse = ILibrarySeries;
-export type ILibrarySeriesUpdateResponse = ILibrarySeries;
 export type ILibraryChapterReadResponse = ISessionListItem;
 export type ILibraryChapterUpdateResponse = ISessionListItem;
 export type IRemotePopularResponse = IRemoteList;

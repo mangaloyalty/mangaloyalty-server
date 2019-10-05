@@ -86,9 +86,9 @@ export class LibraryManager {
         synchronize(series, remote.chapters);
         await seriesContext.saveAsync();
         await app.core.socket.queueAsync({type: 'SeriesUpdate', seriesId});
-        return series;
+        return true;
       } catch (error) {
-        if (error && error.code === 'ENOENT') return;
+        if (error && error.code === 'ENOENT') return false;
         throw error;
       }
     });
