@@ -157,7 +157,7 @@ export class LibraryManager {
           return false;
         }
       } catch (error) {
-        if (error && error.code === 'ENOENT') return;
+        if (error && error.code === 'ENOENT') return false;
         throw error;
       }
     });
@@ -169,12 +169,13 @@ export class LibraryManager {
         const series = await seriesContext.getAsync();
         const chapter = series.chapters.find((chapter) => chapter.id === chapterId);
         if (chapter) {
-          return await app.provider.startAsync(this._createAdaptor(series.id, chapter.id, true), chapter.url);
+          await app.provider.startAsync(this._createAdaptor(series.id, chapter.id, true), chapter.url);
+          return true;
         } else {
-          return;
+          return false;
         }
       } catch (error) {
-        if (error && error.code === 'ENOENT') return;
+        if (error && error.code === 'ENOENT') return false;
         throw error;
       }
     });
