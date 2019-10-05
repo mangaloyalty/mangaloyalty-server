@@ -47,10 +47,10 @@ export class LibraryController {
   }
 
   @api.createOperation('LibrarySeriesUpdate')
-  async seriesUpdateAsync(model: app.ILibrarySeriesUpdateContext): Promise<api.Result<app.ILibrarySeriesUpdateResponse>> {
-    const series = await app.core.library.seriesUpdateAsync(model.path.seriesId);
-    if (series) {
-      return api.json(series);
+  async seriesUpdateAsync(model: app.ILibrarySeriesUpdateContext): Promise<api.Result<void>> {
+    const success = await app.core.library.seriesUpdateAsync(model.path.seriesId);
+    if (success) {
+      return api.status(200);
     } else {
       return api.status(404);
     }

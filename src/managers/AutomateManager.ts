@@ -30,7 +30,8 @@ export class AutomateManager {
     const nextAt = series && computeNextAt(series);
     if (series && nextAt && nextAt <= Date.now()) {
       console.log(`[Automation] Fetching ${series.source.title}`);
-      const updatedSeries = await app.core.library.seriesUpdateAsync(series.id);
+      const success = await app.core.library.seriesUpdateAsync(series.id);
+      const updatedSeries = success && await app.core.library.seriesReadAsync(series.id);
       if (updatedSeries && updatedSeries.automation.syncAll) await this._seriesChaptersAsync(updatedSeries);
       console.log(`[Automation] Finished ${series.source.title}`);
       await this._trackCheckedAsync(item.id);
