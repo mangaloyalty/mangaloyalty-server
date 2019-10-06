@@ -4,11 +4,11 @@ import * as path from 'path';
 
 export class BrowserManager {
   private _browser?: Promise<puppeteer.Browser>;
-  private _exitTimeout: NodeJS.Timeout;
+  private _exitTimeoutHandle: NodeJS.Timeout;
   private _numberOfPages: number;
 
   constructor() {
-    this._exitTimeout = setTimeout(() => undefined, 0);
+    this._exitTimeoutHandle = setTimeout(() => undefined, 0);
     this._numberOfPages = 0;
   }
 
@@ -45,8 +45,8 @@ export class BrowserManager {
   }
 
   private _updateTimeout() {
-    clearTimeout(this._exitTimeout);
-    this._exitTimeout = setTimeout(async () => {
+    clearTimeout(this._exitTimeoutHandle);
+    this._exitTimeoutHandle = setTimeout(async () => {
       const browser = await this._browser;
       if (!browser || this._numberOfPages) return;
       delete this._browser;

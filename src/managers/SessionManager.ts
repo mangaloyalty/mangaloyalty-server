@@ -1,12 +1,12 @@
 import * as app from '..';
 
 export class SessionManager {
-  private readonly _timeouts: {[id: string]: NodeJS.Timeout};
+  private readonly _timeoutHandles: {[id: string]: NodeJS.Timeout};
   private readonly _values: {[id: string]: app.ISession};
   private _cache?: app.Cache;
 
   constructor() {
-    this._timeouts = {};
+    this._timeoutHandles = {};
     this._values = {};
   }
 
@@ -42,10 +42,10 @@ export class SessionManager {
   }
 
   private _updateTimeout(id: string) {
-    clearTimeout(this._timeouts[id]);
-    this._timeouts[id] = setTimeout(() => {
+    clearTimeout(this._timeoutHandles[id]);
+    this._timeoutHandles[id] = setTimeout(() => {
       const session = this._values[id];
-      delete this._timeouts[id];
+      delete this._timeoutHandles[id];
       delete this._values[id];
       endWithTraceAsync(session);
     }, app.settings.sessionTimeout);
