@@ -41,8 +41,8 @@ export class LibraryManager {
         await app.core.system.moveAsync(seriesPath, deletePath);
         await app.core.system.removeAsync(deletePath);
         delete this._listCache;
-        seriesContext.expire();
         await app.core.socket.queueAsync({type: 'SeriesDelete', seriesId});
+        seriesContext.expire();
         return true;
       } catch (error) {
         if (error && error.code === 'ENOENT') return false;
@@ -71,6 +71,7 @@ export class LibraryManager {
         series.automation.syncAll = syncAll;
         await seriesContext.saveAsync();
         await app.core.socket.queueAsync({type: 'SeriesPatch', seriesId});
+        app.core.automate.tryRun();
         return true;
       } catch (error) {
         if (error && error.code === 'ENOENT') return false;
