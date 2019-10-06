@@ -1,23 +1,25 @@
 async function evaluatorAsync() {
-  const images = await getImagesAsync(document.querySelector('img.reader-main-img'));
-  const pageCount = getPageCount(document.querySelectorAll('.cp-pager-list a[data-page]'));
-  const shouldContinue = getShouldContinue(document.querySelector('.cp-pager-list span a:last-of-type'), images);
+  scrollTo(0, document.body.scrollHeight);
+  const images = await getImagesAsync(document.querySelectorAll('img.reader-main-img'));
+  const pageCount = images.length >= 2 ? images.length : getPageCount(document.querySelectorAll('.cp-pager-list a[data-page]'));
+  const shouldContinue = images.length >= 2 ? false : getShouldContinue(document.querySelector('.cp-pager-list span a:last-of-type'), images);
   return {images, pageCount, shouldContinue};
 
   /**
-   * @param {HTMLImageElement?} imageNode
+   * @param {NodeListOf<HTMLImageElement>?} imageNodes
    * @return {Promise<string[]>}
    */
-  function getImagesAsync(imageNode) {
+  function getImagesAsync(imageNodes) {
+    if (!imageNodes || !imageNodes.length) throw new Error();
     const endTime = Date.now() + 30000;
-    return new Promise((resolve, reject) => {
+    return Promise.all(Array.from(imageNodes).map((imageNode) => new Promise((resolve, reject) => {
       (function tick() {
         const image = validateStrict(imageNode && imageNode.src);
-        if (!/\/loading\.gif$/.test(image)) resolve([image]);
+        if (!/\/loading\.(gif|jpg)$/.test(image)) resolve(image);
         else if (!imageNode || Date.now() >= endTime) reject(new Error());
         else setTimeout(tick, 10);
       })();
-    });
+    })));
   }
 
   /**
