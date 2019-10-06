@@ -1,4 +1,4 @@
-// TODO: Automation should retain the sync properties in memory and hook up to API changes, to avoid re-reading files (and waking up HDD) unnecessarily.
+// TODO: Automation should retain the sync properties in memory and hook up to API changes
 // TODO: Handle non-image data. We actually stored HTML at some point (serving a 404).
 // TECH: Expire ContextSeries automatically to preserve memory. Automations will cause re-reading until the next point is tacked, too.
 // TECH: Move from strictly JSON over the API in favor of binary responses for pages (thus losing all validation in the process). The 30% bandwidth hit is too severe.

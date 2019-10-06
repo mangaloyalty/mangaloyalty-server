@@ -3,6 +3,7 @@ import * as path from 'path';
 
 export class LibraryManager {
   private _context?: app.LibraryContext;
+  private _listCache?: string[];
 
   accessContext() {
     if (this._context) return this._context;
@@ -12,8 +13,8 @@ export class LibraryManager {
 
   async listAsync(readStatus: app.IEnumeratorReadStatus, seriesStatus: app.IEnumeratorSeriesStatus, sortKey: app.IEnumeratorSortKey, title?: string, pageNumber?: number) {
     return await this.accessContext().lockMainAsync(async () => {
-      const ids = await app.core.system.readdirAsync(app.settings.library);
-      const items = await Promise.all(ids.filter((id) => /^[0-9a-f]{48}$/.test(id)).map((id) => this.seriesReadAsync(id)));
+      const ids = await this._getListAsync();
+      const items = await Promise.all(ids.map((id) => this.seriesReadAsync(id)));
       const validItems = items.filter(Boolean).map((series) => ({series: series!, unreadCount: computeUnreadCount(series!)}));
       return createPageResults(validItems.filter(createSeriesFilter(readStatus, seriesStatus, title)).sort(createSeriesSorter(sortKey)), pageNumber);
     });
@@ -26,6 +27,7 @@ export class LibraryManager {
       const seriesPath = path.join(app.settings.library, series.id, app.settings.librarySeries);
       synchronize(series, remote.chapters);
       await app.core.system.writeFileAsync(seriesPath, series);
+      delete this._listCache;
       await app.core.socket.queueAsync({type: 'SeriesCreate', seriesId: series.id});
       return series.id;
     });
@@ -38,8 +40,9 @@ export class LibraryManager {
         const deletePath = path.join(app.settings.library, `_${seriesId}`);
         await app.core.system.moveAsync(seriesPath, deletePath);
         await app.core.system.removeAsync(deletePath);
-        await app.core.socket.queueAsync({type: 'SeriesDelete', seriesId});
+        delete this._listCache;
         seriesContext.expire();
+        await app.core.socket.queueAsync({type: 'SeriesDelete', seriesId});
         return true;
       } catch (error) {
         if (error && error.code === 'ENOENT') return false;
@@ -129,8 +132,10 @@ export class LibraryManager {
     const chapter = series && series.chapters.find((chapter) => chapter.id === chapterId);
     if (chapter && chapter.pageCount && chapter.syncAt) {
       return await app.core.session.addAsync(new app.SessionLocal(seriesId, chapterId, chapter.pageCount, chapter.url));
+    } else if (series && series.automation.syncAll && chapter) {
+      return await app.provider.startAsync(new app.LibraryAdaptor(this.accessContext(), seriesId, chapterId), chapter.url);
     } else if (series && chapter) {
-      return await app.provider.startAsync(this._createAdaptor(series.id, chapter.id, series.automation.syncAll), chapter.url);
+      return await app.provider.startAsync(new app.CacheAdaptor(app.core.session.getOrCreateCache(), seriesId, chapterId), chapter.url);
     } else {
       return;
     }
@@ -162,19 +167,17 @@ export class LibraryManager {
     const series = await this.seriesReadAsync(seriesId);
     const chapter = series && series.chapters.find((chapter) => chapter.id === chapterId);
     if (series && chapter) {
-      await app.provider.startAsync(this._createAdaptor(series.id, chapter.id, true), chapter.url);
+      await app.provider.startAsync(new app.LibraryAdaptor(this.accessContext(), seriesId, chapterId), chapter.url);
       return true;
     } else {
       return false;
     }
   }
 
-  private _createAdaptor(seriesId: string, chapterId: string, syncAll: boolean) {
-    if (syncAll) {
-      return new app.LibraryAdaptor(this.accessContext(), seriesId, chapterId)
-    } else {
-      return new app.CacheAdaptor(app.core.session.getOrCreateCache(), seriesId, chapterId);
-    }
+  private async _getListAsync() {
+    if (this._listCache) return this._listCache;
+    this._listCache = (await app.core.system.readdirAsync(app.settings.library)).filter((id) => /^[0-9a-f]{48}$/.test(id));
+    return this._listCache;
   }
 }
 
