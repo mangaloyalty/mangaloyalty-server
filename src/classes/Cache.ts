@@ -4,26 +4,26 @@ import * as path from 'path';
 export class Cache {
   private readonly _basePath: string;
   private readonly _expireTimeout?: number;
-  private readonly _timeouts: {[key: string]: NodeJS.Timeout};
+  private readonly _timeoutHandles: {[key: string]: NodeJS.Timeout};
   private readonly _values: {[key: string]: app.Future<any> | Promise<any> | string};
 
   constructor(name: string, timeout?: number) {
     this._basePath = path.join(app.settings.cache, name);
     this._expireTimeout = timeout;
-    this._timeouts = {};
+    this._timeoutHandles = {};
     this._values = {};
   }
 
   expire(key: string) {
     const value = this._values[key];
     if (typeof value === 'string') {
-      clearTimeout(this._timeouts[key]);
-      delete this._timeouts[key];
+      clearTimeout(this._timeoutHandles[key]);
+      delete this._timeoutHandles[key];
       delete this._values[key];
       removeWithTraceAsync(path.join(this._basePath, value));
     } else if (value instanceof app.Future) {
-      clearTimeout(this._timeouts[key]);
-      delete this._timeouts[key];
+      clearTimeout(this._timeoutHandles[key]);
+      delete this._timeoutHandles[key];
       delete this._values[key];
       value.reject(new Error());
     } else if (value) {
@@ -77,8 +77,8 @@ export class Cache {
 
   private _updateTimeout(key: string) {
     if (!this._expireTimeout) return;
-    clearTimeout(this._timeouts[key]);
-    this._timeouts[key] = setTimeout(() => this.expire(key), this._expireTimeout);
+    clearTimeout(this._timeoutHandles[key]);
+    this._timeoutHandles[key] = setTimeout(() => this.expire(key), this._expireTimeout);
   }
 }
 
