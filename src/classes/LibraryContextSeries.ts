@@ -5,7 +5,7 @@ export class LibraryContextSeries {
   private readonly _onExpire: () => void;
   private readonly _seriesId: string;
   private _hasExpired?: boolean;
-  private _series?: Promise<app.ILibrarySeries>;
+  private _series?: Promise<app.IFileSeries>;
   private _seriesPath?: string;
 
   constructor(onExpire: () => void, seriesId: string) {
