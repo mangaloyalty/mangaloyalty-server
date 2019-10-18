@@ -543,13 +543,6 @@
         "type": "string",
         "enum": ["addedAt", "lastChapterAddedAt", "lastPageReadAt", "title"]
       },
-      "Image": {
-        "type": "object",
-        "required": ["image"],
-        "properties": {
-          "image": {"type": "string"}
-        }
-      },
       "ProviderChapterUrl": {
         "type": "string",
         "oneOf": [
@@ -563,6 +556,13 @@
           {"type": "string", "pattern": "^https:\\/\\/bato\\.to\\/series\\/[0-9]+$"},
           {"type": "string", "pattern": "^https:\\/\\/fanfox\\.net\\/manga\\/[^\\/]+\\/$"}
         ]
+      },
+      "Image": {
+        "type": "object",
+        "required": ["image"],
+        "properties": {
+          "image": {"type": "string"}
+        }
       },
       "LibraryCreate": {
         "type": "object",
@@ -628,11 +628,10 @@
       },
       "LibrarySeriesSource": {
         "type": "object",
-        "required": ["authors", "genres", "image", "isCompleted", "title", "url"],
+        "required": ["authors", "genres", "isCompleted", "title", "url"],
         "properties": {
           "authors": {"type": "array", "items": {"type": "string"}},
           "genres": {"type": "array", "items": {"type": "string"}},
-          "image": {"type": "string"},
           "isCompleted": {"type": "boolean"},
           "summary": {"type": "string"},
           "title": {"type": "string"},

@@ -64,10 +64,12 @@ export class LibraryManager {
     });
   }
 
-  async seriesReadAsync(seriesId: string) {
+  async seriesReadAsync(seriesId: string): Promise<app.ILibrarySeries | undefined> {
     return await this.accessContext().lockSeriesAsync(seriesId, async (seriesContext) => {
       try {
-        return await seriesContext.getAsync();
+        const series = await seriesContext.getAsync();
+        const source = Object.assign({}, series.source);
+        return {...series, source};
       } catch (error) {
         if (error && error.code === 'ENOENT') return;
         throw error;
@@ -195,7 +197,7 @@ export class LibraryManager {
   }
 }
 
-function createSeries(remote: app.IRemoteSeries): app.ILibrarySeries {
+function createSeries(remote: app.IRemoteSeries): app.IFileSeries {
   const id = app.createUniqueId();
   const addedAt = Date.now();
   const lastSyncAt = Date.now();
@@ -205,7 +207,7 @@ function createSeries(remote: app.IRemoteSeries): app.ILibrarySeries {
   return {id, addedAt, lastSyncAt, automation, chapters, source};
 }
 
-function createSeriesSource(remote: app.IRemoteSeries): app.ILibrarySeriesSource {
+function createSeriesSource(remote: app.IRemoteSeries): app.IFileSeriesSource {
   const authors = remote.authors;
   const genres = remote.genres;
   const image = remote.image;
