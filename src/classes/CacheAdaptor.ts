@@ -27,12 +27,11 @@ export class CacheAdaptor implements app.IAdaptor {
   }
 
   async getAsync(pageNumber: number) {
-    return await this._cache.getAsync<app.IImage>(`${this._cacheId}/${pageNumber}`);
+    return await this._cache.getAsync<Buffer>(`${this._cacheId}/${pageNumber}`);
   }
 
-  async setAsync(pageNumber: number, buffer: Buffer) {
-    const image = buffer.toString('base64');
-    await this._cache.setAsync(`${this._cacheId}/${pageNumber}`, () => ({image}));
+  async setAsync(pageNumber: number, image: Buffer) {
+    await this._cache.setAsync(`${this._cacheId}/${pageNumber}`, () => image);
   }
   
   successAsync() {
