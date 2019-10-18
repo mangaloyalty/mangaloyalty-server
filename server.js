@@ -1,4 +1,5 @@
 const bodyParser = require('body-parser');
+const compression = require('compression');
 const cors = require('cors');
 const express = require('express');
 const http = require('http');
@@ -8,6 +9,7 @@ const swaggerUi = require('swagger-ui-dist');
 // Initialize the server router.
 const router = express.Router();
 router.use(bodyParser.json());
+router.use(compression());
 router.use(cors());
 
 // Initialize the server router handlers.
