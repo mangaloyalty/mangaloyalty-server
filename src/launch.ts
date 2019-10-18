@@ -1,10 +1,5 @@
 // TODO: Handle non-image data. We actually stored HTML at some point (serving a 404).
-// TECH: Expire ContextSeries automatically to preserve memory. Automations will cause re-reading until the next point is tacked, too.
-// TECH: Move from strictly JSON over the API in favor of binary responses for pages (thus losing all validation in the process). The 30% bandwidth hit is too severe.
 // TECH: Watch should clear in-memory persistence (including puppeteer.Response) for non-required/processed responses, and clear buffers asap.
-// TECH: Cache and library responses should use file-to-response-streaming to avoid unnecessary serialization/deserialization steps.
-// TECH: GZip compression, including pre-compression for cache files, to avoid compression overhead on each hit. Only for non-binary files!
-// TECH: Filter and Map should be replaced with Linq-equivalents.
 // UX: Core: Support an actual logger (logging into files, timestamps, traces).
 // UX: Core: Support basePath configuration from CLI (e.g. "mangaloyalty-server C:\manga")
 // UX: Core: Support custom configuration and expose listen port (read settings.json in basePath and merge).
