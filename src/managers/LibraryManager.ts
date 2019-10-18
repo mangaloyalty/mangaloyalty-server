@@ -51,6 +51,19 @@ export class LibraryManager {
     });
   }
 
+  async seriesPreviewImageAsync(seriesId: string) {
+    return await this.accessContext().lockSeriesAsync(seriesId, async (seriesContext) => {
+      try {
+        const series = await seriesContext.getAsync();
+        const image = series.source.image;
+        return {image};
+      } catch (error) {
+        if (error && error.code === 'ENOENT') return;
+        throw error;
+      }
+    });
+  }
+
   async seriesReadAsync(seriesId: string) {
     return await this.accessContext().lockSeriesAsync(seriesId, async (seriesContext) => {
       try {
@@ -207,7 +220,7 @@ function createPageResults(filteredItems: {series: app.ILibrarySeries, unreadCou
   const start = ((pageNumber || 1) - 1) * app.settings.librarySeriesPageSize;
   const stop = start + app.settings.librarySeriesPageSize;
   const hasMorePages = filteredItems.length > stop;
-  const items = filteredItems.slice(start, stop).map((data) => ({id: data.series.id, image: data.series.source.image, title: data.series.source.title, unreadCount: data.unreadCount}));
+  const items = filteredItems.slice(start, stop).map((data) => ({id: data.series.id, title: data.series.source.title, unreadCount: data.unreadCount}));
   return {hasMorePages, items};
 }
 
