@@ -179,6 +179,33 @@
         }
       }
     },
+    "/api/library/{seriesId}/previewImage": {
+      "get": {
+        "operationId": "LibrarySeriesPreviewImage",
+        "tags": ["Library"], 
+        "description": "Retrieves the series image.",
+        "parameters": [{
+          "in": "path",
+          "name": "seriesId",
+          "description": "The series identifier.",
+          "required": true,
+          "schema": {"type": "string"}
+        }],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/Image"}
+              }
+            }
+          },
+          "400": {"$ref": "#/components/responses/BadRequest"},
+          "404": {"$ref": "#/components/responses/NotFound"},
+          "500": {"$ref": "#/components/responses/InternalServerError"}
+        }
+      }
+    },
     "/api/library/{seriesId}/{chapterId}": {
       "delete": {
         "operationId": "LibraryChapterDelete",
@@ -472,7 +499,7 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": {"$ref": "#/components/schemas/SessionPage"}
+                "schema": {"$ref": "#/components/schemas/Image"}
               }
             }
           },
@@ -516,6 +543,13 @@
         "type": "string",
         "enum": ["addedAt", "lastChapterAddedAt", "lastPageReadAt", "title"]
       },
+      "Image": {
+        "type": "object",
+        "required": ["image"],
+        "properties": {
+          "image": {"type": "string"}
+        }
+      },
       "ProviderChapterUrl": {
         "type": "string",
         "oneOf": [
@@ -547,10 +581,9 @@
       },
       "LibraryListItem": {
         "type": "object",
-        "required": ["id", "image", "title", "unreadCount"],
+        "required": ["id", "title", "unreadCount"],
         "properties": {
           "id": {"type": "string"},
-          "image": {"type": "string"},
           "title": {"type": "string"},
           "unreadCount": {"type": "number"}
         }
@@ -666,13 +699,6 @@
               "sync": {"type": "boolean"}
             }
           }
-        }
-      },
-      "SessionPage": {
-        "type": "object",
-        "required": ["image"],
-        "properties": {
-          "image": {"type": "string"}
         }
       }
     }
