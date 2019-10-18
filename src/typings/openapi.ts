@@ -58,7 +58,6 @@ export interface ILibrarySeriesChapter {
 export interface ILibrarySeriesSource {
   authors: string[];
   genres: string[];
-  image: string;
   isCompleted: boolean;
   summary?: string;
   title: string;
