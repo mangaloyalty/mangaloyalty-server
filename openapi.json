@@ -195,8 +195,11 @@
           "200": {
             "description": "Success",
             "content": {
-              "application/json": {
-                "schema": {"$ref": "#/components/schemas/Image"}
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
               }
             }
           },
@@ -498,8 +501,11 @@
           "200": {
             "description": "Success",
             "content": {
-              "application/json": {
-                "schema": {"$ref": "#/components/schemas/Image"}
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
               }
             }
           },
@@ -556,13 +562,6 @@
           {"type": "string", "pattern": "^https:\\/\\/bato\\.to\\/series\\/[0-9]+$"},
           {"type": "string", "pattern": "^https:\\/\\/fanfox\\.net\\/manga\\/[^\\/]+\\/$"}
         ]
-      },
-      "Image": {
-        "type": "object",
-        "required": ["image"],
-        "properties": {
-          "image": {"type": "string"}
-        }
       },
       "LibraryCreate": {
         "type": "object",

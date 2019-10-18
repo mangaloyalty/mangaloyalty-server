@@ -5,7 +5,7 @@ export class Cache {
   private readonly _basePath: string;
   private readonly _expireTimeout?: number;
   private readonly _timeoutHandles: {[key: string]: NodeJS.Timeout};
-  private readonly _values: {[key: string]: app.Future<any> | Promise<any> | string};
+  private readonly _values: {[key: string]: app.Future<any> | Promise<any> | {id: string, isBuffer: boolean}};
 
   constructor(name: string, timeout?: number) {
     this._basePath = path.join(app.settings.cache, name);
@@ -16,18 +16,18 @@ export class Cache {
 
   expire(key: string) {
     const value = this._values[key];
-    if (typeof value === 'string') {
-      clearTimeout(this._timeoutHandles[key]);
-      delete this._timeoutHandles[key];
-      delete this._values[key];
-      removeWithTraceAsync(path.join(this._basePath, value));
-    } else if (value instanceof app.Future) {
+    if (value instanceof app.Future) {
       clearTimeout(this._timeoutHandles[key]);
       delete this._timeoutHandles[key];
       delete this._values[key];
       value.reject(new Error());
-    } else if (value) {
+    } else if (value instanceof Promise) {
       value.then(() => expireWithTrace(this, key));
+    } else {
+      clearTimeout(this._timeoutHandles[key]);
+      delete this._timeoutHandles[key];
+      delete this._values[key];
+      removeWithTraceAsync(path.join(this._basePath, value.id));
     }
   }
 
@@ -36,15 +36,17 @@ export class Cache {
     if (!value) {
       return valueFactory
         ? await this._createAsync(key, valueFactory())
-        : await (this._values[key] = new app.Future()).getAsync() as T;
+        : await (this._values[key] = new app.Future()).getAsync();
     } else if (value instanceof app.Future) {
       return valueFactory
         ? await this._createAsync(key, valueFactory())
-        : await value.getAsync() as T;
-    } else if (typeof value !== 'string') {
+        : await value.getAsync();
+    } else if (value instanceof Promise) {
       return await value as T;
     } else try {
-      return await app.core.system.readJsonAsync<T>(path.join(this._basePath, value));
+      return value.isBuffer
+        ? await app.core.system.readFileAsync(path.join(this._basePath, value.id)) as any
+        : await app.core.system.readJsonAsync<T>(path.join(this._basePath, value.id));
     } catch (error) {
       if (error && error.code === 'ENOENT') return await this.getAsync(key, valueFactory);
       throw error;
@@ -65,7 +67,7 @@ export class Cache {
       const value = await valuePromise;
       if (previousValue instanceof app.Future) previousValue.resolve(value);
       await app.core.system.writeFileAsync(path.join(this._basePath, id), value);
-      this._values[key] = id;
+      this._values[key] = {id, isBuffer: Buffer.isBuffer(value)};
       this._updateTimeout(key);
       return value;
     } catch (error) {

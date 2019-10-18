@@ -14,9 +14,6 @@ export type IProviderChapterUrl = string;
 export type IProviderSeriesUrl = string;
 export type ISessionList = ISessionListItem[];
 
-export interface IImage {
-  image: string;
-}
 export interface ILibraryCreate {
   id: string;
 }
@@ -208,11 +205,9 @@ export interface ISessionPageContext {
 export type ILibraryListResponse = ILibraryList;
 export type ILibrarySeriesCreateResponse = ILibraryCreate;
 export type ILibrarySeriesReadResponse = ILibrarySeries;
-export type ILibrarySeriesPreviewImageResponse = IImage;
 export type ILibraryChapterReadResponse = ISessionListItem;
 export type IRemotePopularResponse = IRemoteList;
 export type IRemoteSearchResponse = IRemoteList;
 export type IRemoteSeriesResponse = IRemoteSeries;
 export type IRemoteStartResponse = ISessionListItem;
 export type ISessionListResponse = ISessionList;
-export type ISessionPageResponse = IImage;

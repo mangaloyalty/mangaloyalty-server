@@ -56,7 +56,7 @@ export class LibraryManager {
       try {
         const series = await seriesContext.getAsync();
         const image = series.source.image;
-        return {image};
+        return Buffer.from(image, 'base64');
       } catch (error) {
         if (error && error.code === 'ENOENT') return;
         throw error;

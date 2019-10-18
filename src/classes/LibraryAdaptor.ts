@@ -36,15 +36,13 @@ export class LibraryAdaptor implements app.IAdaptor {
   async getAsync(pageNumber: number) {
     await this._futurePages.getAsync(String(pageNumber));
     return await this._lock.acquireAsync(async () => {
-      const buffer = await app.core.system.readFileAsync(this._createPath(pageNumber));
-      const image = buffer.toString('base64');
-      return {image};
+      return await app.core.system.readFileAsync(this._createPath(pageNumber));
     });
   }
 
-  async setAsync(pageNumber: number, buffer: Buffer) {
+  async setAsync(pageNumber: number, image: Buffer) {
     return await this._lock.acquireAsync(async () => {
-      await app.core.system.writeFileAsync(this._createPath(pageNumber), buffer);
+      await app.core.system.writeFileAsync(this._createPath(pageNumber), image);
       await this._futurePages.resolve(String(pageNumber));
     });
   }
