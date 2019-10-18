@@ -12,6 +12,15 @@ export function createUniqueId() {
   return buffer.toString('hex');
 }
 
+export function imageContentType(image: Buffer) {
+  switch (image.slice(0, 2).toString('hex')) {
+    case '4749': return 'image/gif';
+    case 'ffd8': return 'image/jpeg';
+    case '8950': return 'image/png';
+    default: return 'image/xyz';
+  }
+}
+
 export function traceError(error?: any) {
   if (error instanceof Error) console.log(error);
   else if (error) return console.log(new Error(String(error) || ''));

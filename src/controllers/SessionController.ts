@@ -13,7 +13,7 @@ export class SessionController {
     const session = app.core.session.get(model.path.sessionId);
     const image = session && await session.getPageAsync(model.query.pageNumber);
     if (image) {
-      return api.buffer(image);
+      return api.buffer(image, app.imageContentType(image));
     } else {
       return api.status(404);
     }
