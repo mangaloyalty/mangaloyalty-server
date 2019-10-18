@@ -26,6 +26,16 @@ export class LibraryController {
     }
   }
 
+  @api.createOperation('LibrarySeriesPreviewImage')
+  async seriesImageAsync(model: app.ILibrarySeriesPreviewImageContext): Promise<api.Result<app.ILibrarySeriesPreviewImageResponse>> {
+    const image = await app.core.library.seriesPreviewImageAsync(model.path.seriesId);
+    if (image) {
+      return api.json(image);
+    } else {
+      return api.status(404);
+    }
+  }
+
   @api.createOperation('LibrarySeriesRead')
   async seriesReadAsync(model: app.ILibrarySeriesReadContext): Promise<api.Result<app.ILibrarySeriesReadResponse>> {
     const series = await app.core.library.seriesReadAsync(model.path.seriesId);

@@ -3,7 +3,7 @@ import * as app from '..';
 export interface IAdaptor {
   detailLibrary?: {seriesId: string, chapterId: string, sync: boolean};
   endAsync(pageCount: number): Promise<void>;
-  getAsync(pageNumber: number): Promise<app.ISessionPage>;
+  getAsync(pageNumber: number): Promise<app.IImage>;
   setAsync(pageNumber: number, buffer: Buffer): Promise<void>;
   successAsync(pageCount: number): Promise<void>;
 }
@@ -11,7 +11,7 @@ export interface IAdaptor {
 export interface ISession {
   endAsync(error?: any): Promise<void>;
   getData(): app.ISessionListItem;
-  getPageAsync(pageNumber: number): Promise<app.ISessionPage | undefined>;
+  getPageAsync(pageNumber: number): Promise<app.IImage | undefined>;
 }
 
 export type ISocketAction = 

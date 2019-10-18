@@ -27,7 +27,7 @@ export class CacheAdaptor implements app.IAdaptor {
   }
 
   async getAsync(pageNumber: number) {
-    return await this._cache.getAsync<app.ISessionPage>(`${this._cacheId}/${pageNumber}`);
+    return await this._cache.getAsync<app.IImage>(`${this._cacheId}/${pageNumber}`);
   }
 
   async setAsync(pageNumber: number, buffer: Buffer) {
