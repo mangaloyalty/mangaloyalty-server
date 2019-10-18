@@ -9,11 +9,11 @@ export class SessionController {
   }
 
   @api.createOperation('SessionPage')
-  async pageAsync(model: app.ISessionPageContext): Promise<api.Result<app.ISessionPageResponse>> {
+  async pageAsync(model: app.ISessionPageContext): Promise<api.Result<Buffer>> {
     const session = app.core.session.get(model.path.sessionId);
     const image = session && await session.getPageAsync(model.query.pageNumber);
     if (image) {
-      return api.json(image);
+      return api.buffer(image);
     } else {
       return api.status(404);
     }
