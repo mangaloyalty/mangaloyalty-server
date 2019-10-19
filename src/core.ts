@@ -1,45 +1,52 @@
 import * as app from '.';
-let cacheAutomate: app.AutomateManager;
-let cacheBrowser: app.BrowserManager;
-let cacheLibrary: app.LibraryManager;
-let cacheSession: app.SessionManager;
-let cacheSocket: app.SocketManager;
-let cacheSystem: app.SystemManager;
+let automate: app.AutomateManager;
+let browser: app.BrowserManager;
+let cache: app.CacheManager;
+let library: app.LibraryManager;
+let session: app.SessionManager;
+let socket: app.SocketManager;
+let system: app.SystemManager;
 
 export const core = {
   get automate() {
-    if (cacheAutomate) return cacheAutomate;
-    cacheAutomate = new app.AutomateManager();
-    return cacheAutomate;
+    if (automate) return automate;
+    automate = new app.AutomateManager();
+    return automate;
   },
 
   get browser() {
-    if (cacheBrowser) return cacheBrowser;
-    cacheBrowser = new app.BrowserManager();
-    return cacheBrowser;
+    if (browser) return browser;
+    browser = new app.BrowserManager();
+    return browser;
   },
 
+  get cache() {
+    if (cache) return cache;
+    cache = new app.CacheManager();
+    return cache;
+  },
+  
   get library() {
-    if (cacheLibrary) return cacheLibrary;
-    cacheLibrary = new app.LibraryManager();
-    return cacheLibrary;
+    if (library) return library;
+    library = new app.LibraryManager();
+    return library;
   },
 
   get session() {
-    if (cacheSession) return cacheSession;
-    cacheSession = new app.SessionManager();
-    return cacheSession;
+    if (session) return session;
+    session = new app.SessionManager();
+    return session;
   },
 
   get socket() {
-    if (cacheSocket) return cacheSocket;
-    cacheSocket = new app.SocketManager();
-    return cacheSocket;
+    if (socket) return socket;
+    socket = new app.SocketManager();
+    return socket;
   },
 
   get system() {
-    if (cacheSystem) return cacheSystem;
-    cacheSystem = new app.SystemManager();
-    return cacheSystem;
+    if (system) return system;
+    system = new app.SystemManager();
+    return system;
   }
 };

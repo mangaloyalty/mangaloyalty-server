@@ -149,9 +149,9 @@ export class LibraryManager {
     if (chapter && chapter.pageCount && chapter.syncAt) {
       return await app.core.session.addAsync(new app.SessionLocal(seriesId, chapterId, chapter.pageCount, chapter.url));
     } else if (series && series.automation.syncAll && chapter) {
-      return await app.provider.startAsync(new app.LibraryAdaptor(this.accessContext(), seriesId, chapterId), chapter.url);
+      return await app.provider.startAsync(new app.AdaptorLibrary(this.accessContext(), seriesId, chapterId), chapter.url);
     } else if (series && chapter) {
-      return await app.provider.startAsync(new app.CacheAdaptor(app.core.session.getOrCreateCache(), seriesId, chapterId), chapter.url);
+      return await app.provider.startAsync(new app.AdaptorCache(seriesId, chapterId), chapter.url);
     } else {
       return;
     }
@@ -183,7 +183,7 @@ export class LibraryManager {
     const series = await this.seriesReadAsync(seriesId);
     const chapter = series && series.chapters.find((chapter) => chapter.id === chapterId);
     if (series && chapter) {
-      await app.provider.startAsync(new app.LibraryAdaptor(this.accessContext(), seriesId, chapterId), chapter.url);
+      await app.provider.startAsync(new app.AdaptorLibrary(this.accessContext(), seriesId, chapterId), chapter.url);
       return true;
     } else {
       return false;
