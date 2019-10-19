@@ -26,9 +26,9 @@ export class LibraryController {
     }
   }
 
-  @api.createOperation('LibrarySeriesPreviewImage')
-  async seriesImageAsync(model: app.ILibrarySeriesPreviewImageContext): Promise<api.Result<Buffer>> {
-    const image = await app.core.library.seriesPreviewImageAsync(model.path.seriesId);
+  @api.createOperation('LibrarySeriesImage')
+  async seriesImageAsync(model: app.ILibrarySeriesImageContext): Promise<api.Result<Buffer>> {
+    const image = await app.core.library.seriesImageAsync(model.path.seriesId);
     if (image) {
       return api.buffer(image, app.imageContentType(image));
     } else {

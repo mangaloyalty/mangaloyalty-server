@@ -17,7 +17,7 @@ export function imageContentType(image: Buffer) {
     case '4749': return 'image/gif';
     case 'ffd8': return 'image/jpeg';
     case '8950': return 'image/png';
-    default: return 'image/xyz';
+    default: throw new Error();
   }
 }
 
