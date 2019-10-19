@@ -179,9 +179,9 @@
         }
       }
     },
-    "/api/library/{seriesId}/previewImage": {
+    "/api/library/{seriesId}/image": {
       "get": {
-        "operationId": "LibrarySeriesPreviewImage",
+        "operationId": "LibrarySeriesImage",
         "tags": ["Library"], 
         "description": "Retrieves the series image.",
         "parameters": [{
@@ -195,7 +195,7 @@
           "200": {
             "description": "Success",
             "content": {
-              "*/*": {
+              "image/*": {
                 "schema": {
                   "type": "string",
                   "format": "binary"
@@ -325,6 +325,36 @@
         "responses": {
           "200": {
             "description": "Success"
+          },
+          "400": {"$ref": "#/components/responses/BadRequest"},
+          "404": {"$ref": "#/components/responses/NotFound"},
+          "500": {"$ref": "#/components/responses/InternalServerError"}
+        }
+      }
+    },
+    "/api/remote/image": {
+      "get": {
+        "operationId": "RemoteImage",
+        "tags": ["Remote"], 
+        "description": "Retrieves an image.",
+        "parameters": [{
+          "in": "query",
+          "name": "imageId",
+          "description": "The image identifier.",
+          "required": true,
+          "schema": {"type": "string"}
+        }],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "image/*": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
           },
           "400": {"$ref": "#/components/responses/BadRequest"},
           "404": {"$ref": "#/components/responses/NotFound"},
@@ -501,7 +531,7 @@
           "200": {
             "description": "Success",
             "content": {
-              "*/*": {
+              "image/*": {
                 "schema": {
                   "type": "string",
                   "format": "binary"
@@ -647,21 +677,21 @@
       },
       "RemoteListItem": {
         "type": "object",
-        "required": ["image", "title", "url"],
+        "required": ["imageId", "title", "url"],
         "properties": {
-          "image": {"type": "string"},
+          "imageId": {"type": "string"},
           "title": {"type": "string"},
           "url": {"type": "string"}
         }
       },
       "RemoteSeries": {
         "type": "object",
-        "required": ["authors", "chapters", "genres", "image", "isCompleted", "title", "url"],
+        "required": ["authors", "chapters", "genres", "imageId", "isCompleted", "title", "url"],
         "properties": {
           "authors": {"type": "array", "items": {"type": "string"}},
           "chapters": {"type": "array", "items": {"$ref": "#/components/schemas/RemoteSeriesChapter"}},
           "genres": {"type": "array", "items": {"type": "string"}},
-          "image": {"type": "string"},
+          "imageId": {"type": "string"},
           "isCompleted": {"type": "boolean"},
           "summary": {"type": "string"},
           "title": {"type": "string"},

@@ -15,8 +15,8 @@ export const fanfoxProvider = {
       const watch = new app.Watch(page);
       await page.goto(`${baseUrl}/directory/${pageNumber && pageNumber > 1 ? `${pageNumber}.html` : ''}`, {waitUntil: 'domcontentloaded'});
       const results = await page.evaluate(seriesList.evaluator);
-      await watch.resolveOrDeleteAsync('image', ...results.items);
-      return results;
+      const items = await watch.cacheItemsAsync(results.items);
+      return {hasMorePages: results.hasMorePages, items};
     });
   },
 
@@ -25,8 +25,8 @@ export const fanfoxProvider = {
       const watch = new app.Watch(page);
       await page.goto(`${baseUrl}/search?title=${encodeURIComponent(title)}${pageNumber && pageNumber > 1 ? `&page=${pageNumber}` : ''}`, {waitUntil: 'domcontentloaded'});
       const results = await page.evaluate(seriesList.evaluator);
-      await watch.resolveOrDeleteAsync('image', ...results.items);
-      return results;
+      const items = await watch.cacheItemsAsync(results.items);
+      return {hasMorePages: results.hasMorePages, items};
     });
   },
 
@@ -36,8 +36,7 @@ export const fanfoxProvider = {
       await page.goto(url, {waitUntil: 'domcontentloaded'});
       await ensureAdultAsync(page);
       const result = await page.evaluate(seriesDetail.evaluator);
-      await watch.resolveOrDeleteAsync('image', result);
-      return result;
+      return await watch.cacheAsync(result);
     });
   },
 

@@ -65,7 +65,7 @@ export interface IRemoteList {
   items: IRemoteListItem[];
 }
 export interface IRemoteListItem {
-  image: string;
+  imageId: string;
   title: string;
   url: string;
 }
@@ -73,7 +73,7 @@ export interface IRemoteSeries {
   authors: string[];
   chapters: IRemoteSeriesChapter[];
   genres: string[];
-  image: string;
+  imageId: string;
   isCompleted: boolean;
   summary?: string;
   title: string;
@@ -132,7 +132,7 @@ export interface ILibrarySeriesPatchContext {
     syncAll: boolean;
   };
 }
-export interface ILibrarySeriesPreviewImageContext {
+export interface ILibrarySeriesImageContext {
   path: {
     seriesId: string;
   };
@@ -163,6 +163,11 @@ export interface ILibraryChapterPatchContext {
   query: {
     isReadCompleted?: boolean;
     pageReadNumber?: number;
+  };
+}
+export interface IRemoteImageContext {
+  query: {
+    imageId: string;
   };
 }
 export interface IRemotePopularContext {

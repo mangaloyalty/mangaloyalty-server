@@ -29,6 +29,15 @@ export class CacheManager {
     }
   }
 
+  exists(key: string) {
+    const value = this._values[key];
+    if (value instanceof app.Future) {
+      return false;
+    } else {
+      return Boolean(value);
+    }
+  }
+
   async getAsync<T>(key: string, timeout: false | number, valueFactory?: () => Promise<T> | T): Promise<T> {
     const value = this._values[key];
     if (!value) {
