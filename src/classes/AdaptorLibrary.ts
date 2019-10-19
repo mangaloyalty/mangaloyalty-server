@@ -29,20 +29,20 @@ export class AdaptorLibrary implements app.IAdaptor {
   async endAsync(pageCount: number) {
     await this._lock.acquireAsync(async () => {
       if (!pageCount || this._hasMoved) return;
-      await app.core.system.removeAsync(path.join(app.settings.sync, this._syncId));
+      await app.core.resource.removeAsync(path.join(app.settings.sync, this._syncId));
     });
   }
 
   async getAsync(pageNumber: number) {
     await this._futurePages.getAsync(String(pageNumber));
     return await this._lock.acquireAsync(async () => {
-      return await app.core.system.readFileAsync(this._createPath(pageNumber));
+      return await app.core.resource.readFileAsync(this._createPath(pageNumber));
     });
   }
 
   async setAsync(pageNumber: number, image: Buffer) {
     return await this._lock.acquireAsync(async () => {
-      await app.core.system.writeFileAsync(this._createPath(pageNumber), image);
+      await app.core.resource.writeFileAsync(this._createPath(pageNumber), image);
       await this._futurePages.resolve(String(pageNumber));
     });
   }
@@ -78,7 +78,7 @@ export class AdaptorLibrary implements app.IAdaptor {
   private async _moveAsync() {
     const libraryPath = path.join(app.settings.library, this._seriesId, this._chapterId);
     const syncPath = path.join(app.settings.sync, this._syncId);
-    await app.core.system.moveAsync(syncPath, libraryPath);
+    await app.core.resource.moveAsync(syncPath, libraryPath);
     this._hasMoved = true;
   }
 }

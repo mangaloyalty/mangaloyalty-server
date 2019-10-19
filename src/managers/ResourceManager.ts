@@ -2,7 +2,7 @@ import * as app from '..';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 
-export class SystemManager {
+export class ResourceManager {
   async moveAsync(relativeFromPath: string, relativeToPath: string) {
     const absoluteFromPath = path.join(app.settings.basePath, relativeFromPath);
     const absoluteToPath = path.join(app.settings.basePath, relativeToPath);
@@ -30,22 +30,13 @@ export class SystemManager {
   async writeFileAsync<T>(relativePath: string, value: T) {
     const absolutePath = path.join(app.settings.basePath, relativePath);
     const absolutePathTmp = `${absolutePath}.tmp`;
-    await fs.ensureDir(path.dirname(absolutePath));
-    if (Buffer.isBuffer(value)) {
-      await fs.writeFile(absolutePathTmp, value);
-      await finalizeAsync(absolutePathTmp, absolutePath);
-    } else {
-      await fs.writeJson(absolutePathTmp, value, {spaces: 2});
-      await finalizeAsync(absolutePathTmp, absolutePath);
+    try {
+      await fs.ensureDir(path.dirname(absolutePath));
+      await (Buffer.isBuffer(value) ? fs.writeFile(absolutePathTmp, value) : fs.writeJson(absolutePathTmp, value, {spaces: 2}));
+      await fs.move(absolutePathTmp, absolutePath, {overwrite: true});
+    } catch (error) {
+      await fs.remove(absolutePathTmp);
+      throw error;
     }
-  }
-}
-
-async function finalizeAsync(absolutePathTmp: string, absolutePath: string) {
-  try {
-    await fs.move(absolutePathTmp, absolutePath, { overwrite: true });
-  } catch (error) {
-    await fs.remove(absolutePathTmp);
-    throw error;
   }
 }

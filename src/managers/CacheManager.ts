@@ -52,8 +52,8 @@ export class CacheManager {
       return await value as T;
     } else try {
       return value.isBuffer
-        ? await app.core.system.readFileAsync(path.join(this._basePath, value.id)) as any
-        : await app.core.system.readJsonAsync<T>(path.join(this._basePath, value.id));
+        ? await app.core.resource.readFileAsync(path.join(this._basePath, value.id)) as any
+        : await app.core.resource.readJsonAsync<T>(path.join(this._basePath, value.id));
     } catch (error) {
       if (error && error.code === 'ENOENT') return await this.getAsync(key, timeout, valueFactory);
       throw error;
@@ -73,7 +73,7 @@ export class CacheManager {
       const id = app.createUniqueId();
       const value = await valuePromise;
       if (previousValue instanceof app.Future) previousValue.resolve(value);
-      await app.core.system.writeFileAsync(path.join(this._basePath, id), value);
+      await app.core.resource.writeFileAsync(path.join(this._basePath, id), value);
       this._values[key] = {id, isBuffer: Buffer.isBuffer(value)};
       this._updateTimeout(key, timeout);
       return value;
@@ -101,7 +101,7 @@ function expireWithTrace(cache: CacheManager, key: string) {
 
 async function removeWithTraceAsync(path: string) {
   try {
-    await app.core.system.removeAsync(path);
+    await app.core.resource.removeAsync(path);
   } catch (error) {
     app.traceError(error);
   }
