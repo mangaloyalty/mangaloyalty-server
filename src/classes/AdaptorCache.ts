@@ -1,14 +1,12 @@
 import * as app from '..';
 
-export class CacheAdaptor implements app.IAdaptor {
-  private readonly _cache: app.Cache;
-  private readonly _cacheId: string;
+export class AdaptorCache implements app.IAdaptor {
+  private readonly _adaptorId: string;
   private readonly _chapterId?: string;
   private readonly _seriesId?: string;
   
-  constructor(cache: app.Cache, seriesId?: string, chapterId?: string) {
-    this._cache = cache;
-    this._cacheId = app.createUniqueId();
+  constructor(seriesId?: string, chapterId?: string) {
+    this._adaptorId = app.createUniqueId();
     this._chapterId = chapterId;
     this._seriesId = seriesId;
   }
@@ -22,16 +20,16 @@ export class CacheAdaptor implements app.IAdaptor {
   }
 
   endAsync(pageCount: number) {
-    for (let i = 1; i <= pageCount; i++) this._cache.expire(`${this._cacheId}/${i}`);
+    for (let i = 1; i <= pageCount; i++) app.core.cache.expire(`${this._adaptorId}/${i}`);
     return Promise.resolve();
   }
 
   async getAsync(pageNumber: number) {
-    return await this._cache.getAsync<Buffer>(`${this._cacheId}/${pageNumber}`);
+    return await app.core.cache.getAsync<Buffer>(`${this._adaptorId}/${pageNumber}`, false);
   }
 
   async setAsync(pageNumber: number, image: Buffer) {
-    await this._cache.setAsync(`${this._cacheId}/${pageNumber}`, () => image);
+    await app.core.cache.setAsync(`${this._adaptorId}/${pageNumber}`, false, () => image);
   }
   
   successAsync() {
