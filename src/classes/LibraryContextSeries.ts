@@ -23,7 +23,7 @@ export class LibraryContextSeries {
     try {
       if (this._series) return await this._series;
       this._seriesPath = path.join(app.settings.library, this._seriesId, app.settings.librarySeries);
-      this._series = app.core.system.readJsonAsync(this._seriesPath);
+      this._series = app.core.resource.readJsonAsync(this._seriesPath);
       return await this._series;
     } catch (error) {
       if (error && error.code === 'ENOENT') this.expire();
@@ -37,7 +37,7 @@ export class LibraryContextSeries {
     try {
       if (!this._series || !this._seriesPath) throw new Error();
       const series = await this._series;
-      await app.core.system.writeFileAsync(this._seriesPath, series);
+      await app.core.resource.writeFileAsync(this._seriesPath, series);
     } catch (error) {
       delete this._series;
       delete this._seriesPath;
