@@ -3,7 +3,6 @@ import * as app from '..';
 export class SessionManager {
   private readonly _timeoutHandles: {[id: string]: NodeJS.Timeout};
   private readonly _values: {[id: string]: app.ISession};
-  private _cache?: app.Cache;
 
   constructor() {
     this._timeoutHandles = {};
@@ -31,16 +30,6 @@ export class SessionManager {
       .filter((data) => !seriesId || (data.library && data.library.seriesId === seriesId));
   }
   
-  getOrCreateCache() {
-    return this._accessCache();
-  }
-
-  private _accessCache() {
-    if (this._cache) return this._cache;
-    this._cache = new app.Cache(app.settings.cacheSession);
-    return this._cache;
-  }
-
   private _updateTimeout(id: string) {
     clearTimeout(this._timeoutHandles[id]);
     this._timeoutHandles[id] = setTimeout(() => {

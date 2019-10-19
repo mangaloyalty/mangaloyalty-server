@@ -1,7 +1,7 @@
 import * as app from '..';
 import * as path from 'path';
 
-export class LibraryAdaptor implements app.IAdaptor {
+export class AdaptorLibrary implements app.IAdaptor {
   private readonly _chapterId: string;
   private readonly _context: app.LibraryContext;
   private readonly _futurePages: app.FutureMap<void>;
