@@ -22,8 +22,9 @@ export class LibraryManager {
 
   async seriesCreateAsync(url: string) {
     const remote = await app.provider.seriesAsync(url);
+    const remoteImage = await app.provider.imageAsync(remote.imageId);
     return await this.accessContext().lockMainAsync(async () => {
-      const series = createSeries(remote);
+      const series = createSeries(remote, remoteImage!);
       const seriesPath = path.join(app.settings.library, series.id, app.settings.librarySeries);
       synchronize(series, remote.chapters);
       await app.core.system.writeFileAsync(seriesPath, series);
@@ -51,7 +52,7 @@ export class LibraryManager {
     });
   }
 
-  async seriesPreviewImageAsync(seriesId: string) {
+  async seriesImageAsync(seriesId: string) {
     return await this.accessContext().lockSeriesAsync(seriesId, async (seriesContext) => {
       try {
         const series = await seriesContext.getAsync();
@@ -98,12 +99,13 @@ export class LibraryManager {
   async seriesUpdateAsync(seriesId: string) {
     const series = await this.seriesReadAsync(seriesId);
     const remote = series && await app.provider.seriesAsync(series.source.url);
-    if (!remote) return;
+    const remoteImage = remote && await app.provider.imageAsync(remote.imageId);
+    if (!remote || !remoteImage) return false;
     return await this.accessContext().lockSeriesAsync(seriesId, async (seriesContext) => {
       try {
         const series = await seriesContext.getAsync();
         series.lastSyncAt = Date.now();
-        series.source = createSeriesSource(remote);
+        series.source = createSeriesSource(remote, remoteImage);
         synchronize(series, remote.chapters);
         await seriesContext.saveAsync();
         await app.core.socket.queueAsync({type: 'SeriesUpdate', seriesId});
@@ -197,20 +199,20 @@ export class LibraryManager {
   }
 }
 
-function createSeries(remote: app.IRemoteSeries): app.IFileSeries {
+function createSeries(remote: app.IRemoteSeries, remoteImage: Buffer): app.IFileSeries {
   const id = app.createUniqueId();
   const addedAt = Date.now();
   const lastSyncAt = Date.now();
   const automation: app.ILibrarySeriesAutomation = {checkedAt: Date.now(), frequency: 'weekly', syncAll: false};
   const chapters: app.ILibrarySeriesChapter[] = [];
-  const source = createSeriesSource(remote);
+  const source = createSeriesSource(remote, remoteImage);
   return {id, addedAt, lastSyncAt, automation, chapters, source};
 }
 
-function createSeriesSource(remote: app.IRemoteSeries): app.IFileSeriesSource {
+function createSeriesSource(remote: app.IRemoteSeries, remoteImage: Buffer): app.IFileSeriesSource {
   const authors = remote.authors;
   const genres = remote.genres;
-  const image = remote.image;
+  const image = remoteImage.toString('base64');
   const isCompleted = remote.isCompleted;
   const summary = remote.summary;
   const title = remote.title;

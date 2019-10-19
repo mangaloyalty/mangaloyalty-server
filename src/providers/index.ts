@@ -3,6 +3,13 @@ import {batotoProvider} from './batoto/batotoProvider';
 import {fanfoxProvider} from './fanfox/fanfoxProvider';
 
 export const provider = {
+  async imageAsync(imageId: string) {
+    if (!app.core.cache.exists(imageId)) return;
+    const image = await app.core.cache.getAsync<Buffer>(imageId, false);
+    if (!Buffer.isBuffer(image) || !image.byteLength) return;
+    return image;
+  },
+
   async popularAsync(providerName: app.IEnumeratorProvider, pageNumber?: number) {
     switch (providerName) {
       case 'batoto':
