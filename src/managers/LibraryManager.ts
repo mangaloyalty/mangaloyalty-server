@@ -27,7 +27,7 @@ export class LibraryManager {
       const series = createSeries(remote, remoteImage!);
       const seriesPath = path.join(app.settings.library, series.id, app.settings.librarySeries);
       synchronize(series, remote.chapters);
-      await app.core.system.writeFileAsync(seriesPath, series);
+      await app.core.resource.writeFileAsync(seriesPath, series);
       delete this._listCache;
       await app.core.socket.queueAsync({type: 'SeriesCreate', seriesId: series.id});
       return series.id;
@@ -39,8 +39,8 @@ export class LibraryManager {
       try {
         const seriesPath = path.join(app.settings.library, seriesId);
         const deletePath = path.join(app.settings.library, `_${seriesId}`);
-        await app.core.system.moveAsync(seriesPath, deletePath);
-        await app.core.system.removeAsync(deletePath);
+        await app.core.resource.moveAsync(seriesPath, deletePath);
+        await app.core.resource.removeAsync(deletePath);
         delete this._listCache;
         await app.core.socket.queueAsync({type: 'SeriesDelete', seriesId});
         seriesContext.expire();
@@ -124,13 +124,13 @@ export class LibraryManager {
         const chapterPath = path.join(app.settings.library, seriesId, chapterId);
         const chapter = series.chapters.find((chapter) => chapter.id === chapterId);
         if (chapter && chapter.deletedAt) {
-          await app.core.system.removeAsync(chapterPath);
+          await app.core.resource.removeAsync(chapterPath);
           series.chapters.splice(series.chapters.indexOf(chapter), 1);
           await seriesContext.saveAsync();
           await app.core.socket.queueAsync({type: 'ChapterDelete', seriesId, chapterId});
           return true;
         } else if (chapter && chapter.syncAt) {
-          await app.core.system.removeAsync(chapterPath);
+          await app.core.resource.removeAsync(chapterPath);
           delete chapter.syncAt;
           await seriesContext.saveAsync();
           await app.core.socket.queueAsync({type: 'ChapterDelete', seriesId, chapterId});
@@ -194,7 +194,7 @@ export class LibraryManager {
 
   private async _getListAsync() {
     if (this._listCache) return this._listCache;
-    this._listCache = (await app.core.system.readdirAsync(app.settings.library)).filter((id) => /^[0-9a-f]{48}$/.test(id));
+    this._listCache = (await app.core.resource.readdirAsync(app.settings.library)).filter((id) => /^[0-9a-f]{48}$/.test(id));
     return this._listCache;
   }
 }
