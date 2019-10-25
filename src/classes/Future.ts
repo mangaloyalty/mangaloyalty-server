@@ -19,9 +19,9 @@ export class Future<T> {
         resolve(this._resolve);
       } else if (this._timeout) {
         setTimeout(reject, this._timeout);
-        this.queue(resolve, reject);
+        this._queue(resolve, reject);
       } else {
-        this.queue(resolve, reject);
+        this._queue(resolve, reject);
       }
 		});
   }
@@ -40,7 +40,7 @@ export class Future<T> {
     this._resolver(undefined, value);
   }
   
-  private queue(resolve: (value: T) => void, reject: (error?: any) => void) {
+  private _queue(resolve: (value: T) => void, reject: (error?: any) => void) {
     const previousResolver = this._resolver;
     this._resolver = (error, value) => {
       if (error) {

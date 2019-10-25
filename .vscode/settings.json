@@ -1,6 +1,5 @@
 {
     "editor.tabSize": 2,
-    "todo-tree.general.tags": ["TECH", "TODO", "UX"],
     "typescript.tsdk": "node_modules/typescript/lib",
     "files.exclude": {
       "dist": true,
