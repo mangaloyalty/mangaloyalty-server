@@ -8,7 +8,7 @@ export class SessionController {
     return api.json(app.core.session.getAll(seriesId));
   }
 
-  @api.createOperation('SessionPage')
+  @api.createOperation('SessionPage', app.cacheOperation(app.settings.imageSessionTimeout))
   async pageAsync(model: app.ISessionPageContext): Promise<api.Result<Buffer>> {
     const session = app.core.session.get(model.path.sessionId);
     const image = session && await session.getPageAsync(model.query.pageNumber);

@@ -26,7 +26,7 @@ export class LibraryController {
     }
   }
 
-  @api.createOperation('LibrarySeriesImage')
+  @api.createOperation('LibrarySeriesImage', app.cacheOperation(app.settings.imageLibraryTimeout))
   async seriesImageAsync(model: app.ILibrarySeriesImageContext): Promise<api.Result<Buffer>> {
     const image = await app.core.library.seriesImageAsync(model.path.seriesId);
     if (image) {
