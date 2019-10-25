@@ -59,7 +59,7 @@ export class AdaptorLibrary implements app.IAdaptor {
             chapter.pageCount = pageCount;
             chapter.syncAt = Date.now();
             await seriesContext.saveAsync();
-            await app.core.socket.queueAsync({type: 'ChapterUpdate', seriesId: this._seriesId, chapterId: this._chapterId});
+            app.core.socket.emit({type: 'ChapterUpdate', seriesId: this._seriesId, chapterId: this._chapterId});
           }
         } catch (error) {
           if (error && error.code === 'ENOENT') return;

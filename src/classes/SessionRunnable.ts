@@ -68,7 +68,7 @@ export class SessionRunnable implements app.ISession {
     this._finishedAt = Date.now();
     this._hasSuccess = true;
     this._futureFinished.resolve();
-    await app.core.socket.queueAsync({type: 'SessionUpdate', session: this.getData()});
+    app.core.socket.emit({type: 'SessionUpdate', session: this.getData()});
   }
 
   async waitFinishedAsync() {

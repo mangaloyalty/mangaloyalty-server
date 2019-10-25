@@ -44,7 +44,7 @@ export const fanfoxProvider = {
     const session = new app.SessionRunnable(adaptor, url);
     new Runner(session, url).runAsync();
     await session.waitPageCountAsync();
-    return await app.core.session.addAsync(session);
+    return app.core.session.add(session);
   }
 };
 

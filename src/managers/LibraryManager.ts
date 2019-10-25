@@ -29,7 +29,7 @@ export class LibraryManager {
       synchronize(series, remote.chapters);
       await app.core.resource.writeFileAsync(seriesPath, series);
       delete this._listCache;
-      await app.core.socket.queueAsync({type: 'SeriesCreate', seriesId: series.id});
+      app.core.socket.emit({type: 'SeriesCreate', seriesId: series.id});
       return series.id;
     });
   }
@@ -42,8 +42,8 @@ export class LibraryManager {
         await app.core.resource.moveAsync(seriesPath, deletePath);
         await app.core.resource.removeAsync(deletePath);
         delete this._listCache;
-        await app.core.socket.queueAsync({type: 'SeriesDelete', seriesId});
         seriesContext.expire();
+        app.core.socket.emit({type: 'SeriesDelete', seriesId});
         return true;
       } catch (error) {
         if (error && error.code === 'ENOENT') return false;
@@ -86,7 +86,7 @@ export class LibraryManager {
         series.automation.frequency = frequency;
         series.automation.syncAll = syncAll;
         await seriesContext.saveAsync();
-        await app.core.socket.queueAsync({type: 'SeriesPatch', seriesId});
+        app.core.socket.emit({type: 'SeriesPatch', seriesId});
         app.core.automate.tryRun();
         return true;
       } catch (error) {
@@ -108,7 +108,7 @@ export class LibraryManager {
         series.source = createSeriesSource(remote, remoteImage);
         synchronize(series, remote.chapters);
         await seriesContext.saveAsync();
-        await app.core.socket.queueAsync({type: 'SeriesUpdate', seriesId});
+        app.core.socket.emit({type: 'SeriesUpdate', seriesId});
         return true;
       } catch (error) {
         if (error && error.code === 'ENOENT') return false;
@@ -127,13 +127,13 @@ export class LibraryManager {
           await app.core.resource.removeAsync(chapterPath);
           series.chapters.splice(series.chapters.indexOf(chapter), 1);
           await seriesContext.saveAsync();
-          await app.core.socket.queueAsync({type: 'ChapterDelete', seriesId, chapterId});
+          app.core.socket.emit({type: 'ChapterDelete', seriesId, chapterId});
           return true;
         } else if (chapter && chapter.syncAt) {
           await app.core.resource.removeAsync(chapterPath);
           delete chapter.syncAt;
           await seriesContext.saveAsync();
-          await app.core.socket.queueAsync({type: 'ChapterDelete', seriesId, chapterId});
+          app.core.socket.emit({type: 'ChapterDelete', seriesId, chapterId});
           return true;
         } else {
           return false;
@@ -149,7 +149,7 @@ export class LibraryManager {
     const series = await this.seriesReadAsync(seriesId);
     const chapter = series && series.chapters.find((chapter) => chapter.id === chapterId);
     if (chapter && chapter.pageCount && chapter.syncAt) {
-      return await app.core.session.addAsync(new app.SessionLocal(seriesId, chapterId, chapter.pageCount, chapter.url));
+      return app.core.session.add(new app.SessionLocal(seriesId, chapterId, chapter.pageCount, chapter.url));
     } else if (series && series.automation.syncAll && chapter) {
       return await app.provider.startAsync(new app.AdaptorLibrary(this.accessContext(), seriesId, chapterId), chapter.url);
     } else if (series && chapter) {
@@ -169,7 +169,7 @@ export class LibraryManager {
           chapter.pageReadNumber = typeof pageReadNumber === 'number' ? pageReadNumber : chapter.pageReadNumber;
           series.lastPageReadAt = Date.now();
           await seriesContext.saveAsync();
-          await app.core.socket.queueAsync({type: 'ChapterPatch', seriesId, chapterId});
+          app.core.socket.emit({type: 'ChapterPatch', seriesId, chapterId});
           return true;
         } else {
           return false;
