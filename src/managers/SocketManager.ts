@@ -1,32 +1,28 @@
 import * as app from '..';
 
 export class SocketManager {
-  private readonly _handlers: ((action: app.ISocketAction) => Promise<void>)[];
-  private _queue: Promise<void>;
+  private readonly _handlers: ((action: app.ISocketAction) => void)[];
 
   constructor() {
     this._handlers = [];
-    this._queue = Promise.resolve();
   }
 
-  addEventListener(handleAsync: (action: app.ISocketAction) => Promise<void>) {
-    this._handlers.push(handleAsync);
+  addEventListener(handler: (action: app.ISocketAction) => void) {
+    this._handlers.push(handler);
   }
 
-  removeEventHandler(handleAsync: (action: app.ISocketAction) => Promise<void>) {
-    const index = this._handlers.indexOf(handleAsync);
+  removeEventHandler(handler: (action: app.ISocketAction) => void) {
+    const index = this._handlers.indexOf(handler);
     if (index !== -1) this._handlers.splice(index, 1);
   }
 
-  async queueAsync(action: app.ISocketAction) {
-    return await (this._queue = this._queue.then(async () => {
-      for (const handleAsync of this._handlers) {
-        try {
-          await handleAsync(action);
-        } catch (error) {
-          app.traceError(error);
-        }
+  emit(action: app.ISocketAction) {
+    for (const handler of this._handlers) {
+      try {
+        handler(action);
+      } catch (error) {
+        app.traceError(error);
       }
-    }));
+    }
   }
 }

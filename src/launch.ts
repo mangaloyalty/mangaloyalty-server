@@ -1,11 +1,3 @@
-// TODO: Handle non-image data. We actually stored HTML at some point (serving a 404).
-// TECH: Watch should clear in-memory persistence (including puppeteer.Response) for non-required/processed responses, and clear buffers asap.
-// UX: Core: Support an actual logger (logging into files, timestamps, traces).
-// UX: Core: Support basePath configuration from CLI (e.g. "mangaloyalty-server C:\manga")
-// UX: Core: Support custom configuration and expose listen port (read settings.json in basePath and merge).
-// UX: Core: Support password authentication with anonymous access for local networks.
-// UX: Provider: Connection issue retries. Immediate propagation is too severe.
-// UX: Provider: Support missing images (http://fanfox.net/manga/star_martial_god_technique/c001/1.html).
 import * as api from 'express-openapi-json';
 import * as app from '.';
 import * as fs from 'fs-extra';
@@ -33,8 +25,5 @@ export const router = api.createCore(openapiData)
 // Initialize the socket attach function.
 export function attachSocket(server: http.Server) {
   const sio = io.default(server);
-  app.core.socket.addEventListener((action) => {
-    sio.emit('action', action);
-    return Promise.resolve();
-  });
+  app.core.socket.addEventListener((action) => sio.emit('action', action));
 }
