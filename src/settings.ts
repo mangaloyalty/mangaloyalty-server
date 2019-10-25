@@ -9,12 +9,15 @@ export const settings = {
   browserNavigationTimeout: 30000,
   browserViewport: {width: 1920, height: 974},
   cache: 'coreCache',
-  cacheRemoteDataTimeout: 600000,
-  cacheRemoteImageTimeout: 630000,
+  cacheDataTimeout: 600000,
+  cacheImageTimeout: 630000,
+  imageLibraryTimeout: 600000,
+  imageRemoteTimeout: 630000,
+  imageSessionTimeout: 600000,
   library: 'library',
   libraryAutomationInterval: 600000,
   librarySeries: 'series',
-  librarySeriesPageSize: 60,
+  librarySeriesPageSize: 180,
   sessionTimeout: 600000,
   sync: 'sync'
 };
