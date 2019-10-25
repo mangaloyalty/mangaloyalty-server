@@ -1,4 +1,11 @@
+import * as express from 'express';
 import {randomBytes} from 'crypto';
+
+export function cacheOperation(timeout: number) {
+  const key = 'Cache-Control';
+  const value = `public, max-age=${Math.floor(timeout / 1000)}`;
+  return (_: express.Request, res: express.Response, next: express.NextFunction) => Boolean(res.set(key, value)) && next();
+}
 
 export function createPrefix(value: number, length: number) {
   let result = String(value);

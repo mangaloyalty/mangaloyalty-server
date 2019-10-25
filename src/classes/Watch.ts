@@ -13,7 +13,7 @@ export class Watch {
 
   async cacheAsync<T extends {image: string}>(item: T) {
     const imageId = app.createUniqueId();
-    await app.core.cache.setAsync(imageId, app.settings.cacheRemoteImageTimeout, () => this.getAsync(item.image));
+    await app.core.cache.setAsync(imageId, app.settings.cacheImageTimeout, () => this.getAsync(item.image));
     return Object.assign({imageId}, item);
   }
 
