@@ -257,35 +257,25 @@ function computeUnreadCount(series: app.ILibrarySeries) {
 }
 
 function synchronize(series: app.ILibrarySeries, remotes: app.IRemoteSeriesChapter[]) {
-  const validIds: {[id: string]: boolean} = {};
-  synchronizeExisting(series, remotes, validIds);
-  synchronizeRemoved(series, validIds);
-}
-
-function synchronizeExisting(series: app.ILibrarySeries, remotes: app.IRemoteSeriesChapter[], validIds: {[id: string]: boolean}) {
+  const ids: {[id: string]: boolean} = {};
+  const locals = series.chapters;
+  series.chapters = [];
   for (const remote of remotes) {
-    const chapter = series.chapters.find((chapter) => chapter.url === remote.url);
-    if (chapter) {
-      chapter.title = remote.title;
-      validIds[chapter.id] = true;
+    const local = locals.find((chapter) => chapter.url === remote.url);
+    if (local) {
+      local.title = remote.title;
+      series.chapters.push(local);
+      ids[local.id] = true;
     } else {
       const id = app.createUniqueId();
+      series.chapters.push({id, addedAt: Date.now(), title: remote.title, url: remote.url});
       series.lastChapterAddedAt = Date.now();
-      validIds[id] = Boolean(series.chapters.push({id, addedAt: Date.now(), title: remote.title, url: remote.url}));
+      ids[id] = true;
     }
   }
-}
-
-function synchronizeRemoved(series: app.ILibrarySeries, validIds: {[id: string]: boolean}) {
-  for (let i = 0; i < series.chapters.length; i++) {
-    const chapter = series.chapters[i];
-    if (validIds[chapter.id]) {
-      continue;
-    } else if (chapter.syncAt) {
-      chapter.deletedAt = chapter.deletedAt || Date.now();
-    } else {
-      series.chapters.splice(i, 1);
-      i--;
-    }
+  for (const local of locals) {
+    if (ids[local.id] || !local.syncAt) continue;
+    local.deletedAt = local.deletedAt || Date.now();
+    series.chapters.push(local);
   }
 }
