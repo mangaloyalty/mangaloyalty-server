@@ -69,8 +69,9 @@ export class LibraryManager {
     return await this.accessContext().lockSeriesAsync(seriesId, async (seriesContext) => {
       try {
         const series = await seriesContext.getAsync();
-        const source = Object.assign({}, series.source);
-        return {...series, source};
+        const result = Object.assign({}, series);
+        result.source = Object.assign({}, series.source);
+        return result;
       } catch (error) {
         if (error && error.code === 'ENOENT') return;
         throw error;

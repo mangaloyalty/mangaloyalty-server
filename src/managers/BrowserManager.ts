@@ -19,7 +19,7 @@ export class BrowserManager {
       const browser = await this._browserAsync();
       const userAgent = await browser.userAgent();
       page = await browser.newPage();
-      await page.setDefaultTimeout(app.settings.browserNavigationTimeout);
+      page.setDefaultTimeout(app.settings.browserNavigationTimeout);
       await page.setUserAgent(userAgent.replace(/HeadlessChrome/g, 'Chrome'));
       await page.setViewport(app.settings.browserViewport);
       return await handlerAsync(page);
