@@ -20,12 +20,10 @@ export function createUniqueId() {
 }
 
 export function imageContentType(image: Buffer) {
-  switch (image.slice(0, 2).toString('hex')) {
-    case '4749': return 'image/gif';
-    case 'ffd8': return 'image/jpeg';
-    case '8950': return 'image/png';
-    default: throw new Error();
-  }
+  if (image.slice(0, 3).toString('hex') === '474946') return 'image/gif';
+  if (image.slice(0, 2).toString('hex') === 'ffd8') return 'image/jpeg';
+  if (image.slice(0, 4).toString('hex') === '89504e47') return 'image/png';
+  return;
 }
 
 export function traceError(error?: any) {
