@@ -42,7 +42,7 @@ export class SessionRunnable implements app.ISession {
 
   async getPageAsync(pageNumber: number) {
     if (this._hasEnded) throw this._error;
-    if (pageNumber <= 0 || pageNumber > (this._pageCount || 0)) return;
+    if (pageNumber < 1 || pageNumber > (this._pageCount || 0)) return;
     return await this._adaptor.getAsync(pageNumber);
   }
 
@@ -51,8 +51,8 @@ export class SessionRunnable implements app.ISession {
   }
   
   async setImageAsync(pageNumber: number, image: Buffer) {
-    if (this._hasEnded) throw this._error;
-    if (pageNumber <= 0 || pageNumber > (this._pageCount || 0)) return;
+    if (this._hasEnded || !app.imageContentType(image)) throw this._error || new Error();
+    if (pageNumber < 1 || pageNumber > (this._pageCount || 0)) return;
     await this._adaptor.setAsync(pageNumber, image);
   }
 
