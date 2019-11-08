@@ -1,5 +1,5 @@
 import * as app from '..';
-import * as puppeteer from 'puppeteer';
+import * as puppeteer from 'puppeteer-core';
 
 export class Watch {
   private readonly _futureResponses: app.FutureMap<puppeteer.Response | null>;

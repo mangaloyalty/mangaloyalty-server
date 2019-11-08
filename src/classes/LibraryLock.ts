@@ -1,5 +1,6 @@
 import * as app from '..';
 
+// TODO: Rename LibraryLock to a more sensible name; it is not Library-specific anymore.
 export class LibraryLock {
   private readonly _items: {future: app.Future<any>, handlerAsync: () => any}[];
   private readonly _onDrain?: () => void;

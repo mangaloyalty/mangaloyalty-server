@@ -1,4 +1,4 @@
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-core';
 import * as app from '..';
 import * as path from 'path';
 
@@ -6,10 +6,12 @@ export class BrowserManager {
   private _browser?: Promise<puppeteer.Browser>;
   private _exitTimeoutHandle: NodeJS.Timeout;
   private _numberOfPages: number;
+  private _prepareLock: app.LibraryLock;
 
   constructor() {
     this._exitTimeoutHandle = setTimeout(() => undefined, 0);
     this._numberOfPages = 0;
+    this._prepareLock = new app.LibraryLock();
   }
 
   async pageAsync<T>(handlerAsync: (page: puppeteer.Page) => Promise<T> | T) {
@@ -30,18 +32,38 @@ export class BrowserManager {
     }
   }
   
+  async prepareWithTraceAsync() {
+    try {
+      await this._prepareAsync();
+    } catch (error) {
+      app.traceError(error);
+    }
+  }
+  
   private async _browserAsync() {
     try {
-      if (this._browser) return this._browser;
-      const executablePath = puppeteer.executablePath().replace('app.asar', 'app.asar.unpacked');
+      if (this._browser) return await this._browser;
+      const downloadInfo = await this._prepareAsync();
+      const executablePath = downloadInfo.executablePath;
       const headless = app.settings.browserHeadless;
-      const userDataDir = path.join(app.settings.basePath, app.settings.browser);
+      const userDataDir = path.join(downloadInfo.folderPath, app.settings.browserUserData);
       this._browser = puppeteer.launch({executablePath, headless, userDataDir});
       return await this._browser;
     } catch (error) {
       delete this._browser;
       throw error;
     }
+  }
+
+  private async _prepareAsync() {
+    return await this._prepareLock.acquireAsync(async () => {
+      const chromiumRevision = String(require('puppeteer-core/package').puppeteer.chromium_revision);
+      const fetcher = puppeteer.createBrowserFetcher({path: path.join(app.settings.basePath, app.settings.browser)});
+      const fetcherPromise = fetcher.download(chromiumRevision);
+      const fetcherRevisions = await fetcher.localRevisions();
+      await Promise.all(fetcherRevisions.filter((revision) => chromiumRevision !== revision).map((revision) => fetcher.remove(revision)));
+      return fetcherPromise;
+    });
   }
 
   private _updateTimeout() {
