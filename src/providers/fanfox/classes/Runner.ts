@@ -1,4 +1,4 @@
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-core';
 import * as app from '../../..';
 import * as chapter from '../evaluators/chapter';
 
