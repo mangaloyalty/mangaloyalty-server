@@ -6,9 +6,11 @@ import * as io from 'socket.io';
 import * as path from 'path';
 
 // Initialize the application.
+fs.removeSync(path.join(app.settings.basePath, 'chromeCache')); // <= 0.6.0
 fs.removeSync(path.join(app.settings.basePath, app.settings.cache));
 fs.removeSync(path.join(app.settings.basePath, app.settings.sync));
 setImmediate(() => app.core.automate.tryRun());
+setImmediate(() => app.core.browser.prepareWithTraceAsync());
 
 // Initialize the openapi data.
 const openapiData = require('../openapi.json');
