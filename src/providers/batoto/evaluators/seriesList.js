@@ -16,10 +16,11 @@ function evaluator() {
   }
 
   /**
-   * @param {HTMLLIElement?} liItem
+   * @param {HTMLLIElement?} liNode
    */
-  function getHasMorePages(liItem) {
-    const hasMorePages = !/disabled/.test(validateStrict(liItem && liItem.className));
+  function getHasMorePages(liNode) {
+    const className = validate(liNode && liNode.className);
+    const hasMorePages = Boolean(className && !/disabled/.test(className));
     return hasMorePages;
   }
 
