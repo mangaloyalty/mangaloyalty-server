@@ -74,7 +74,7 @@ function evaluator() {
    * @param {HTMLPreElement?} summaryNode
    */
   function getSummary(summaryNode) {
-    return validateStrict(summaryNode && summaryNode.textContent);
+    return validate(summaryNode && summaryNode.textContent);
   }
 
   /**
