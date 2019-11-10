@@ -4,14 +4,14 @@ import * as path from 'path';
 
 export class BrowserManager {
   private _browser?: Promise<puppeteer.Browser>;
+  private _exclusiveLock: app.ExclusiveLock;
   private _exitTimeoutHandle: NodeJS.Timeout;
   private _numberOfPages: number;
-  private _prepareLock: app.LibraryLock;
 
   constructor() {
+    this._exclusiveLock = new app.ExclusiveLock();
     this._exitTimeoutHandle = setTimeout(() => undefined, 0);
     this._numberOfPages = 0;
-    this._prepareLock = new app.LibraryLock();
   }
 
   async pageAsync<T>(handlerAsync: (page: puppeteer.Page) => Promise<T> | T) {
@@ -56,7 +56,7 @@ export class BrowserManager {
   }
 
   private async _prepareAsync() {
-    return await this._prepareLock.acquireAsync(async () => {
+    return await this._exclusiveLock.acquireAsync(async () => {
       const chromiumRevision = String(require('puppeteer-core/package').puppeteer.chromium_revision);
       const fetcher = puppeteer.createBrowserFetcher({path: path.join(app.settings.basePath, app.settings.browser)});
       const fetcherPromise = fetcher.download(chromiumRevision);

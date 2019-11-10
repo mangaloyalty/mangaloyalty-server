@@ -4,8 +4,8 @@ import * as path from 'path';
 export class AdaptorLibrary implements app.IAdaptor {
   private readonly _chapterId: string;
   private readonly _context: app.LibraryContext;
+  private readonly _exclusiveLock: app.ExclusiveLock;
   private readonly _futurePages: app.FutureMap<void>;
-  private readonly _lock: app.LibraryLock;
   private readonly _seriesId: string;
   private readonly _syncId: string;
   private _hasMoved?: boolean;
@@ -13,8 +13,8 @@ export class AdaptorLibrary implements app.IAdaptor {
   constructor(context: app.LibraryContext, seriesId: string, chapterId: string) {
     this._chapterId = chapterId;
     this._context = context;
+    this._exclusiveLock = new app.ExclusiveLock();
     this._futurePages = new app.FutureMap();
-    this._lock = new app.LibraryLock();
     this._seriesId = seriesId;
     this._syncId = app.createUniqueId();
   }
@@ -27,7 +27,7 @@ export class AdaptorLibrary implements app.IAdaptor {
   }
 
   async endAsync(pageCount: number) {
-    await this._lock.acquireAsync(async () => {
+    await this._exclusiveLock.acquireAsync(async () => {
       if (!pageCount || this._hasMoved) return;
       await app.core.resource.removeAsync(path.join(app.settings.sync, this._syncId));
     });
@@ -35,20 +35,20 @@ export class AdaptorLibrary implements app.IAdaptor {
 
   async getAsync(pageNumber: number) {
     await this._futurePages.getAsync(String(pageNumber));
-    return await this._lock.acquireAsync(async () => {
+    return await this._exclusiveLock.acquireAsync(async () => {
       return await app.core.resource.readFileAsync(this._createPath(pageNumber));
     });
   }
 
   async setAsync(pageNumber: number, image: Buffer) {
-    return await this._lock.acquireAsync(async () => {
+    return await this._exclusiveLock.acquireAsync(async () => {
       await app.core.resource.writeFileAsync(this._createPath(pageNumber), image);
       await this._futurePages.resolve(String(pageNumber));
     });
   }
   
   async successAsync(pageCount: number) {
-    await this._lock.acquireAsync(async () => {
+    await this._exclusiveLock.acquireAsync(async () => {
       if (!pageCount) return;
       await this._context.lockSeriesAsync(this._seriesId, async (seriesContext) => {
         try {
