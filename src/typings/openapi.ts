@@ -17,6 +17,7 @@ export type ISessionList = ISessionListItem[];
 
 export interface ILibraryCreate {
   id: string;
+  url: string;
 }
 export interface ILibraryListItem {
   id: string;

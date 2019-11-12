@@ -12,8 +12,8 @@ export class LibraryController {
 
   @api.createOperation('LibrarySeriesCreate')
   async seriesCreateAsync(model: app.ILibrarySeriesCreateContext): Promise<api.Result<app.ILibrarySeriesCreateResponse>> {
-    const id = await app.core.library.seriesCreateAsync(model.query.url);
-    return api.json({id});
+    const result = await app.core.library.seriesCreateAsync(model.query.url);
+    return api.json(result);
   }
 
   @api.createOperation('LibrarySeriesDelete')
