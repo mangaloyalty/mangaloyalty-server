@@ -14,8 +14,8 @@ export class LibraryManager {
   async listAsync(readStatus: app.IEnumeratorReadStatus, seriesStatus: app.IEnumeratorSeriesStatus, sortKey: app.IEnumeratorSortKey, title?: string) {
     return await this.accessContext().lockMainAsync(async () => {
       const ids = await this._getListAsync();
-      const items = await Promise.all(ids.map((id) => this.seriesReadAsync(id)));
-      return items.filter(Boolean)
+      const series = await Promise.all(ids.map((id) => this.seriesReadAsync(id)));
+      return series.filter(Boolean)
         .map((series) => ({series: series!, unreadCount: computeUnreadCount(series!)}))
         .filter(createSeriesFilter(readStatus, seriesStatus, title))
         .sort(createSeriesSorter(sortKey))
@@ -33,7 +33,7 @@ export class LibraryManager {
       await app.core.resource.writeFileAsync(seriesPath, series);
       delete this._listCache;
       app.core.socket.emit({type: 'SeriesCreate', seriesId: series.id, seriesUrl: series.source.url});
-      return {id: series.id, url: series.source.url};
+      return series.id;
     });
   }
 
@@ -52,6 +52,15 @@ export class LibraryManager {
         if (error && error.code === 'ENOENT') return false;
         throw error;
       }
+    });
+  }
+
+  async seriesFindByUrlAsync(url: string) {
+    return await this.accessContext().lockMainAsync(async () => {
+      const ids = await this._getListAsync();
+      const series = await Promise.all(ids.map((id) => this.seriesReadAsync(id)));
+      const match = series.filter(Boolean).find((series) => series!.source.url === url);
+      return match && match.id;
     });
   }
 

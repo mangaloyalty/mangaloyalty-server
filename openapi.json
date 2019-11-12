@@ -65,11 +65,38 @@
             "description": "Success",
             "content": {
               "application/json": {
-                "schema": {"$ref": "#/components/schemas/LibraryCreate"}
+                "schema": {"$ref": "#/components/schemas/LibraryResult"}
               }
             }
           },
           "400": {"$ref": "#/components/responses/BadRequest"},
+          "500": {"$ref": "#/components/responses/InternalServerError"}
+        }
+      }
+    },
+    "/api/library/findByUrl": {
+      "get": {
+        "operationId": "LibrarySeriesFindByUrl",
+        "tags": ["Library"], 
+        "description": "Finds the series.",
+        "parameters": [{
+          "in": "query",
+          "name": "url",
+          "description": "The series url.",
+          "required": true,
+          "schema": {"$ref": "#/components/schemas/ProviderSeriesUrl"}
+        }],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/LibraryResult"}
+              }
+            }
+          },
+          "400": {"$ref": "#/components/responses/BadRequest"},
+          "404": {"$ref": "#/components/responses/NotFound"},
           "500": {"$ref": "#/components/responses/InternalServerError"}
         }
       }
@@ -587,12 +614,11 @@
           {"type": "string", "pattern": "^https:\\/\\/fanfox\\.net\\/manga\\/[^\\/]+\\/$"}
         ]
       },
-      "LibraryCreate": {
+      "LibraryResult": {
         "type": "object",
-        "required": ["id", "url"],
+        "required": ["id"],
         "properties": {
-          "id": {"type": "string"},
-          "url": {"type": "string"}
+          "id": {"type": "string"}
         }
       },
       "LibraryList": {
