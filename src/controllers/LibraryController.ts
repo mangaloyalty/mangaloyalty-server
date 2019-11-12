@@ -12,8 +12,8 @@ export class LibraryController {
 
   @api.createOperation('LibrarySeriesCreate')
   async seriesCreateAsync(model: app.ILibrarySeriesCreateContext): Promise<api.Result<app.ILibrarySeriesCreateResponse>> {
-    const result = await app.core.library.seriesCreateAsync(model.query.url);
-    return api.json(result);
+    const id = await app.core.library.seriesCreateAsync(model.query.url);
+    return api.json({id});
   }
 
   @api.createOperation('LibrarySeriesDelete')
@@ -26,6 +26,16 @@ export class LibraryController {
     }
   }
 
+  @api.createOperation('LibrarySeriesFindByUrl')
+  async seriesFindByUrl(model: app.ILibrarySeriesFindByUrlContext): Promise<api.Result<app.ILibrarySeriesFindByUrlResponse>> {
+    const id = await app.core.library.seriesFindByUrlAsync(model.query.url);
+    if (id) {
+      return api.json({id});
+    } else {
+      return api.status(404);
+    }
+  }
+  
   @api.createOperation('LibrarySeriesImage', app.cacheOperation(app.settings.imageLibraryTimeout))
   async seriesImageAsync(model: app.ILibrarySeriesImageContext): Promise<api.Result<Buffer>> {
     const image = await app.core.library.seriesImageAsync(model.path.seriesId);
