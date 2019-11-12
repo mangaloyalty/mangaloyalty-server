@@ -62,24 +62,34 @@ async function seriesAsync(item: app.ILibraryListItem) {
 
 async function seriesChaptersAsync(seriesId: string) {
   const series = await app.core.library.seriesReadAsync(seriesId);
-  const chapter = series && series.chapters.slice().reverse().find((chapter) => !chapter.syncAt);
-  if (series && series.automation.syncAll && chapter) {
+  const chapters = series && series.chapters.slice().reverse().filter((chapter) => !chapter.syncAt);
+  if (!series || !chapters) return;
+  for (const chapter of chapters) {
+    if (!await seriesShouldContinue(seriesId)) break;
     console.log(`[Automation] Fetching ${series.source.title} -> ${chapter.title}`);
     const session = await app.core.library.chapterReadAsync(series.id, chapter.id);
     if (session instanceof app.SessionRunnable && await session.waitFinishedAsync()) {
       console.log(`[Automation] Finished ${series.source.title} -> ${chapter.title}`);
-      await seriesChaptersAsync(seriesId);
     } else {
       console.log(`[Automation] Rejected ${series.source.title} -> ${chapter.title}`);
-      await seriesChaptersAsync(seriesId);
     }
   }
 }
 
+async function seriesShouldContinue(seriesId: string) {
+  const series = await app.core.library.seriesReadAsync(seriesId);
+  return Boolean(series && series.automation.syncAll);
+}
+
 async function trackCheckedAsync(seriesId: string) {
   await app.core.library.accessContext().lockSeriesAsync(seriesId, async (seriesContext) => {
-    const series = await seriesContext.getAsync();
-    series.automation.checkedAt = Date.now();
-    await seriesContext.saveAsync();
+    try {
+      const series = await seriesContext.getAsync();
+      series.automation.checkedAt = Date.now();
+      await seriesContext.saveAsync();
+    } catch (error) {
+      if (error && error.code === 'ENOENT') return;
+      throw error;
+    }
   });
 }
