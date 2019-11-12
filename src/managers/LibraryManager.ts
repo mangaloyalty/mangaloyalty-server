@@ -32,8 +32,8 @@ export class LibraryManager {
       synchronize(series, remote.chapters);
       await app.core.resource.writeFileAsync(seriesPath, series);
       delete this._listCache;
-      app.core.socket.emit({type: 'SeriesCreate', seriesId: series.id});
-      return series.id;
+      app.core.socket.emit({type: 'SeriesCreate', seriesId: series.id, seriesUrl: series.source.url});
+      return {id: series.id, url: series.source.url};
     });
   }
 
