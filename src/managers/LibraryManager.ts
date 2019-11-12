@@ -11,12 +11,15 @@ export class LibraryManager {
     return this._context;
   }
 
-  async listAsync(readStatus: app.IEnumeratorReadStatus, seriesStatus: app.IEnumeratorSeriesStatus, sortKey: app.IEnumeratorSortKey, title?: string, pageNumber?: number) {
+  async listAsync(readStatus: app.IEnumeratorReadStatus, seriesStatus: app.IEnumeratorSeriesStatus, sortKey: app.IEnumeratorSortKey, title?: string) {
     return await this.accessContext().lockMainAsync(async () => {
       const ids = await this._getListAsync();
       const items = await Promise.all(ids.map((id) => this.seriesReadAsync(id)));
-      const validItems = items.filter(Boolean).map((series) => ({series: series!, unreadCount: computeUnreadCount(series!)}));
-      return createPageResults(validItems.filter(createSeriesFilter(readStatus, seriesStatus, title)).sort(createSeriesSorter(sortKey)), pageNumber);
+      return items.filter(Boolean)
+        .map((series) => ({series: series!, unreadCount: computeUnreadCount(series!)}))
+        .filter(createSeriesFilter(readStatus, seriesStatus, title))
+        .sort(createSeriesSorter(sortKey))
+        .map((data) => ({id: data.series.id, title: data.series.source.title, unreadCount: data.unreadCount}));
     });
   }
 
@@ -219,14 +222,6 @@ function createSeriesSource(remote: app.IRemoteSeries, remoteImage: Buffer): app
   const title = remote.title;
   const url = remote.url;
   return {authors, genres, image, isCompleted, summary, title, url};
-}
-
-function createPageResults(filteredItems: {series: app.ILibrarySeries, unreadCount: number}[], pageNumber?: number) {
-  const start = ((pageNumber || 1) - 1) * app.settings.librarySeriesPageSize;
-  const stop = start + app.settings.librarySeriesPageSize;
-  const hasMorePages = filteredItems.length > stop;
-  const items = filteredItems.slice(start, stop).map((data) => ({id: data.series.id, title: data.series.source.title, unreadCount: data.unreadCount}));
-  return {hasMorePages, items};
 }
 
 function createSeriesFilter(readStatus: app.IEnumeratorReadStatus, seriesStatus: app.IEnumeratorSeriesStatus, title?: string) {

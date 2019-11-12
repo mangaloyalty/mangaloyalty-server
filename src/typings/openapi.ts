@@ -12,14 +12,11 @@ export type IEnumeratorSeriesStatus = "all" | "ongoing" | "completed";
 export type IEnumeratorSortKey = "addedAt" | "lastChapterAddedAt" | "lastPageReadAt" | "title";
 export type IProviderChapterUrl = string;
 export type IProviderSeriesUrl = string;
+export type ILibraryList = ILibraryListItem[];
 export type ISessionList = ISessionListItem[];
 
 export interface ILibraryCreate {
   id: string;
-}
-export interface ILibraryList {
-  hasMorePages: boolean;
-  items: ILibraryListItem[];
 }
 export interface ILibraryListItem {
   id: string;
@@ -100,7 +97,6 @@ export interface ILibraryListContext {
     seriesStatus: IEnumeratorSeriesStatus;
     sortKey: IEnumeratorSortKey;
     title?: string;
-    pageNumber?: number;
   };
 }
 export interface ILibrarySeriesCreateContext {
