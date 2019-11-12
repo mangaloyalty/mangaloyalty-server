@@ -35,12 +35,6 @@
           "description": "The series title to search.",
           "required": false,
           "schema": {"type": "string"}
-        }, {
-          "in": "query",
-          "name": "pageNumber",
-          "description": "The page number.",
-          "required": false,
-          "schema": {"type": "number", "minimum": 1}
         }],
         "responses": {
           "200": {
@@ -601,12 +595,8 @@
         }
       },
       "LibraryList": {
-        "type": "object",
-        "required": ["hasMorePages", "items"],
-        "properties": {
-          "hasMorePages": {"type": "boolean"},
-          "items": {"type": "array", "items": {"$ref": "#/components/schemas/LibraryListItem"}}
-        }
+        "type": "array",
+        "items": {"$ref": "#/components/schemas/LibraryListItem"}
       },
       "LibraryListItem": {
         "type": "object",

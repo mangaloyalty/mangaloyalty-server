@@ -7,7 +7,7 @@ export class LibraryController {
     const readStatus = model.query.readStatus;
     const seriesStatus = model.query.seriesStatus;
     const sortKey = model.query.sortKey;
-    return api.json(await app.core.library.listAsync(readStatus, seriesStatus, sortKey, model.query.title, model.query.pageNumber));
+    return api.json(await app.core.library.listAsync(readStatus, seriesStatus, sortKey, model.query.title));
   }
 
   @api.createOperation('LibrarySeriesCreate')

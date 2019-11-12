@@ -45,11 +45,8 @@ function computeNextAt(series: app.ILibrarySeries) {
 }
 
 async function runAsync() {
-  for (let pageNumber = 1; ; pageNumber++) {
-    const result = await app.core.library.listAsync('all', 'all', 'addedAt', undefined, pageNumber);
-    for (const item of result.items) await seriesAsync(item);
-    if (!result.hasMorePages) break;
-  }
+  const items = await app.core.library.listAsync('all', 'all', 'addedAt', undefined);
+  for (const item of items) await seriesAsync(item);
 }
 
 async function seriesAsync(item: app.ILibraryListItem) {
