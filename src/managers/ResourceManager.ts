@@ -1,34 +1,29 @@
-import * as app from '..';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 
 export class ResourceManager {
-  async moveAsync(relativeFromPath: string, relativeToPath: string) {
-    const absoluteFromPath = path.join(app.settings.basePath, relativeFromPath);
-    const absoluteToPath = path.join(app.settings.basePath, relativeToPath);
+  async moveAsync(absoluteFromPath: string, absoluteToPath: string) {
     await fs.move(absoluteFromPath, absoluteToPath, {overwrite: true});
   }
 
-  async readdirAsync(relativePath: string) {
-    const absolutePath = path.join(app.settings.basePath, relativePath);
+  async readdirAsync(absolutePath: string) {
     await fs.ensureDir(absolutePath);
     return await fs.readdir(absolutePath);
   }
 
-  async readFileAsync(relativePath: string) {
-    return await fs.readFile(path.join(app.settings.basePath, relativePath));
+  async readFileAsync(absolutePath: string) {
+    return await fs.readFile(absolutePath);
   }
 
-  async readJsonAsync<T>(relativePath: string) {
-    return await fs.readJson(path.join(app.settings.basePath, relativePath)) as T;
+  async readJsonAsync<T>(absolutePath: string) {
+    return await fs.readJson(absolutePath) as T;
   }
 
-  async removeAsync(relativePath: string) {
-    await fs.remove(path.join(app.settings.basePath, relativePath));
+  async removeAsync(absolutePath: string) {
+    await fs.remove(absolutePath);
   }
 
-  async writeFileAsync<T>(relativePath: string, value: T) {
-    const absolutePath = path.join(app.settings.basePath, relativePath);
+  async writeFileAsync<T>(absolutePath: string, value: T) {
     const absolutePathTmp = `${absolutePath}.tmp`;
     try {
       await fs.ensureDir(path.dirname(absolutePath));

@@ -6,7 +6,7 @@ export class Watch {
 	private readonly _page: puppeteer.Page;
 
   constructor(page: puppeteer.Page) {
-    this._futureResponses = new app.FutureMap(app.settings.browserNavigationTimeout);
+    this._futureResponses = new app.FutureMap(app.settings.chromeNavigationTimeout);
     this._page = page;
     this._page.on('response', (response) => this._futureResponses.resolve(response.url(), response));
   }

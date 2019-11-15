@@ -22,7 +22,7 @@ export class AutomateManager {
 
   private _reschedule() {
     this._cancelSchedule();
-    this._timeoutHandle = setTimeout(() => this.tryRun(), app.settings.libraryAutomationInterval);
+    this._timeoutHandle = setTimeout(() => this.tryRun(), app.settings.libraryAutomationTimeout);
   }
 
   private async _runWithTraceAsync() {
