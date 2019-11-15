@@ -3,12 +3,14 @@ import * as app from '.';
 import * as fs from 'fs-extra';
 import * as http from 'http';
 import * as io from 'socket.io';
+import * as os from 'os';
 import * as path from 'path';
+fs.removeSync(path.join(os.homedir(), 'mangaloyalty', 'chromeCache')); // <= 0.6.0
+fs.removeSync(path.join(os.homedir(), 'mangaloyalty', 'coreCache'));   // <= 0.7.0
 
 // Initialize the application.
-fs.removeSync(path.join(app.settings.basePath, 'chromeCache')); // <= 0.6.0
-fs.removeSync(path.join(app.settings.basePath, app.settings.cache));
-fs.removeSync(path.join(app.settings.basePath, app.settings.sync));
+fs.removeSync(app.settings.cache);
+fs.removeSync(app.settings.sync);
 setImmediate(() => app.core.automate.tryRun());
 setImmediate(() => app.core.browser.prepareWithTraceAsync());
 

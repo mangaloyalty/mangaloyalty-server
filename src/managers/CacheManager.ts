@@ -2,12 +2,10 @@ import * as app from '..';
 import * as path from 'path';
 
 export class CacheManager {
-  private readonly _basePath: string;
   private readonly _timeoutHandles: {[key: string]: NodeJS.Timeout};
   private readonly _values: {[key: string]: app.Future<any> | Promise<any> | {id: string, isBuffer: boolean}};
 
   constructor() {
-    this._basePath = app.settings.cache;
     this._timeoutHandles = {};
     this._values = {};
   }
@@ -26,7 +24,7 @@ export class CacheManager {
       clearTimeout(this._timeoutHandles[key]);
       delete this._timeoutHandles[key];
       delete this._values[key];
-      removeWithTraceAsync(path.join(this._basePath, value.id));
+      removeWithTraceAsync(path.join(app.settings.cache, value.id));
     }
   }
 
@@ -53,8 +51,8 @@ export class CacheManager {
       return await value as T;
     } else try {
       return value.isBuffer
-        ? await app.core.resource.readFileAsync(path.join(this._basePath, value.id)) as any
-        : await app.core.resource.readJsonAsync<T>(path.join(this._basePath, value.id));
+        ? await app.core.resource.readFileAsync(path.join(app.settings.cache, value.id)) as any
+        : await app.core.resource.readJsonAsync<T>(path.join(app.settings.cache, value.id));
     } catch (error) {
       if (error && error.code === 'ENOENT') return await this.getAsync(key, timeout, valueFactory);
       throw error;
@@ -74,7 +72,7 @@ export class CacheManager {
       const id = app.createUniqueId();
       const value = await valuePromise;
       if (previousValue instanceof app.Future) previousValue.resolve(value);
-      await app.core.resource.writeFileAsync(path.join(this._basePath, id), value);
+      await app.core.resource.writeFileAsync(path.join(app.settings.cache, id), value);
       this._values[key] = {id, isBuffer: Buffer.isBuffer(value)};
       this._updateTimeout(key, timeout);
       return value;

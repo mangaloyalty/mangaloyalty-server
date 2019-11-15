@@ -21,9 +21,9 @@ export class BrowserManager {
       const browser = await this._browserAsync();
       const userAgent = await browser.userAgent();
       page = await browser.newPage();
-      page.setDefaultTimeout(app.settings.browserNavigationTimeout);
+      page.setDefaultTimeout(app.settings.chromeNavigationTimeout);
       await page.setUserAgent(userAgent.replace(/HeadlessChrome/g, 'Chrome'));
-      await page.setViewport(app.settings.browserViewport);
+      await page.setViewport(app.settings.chromeViewport);
       return await handlerAsync(page);
     } finally {
       this._numberOfPages--;
@@ -45,8 +45,8 @@ export class BrowserManager {
       if (this._browser) return await this._browser;
       const downloadInfo = await this._prepareAsync();
       const executablePath = downloadInfo.executablePath;
-      const headless = app.settings.browserHeadless;
-      const userDataDir = path.join(downloadInfo.folderPath, app.settings.browserUserData);
+      const headless = app.settings.chromeHeadless;
+      const userDataDir = path.join(downloadInfo.folderPath, app.settings.chromeUserData);
       this._browser = puppeteer.launch({executablePath, headless, userDataDir});
       return await this._browser;
     } catch (error) {
@@ -58,7 +58,7 @@ export class BrowserManager {
   private async _prepareAsync() {
     return await this._exclusiveLock.acquireAsync(async () => {
       const chromiumRevision = String(require('puppeteer-core/package').puppeteer.chromium_revision);
-      const fetcher = puppeteer.createBrowserFetcher({path: path.join(app.settings.basePath, app.settings.browser)});
+      const fetcher = puppeteer.createBrowserFetcher({path: app.settings.chrome});
       const fetcherPromise = fetcher.download(chromiumRevision);
       const fetcherRevisions = await fetcher.localRevisions();
       await Promise.all(fetcherRevisions.filter((revision) => chromiumRevision !== revision).map((revision) => fetcher.remove(revision)));
@@ -73,7 +73,7 @@ export class BrowserManager {
       if (!browser || this._numberOfPages) return;
       delete this._browser;
       await closeWithTraceAsync(browser);
-    }, app.settings.browserExitTimeout);
+    }, app.settings.chromeExitTimeout);
   }
 }
 
