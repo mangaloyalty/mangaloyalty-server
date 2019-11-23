@@ -29,7 +29,7 @@ export class AutomateManager {
     try {
       await runAsync();
     } catch (error) {
-      app.traceError(error);
+      app.writeError(error);
     }
   }
 }
@@ -53,9 +53,9 @@ async function seriesAsync(item: app.ILibraryListItem) {
   const series = await app.core.library.seriesReadAsync(item.id);
   const nextAt = series && computeNextAt(series);
   if (series && nextAt && nextAt <= Date.now()) {
-    console.log(`[Automation] Fetching ${series.source.title}`);
+    app.writeInfo(`[Automation] Fetching ${series.source.title}`);
     if (await app.core.library.seriesUpdateAsync(series.id)) await seriesChaptersAsync(series.id);
-    console.log(`[Automation] Finished ${series.source.title}`);
+    app.writeInfo(`[Automation] Finished ${series.source.title}`);
     await trackCheckedAsync(item.id);
   }
 }
@@ -66,12 +66,12 @@ async function seriesChaptersAsync(seriesId: string) {
   if (!series || !chapters) return;
   for (const chapter of chapters) {
     if (!await seriesShouldContinue(seriesId)) break;
-    console.log(`[Automation] Fetching ${series.source.title} -> ${chapter.title}`);
+    app.writeInfo(`[Automation] Fetching ${series.source.title} -> ${chapter.title}`);
     const session = await app.core.library.chapterReadAsync(series.id, chapter.id);
     if (session instanceof app.SessionRunnable && await session.waitFinishedAsync()) {
-      console.log(`[Automation] Finished ${series.source.title} -> ${chapter.title}`);
+      app.writeInfo(`[Automation] Finished ${series.source.title} -> ${chapter.title}`);
     } else {
-      console.log(`[Automation] Rejected ${series.source.title} -> ${chapter.title}`);
+      app.writeInfo(`[Automation] Rejected ${series.source.title} -> ${chapter.title}`);
     }
   }
 }
