@@ -1,6 +1,6 @@
 export * from './core';
-export * from './services';
 export * from './settings';
+export * from './utilities';
 export * from './classes/AdaptorCache';
 export * from './classes/AdaptorLibrary';
 export * from './classes/ExclusiveLock';

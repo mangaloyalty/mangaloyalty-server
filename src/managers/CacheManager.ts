@@ -94,7 +94,7 @@ function expireWithTrace(cache: CacheManager, key: string) {
   try {
     cache.expire(key);
   } catch (error) {
-    app.traceError(error);
+    app.writeError(error);
   }
 }
 
@@ -102,6 +102,6 @@ async function removeWithTraceAsync(path: string) {
   try {
     await app.core.resource.removeAsync(path);
   } catch (error) {
-    app.traceError(error);
+    app.writeError(error);
   }
 }
