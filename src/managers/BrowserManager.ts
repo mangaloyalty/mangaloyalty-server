@@ -36,7 +36,7 @@ export class BrowserManager {
     try {
       await this._prepareAsync();
     } catch (error) {
-      app.traceError(error);
+      app.writeError(error);
     }
   }
   
@@ -81,6 +81,6 @@ async function closeWithTraceAsync(browser: puppeteer.Browser) {
   try {
     await browser.close();
   } catch (error) {
-    app.traceError(error);
+    app.writeError(error);
   }
 }

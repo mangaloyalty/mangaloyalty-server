@@ -45,7 +45,7 @@ async function endWithTraceAsync(session: app.ISession) {
   try {
     await session.endAsync();
   } catch (error) {
-    app.traceError(error);
+    app.writeError(error);
   } finally {
     app.core.socket.emit({type: 'SessionDelete', session: session.getData()});
   }

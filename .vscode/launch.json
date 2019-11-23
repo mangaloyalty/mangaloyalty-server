@@ -3,6 +3,7 @@
   "configurations": [{
     "args": ["."],
     "name": "Launch Program",
+    "outputCapture": "std",
     "preLaunchTask": "TypeScript",
     "request": "launch",
     "type": "node"

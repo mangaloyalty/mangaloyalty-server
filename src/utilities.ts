@@ -1,5 +1,8 @@
+import * as app from '.';
 import * as express from 'express';
+import * as winston from 'winston';
 import {randomBytes} from 'crypto';
+let logger: winston.Logger | undefined;
 
 export function cacheOperation(timeout: number) {
   const key = 'Cache-Control';
@@ -26,8 +29,15 @@ export function imageContentType(image: Buffer) {
   return;
 }
 
-export function traceError(error?: any) {
-  if (error instanceof Error) console.log(error);
-  else if (error) return console.log(new Error(String(error) || ''));
-  else console.log(new Error());
+export function writeError(error?: any) {
+  if (error instanceof Error) writeInfo(error.stack || error.message);
+  else if (error) writeError(new Error(String(error) || ''));
+  else writeError(new Error());
+}
+
+export function writeInfo(message: string) {
+  (logger || (logger = winston.createLogger({
+    format: winston.format.combine(winston.format.timestamp(), winston.format.printf((x) => `${x.timestamp}: ${x.message}`)),
+    transports: [new winston.transports.Console(), new winston.transports.File({filename: app.settings.logger})]
+  }))).info(message);
 }

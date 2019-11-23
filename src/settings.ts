@@ -2,10 +2,8 @@ import * as fs from 'fs-extra';
 import * as os from 'os';
 import * as path from 'path';
 const basePath = path.join(os.homedir(), 'mangaloyalty');
-const settingsPath = path.join(basePath, 'settings.json');
-const userSettings = fs.readJsonSync(settingsPath, {throws: false});
 
-export const settings = Object.assign({
+export const settings = {
   cache: path.join(basePath, 'cache'),
   cacheDataTimeout: 600000,
   cacheImageTimeout: 1200000,
@@ -21,6 +19,11 @@ export const settings = Object.assign({
   library: path.join(basePath, 'library'),
   libraryAutomationTimeout: 600000,
   librarySeries: 'series',
+  logger: path.join(basePath, 'mangaloyalty.log'),
   sessionTimeout: 600000,
   sync: path.join(basePath, 'sync')
-}, userSettings);
+};
+
+Object.assign(settings, fs.readJsonSync(
+  path.join(basePath, 'settings.json'),
+  {throws: false}));

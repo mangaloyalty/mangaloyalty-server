@@ -21,7 +21,7 @@ export class SocketManager {
       try {
         handler(action);
       } catch (error) {
-        app.traceError(error);
+        app.writeError(error);
       }
     }
   }
