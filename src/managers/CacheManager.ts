@@ -18,13 +18,13 @@ export class CacheManager {
       delete this._values[key];
       value.reject(new Error());
     } else if (value instanceof Promise) {
-      const continueWith = () => expireWithTrace(this, key);
+      const continueWith = () => expirePromiseWithTrace(this, key);
       value.then(continueWith, continueWith);
     } else {
       clearTimeout(this._timeoutHandles[key]);
       delete this._timeoutHandles[key];
       delete this._values[key];
-      removeWithTraceAsync(path.join(app.settings.cache, value.id));
+      expireValueWithTraceAsync(path.join(app.settings.cache, value.id));
     }
   }
 
@@ -90,7 +90,7 @@ export class CacheManager {
   }
 }
 
-function expireWithTrace(cache: CacheManager, key: string) {
+function expirePromiseWithTrace(cache: CacheManager, key: string) {
   try {
     cache.expire(key);
   } catch (error) {
@@ -98,7 +98,7 @@ function expireWithTrace(cache: CacheManager, key: string) {
   }
 }
 
-async function removeWithTraceAsync(path: string) {
+async function expireValueWithTraceAsync(path: string) {
   try {
     await app.core.resource.removeAsync(path);
   } catch (error) {

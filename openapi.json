@@ -180,15 +180,15 @@
         }, {
           "in": "query",
           "name": "frequency",
-          "description": "The frequency.",
+          "description": "The synchronization frequency.",
           "required": true,
           "schema": {"$ref": "#/components/schemas/EnumeratorFrequency"}
         }, {
           "in": "query",
-          "name": "syncAll",
-          "description": "Indicates whether chapters should be synchronized.",
+          "name": "strategy",
+          "description": "The synchronization strategy.",
           "required": true,
-          "schema": {"type": "boolean"}
+          "schema": {"$ref": "#/components/schemas/EnumeratorStrategy"}
         }],
         "responses": {
           "200": {
@@ -580,13 +580,17 @@
       }
     },
     "schemas": {
+      "EnumeratorProvider": {
+        "type": "string",
+        "enum": ["batoto", "fanfox"]
+      },
       "EnumeratorFrequency": {
         "type": "string",
         "enum": ["never", "hourly", "daily", "weekly", "monthly"]
       },
-      "EnumeratorProvider": {
+      "EnumeratorStrategy": {
         "type": "string",
-        "enum": ["batoto", "fanfox"]
+        "enum": ["none", "unread", "all"]
       },
       "EnumeratorReadStatus": {
         "type": "string",
@@ -650,11 +654,11 @@
       },
       "LibrarySeriesAutomation": {
         "type": "object",
-        "required": ["frequency", "syncAll"],
+        "required": ["frequency", "strategy"],
         "properties": {
           "checkedAt": {"type": "number"},
           "frequency": {"$ref": "#/components/schemas/EnumeratorFrequency"},
-          "syncAll": {"type": "boolean"}
+          "strategy": {"$ref": "#/components/schemas/EnumeratorStrategy"}
         }
       },
       "LibrarySeriesChapter": {

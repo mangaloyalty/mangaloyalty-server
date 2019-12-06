@@ -5,14 +5,14 @@ export class LibraryManager {
   private _context?: app.LibraryContext;
   private _listCache?: string[];
 
-  accessContext() {
+  get context() {
     if (this._context) return this._context;
     this._context = new app.LibraryContext();
     return this._context;
   }
 
   async listAsync(readStatus: app.IEnumeratorReadStatus, seriesStatus: app.IEnumeratorSeriesStatus, sortKey: app.IEnumeratorSortKey, title?: string) {
-    return await this.accessContext().lockMainAsync(async () => {
+    return await this.context.lockMainAsync(async () => {
       const ids = await this._getListAsync();
       const series = await Promise.all(ids.map((id) => this.seriesReadAsync(id)));
       return series.filter(Boolean)
@@ -26,7 +26,7 @@ export class LibraryManager {
   async seriesCreateAsync(url: string) {
     const remote = await app.provider.seriesAsync(url);
     const remoteImage = await app.provider.imageAsync(remote.imageId);
-    return await this.accessContext().lockMainAsync(async () => {
+    return await this.context.lockMainAsync(async () => {
       const series = createSeries(remote, remoteImage!);
       const seriesPath = path.join(app.settings.library, series.id, app.settings.librarySeries);
       synchronize(series, remote.chapters);
@@ -38,7 +38,7 @@ export class LibraryManager {
   }
 
   async seriesDeleteAsync(seriesId: string) {
-    return await this.accessContext().lockSeriesAsync(seriesId, async (seriesContext) => {
+    return await this.context.lockSeriesAsync(seriesId, async (seriesContext) => {
       try {
         const seriesPath = path.join(app.settings.library, seriesId);
         const deletePath = path.join(app.settings.library, `_${seriesId}`);
@@ -56,16 +56,16 @@ export class LibraryManager {
   }
 
   async seriesFindByUrlAsync(url: string) {
-    return await this.accessContext().lockMainAsync(async () => {
+    return await this.context.lockMainAsync(async () => {
       const ids = await this._getListAsync();
       const series = await Promise.all(ids.map((id) => this.seriesReadAsync(id)));
-      const match = series.filter(Boolean).find((series) => series!.source.url === url);
+      const match = series.filter(Boolean).find((series) => series && series.source.url === url);
       return match && match.id;
     });
   }
 
   async seriesImageAsync(seriesId: string) {
-    return await this.accessContext().lockSeriesAsync(seriesId, async (seriesContext) => {
+    return await this.context.lockSeriesAsync(seriesId, async (seriesContext) => {
       try {
         const series = await seriesContext.getAsync();
         const image = series.source.image;
@@ -78,7 +78,7 @@ export class LibraryManager {
   }
 
   async seriesReadAsync(seriesId: string): Promise<app.ILibrarySeries | undefined> {
-    return await this.accessContext().lockSeriesAsync(seriesId, async (seriesContext) => {
+    return await this.context.lockSeriesAsync(seriesId, async (seriesContext) => {
       try {
         const series = await seriesContext.getAsync();
         const result = Object.assign({}, series);
@@ -91,13 +91,13 @@ export class LibraryManager {
     });
   }
 
-  async seriesPatchAsync(seriesId: string, frequency: app.IEnumeratorFrequency, syncAll: boolean) {
-    return await this.accessContext().lockSeriesAsync(seriesId, async (seriesContext) => {
+  async seriesPatchAsync(seriesId: string, frequency: app.IEnumeratorFrequency, strategy: app.IEnumeratorStrategy) {
+    return await this.context.lockSeriesAsync(seriesId, async (seriesContext) => {
       try {
         const series = await seriesContext.getAsync();
         delete series.automation.checkedAt;
         series.automation.frequency = frequency;
-        series.automation.syncAll = syncAll;
+        series.automation.strategy = strategy;
         await seriesContext.saveAsync();
         app.core.socket.emit({type: 'SeriesPatch', seriesId});
         app.core.automate.tryRun();
@@ -114,7 +114,7 @@ export class LibraryManager {
     const remote = series && await app.provider.seriesAsync(series.source.url);
     const remoteImage = remote && await app.provider.imageAsync(remote.imageId);
     if (!remote || !remoteImage) return false;
-    return await this.accessContext().lockSeriesAsync(seriesId, async (seriesContext) => {
+    return await this.context.lockSeriesAsync(seriesId, async (seriesContext) => {
       try {
         const series = await seriesContext.getAsync();
         series.lastSyncAt = Date.now();
@@ -131,7 +131,7 @@ export class LibraryManager {
   }
 
   async chapterDeleteAsync(seriesId: string, chapterId: string) {
-    return await this.accessContext().lockSeriesAsync(seriesId, async (seriesContext) => {
+    return await this.context.lockSeriesAsync(seriesId, async (seriesContext) => {
       try {
         const series = await seriesContext.getAsync();
         const chapterPath = path.join(app.settings.library, seriesId, chapterId);
@@ -163,8 +163,8 @@ export class LibraryManager {
     const chapter = series && series.chapters.find((chapter) => chapter.id === chapterId);
     if (chapter && chapter.pageCount && chapter.syncAt) {
       return app.core.session.add(new app.SessionLocal(seriesId, chapterId, chapter.pageCount, chapter.url));
-    } else if (series && series.automation.syncAll && chapter) {
-      return await app.provider.startAsync(new app.AdaptorLibrary(this.accessContext(), seriesId, chapterId), chapter.url);
+    } else if (series && chapter && (series.automation.strategy === 'all' || (series.automation.strategy === 'unread' && !chapter.isReadCompleted))) {
+      return await app.provider.startAsync(new app.AdaptorLibrary(this.context, seriesId, chapterId), chapter.url);
     } else if (series && chapter) {
       return await app.provider.startAsync(new app.AdaptorCache(seriesId, chapterId), chapter.url);
     } else {
@@ -173,7 +173,7 @@ export class LibraryManager {
   }
 
   async chapterPatchAsync(seriesId: string, chapterId: string, isReadCompleted?: boolean, pageReadNumber?: number) {
-    return await this.accessContext().lockSeriesAsync(seriesId, async (seriesContext) => {
+    return await this.context.lockSeriesAsync(seriesId, async (seriesContext) => {
       try {
         const series = await seriesContext.getAsync();
         const chapter = series.chapters.find((chapter) => chapter.id === chapterId);
@@ -198,7 +198,7 @@ export class LibraryManager {
     const series = await this.seriesReadAsync(seriesId);
     const chapter = series && series.chapters.find((chapter) => chapter.id === chapterId);
     if (series && chapter) {
-      await app.provider.startAsync(new app.AdaptorLibrary(this.accessContext(), seriesId, chapterId), chapter.url);
+      await app.provider.startAsync(new app.AdaptorLibrary(this.context, seriesId, chapterId), chapter.url);
       return true;
     } else {
       return false;
@@ -216,7 +216,7 @@ function createSeries(remote: app.IRemoteSeries, remoteImage: Buffer): app.IFile
   const id = app.createUniqueId();
   const addedAt = Date.now();
   const lastSyncAt = Date.now();
-  const automation: app.ILibrarySeriesAutomation = {checkedAt: Date.now(), frequency: 'weekly', syncAll: false};
+  const automation: app.ILibrarySeriesAutomation = {checkedAt: Date.now(), frequency: 'weekly', strategy: 'none'};
   const chapters: app.ILibrarySeriesChapter[] = [];
   const source = createSeriesSource(remote, remoteImage);
   return {id, addedAt, lastSyncAt, automation, chapters, source};
