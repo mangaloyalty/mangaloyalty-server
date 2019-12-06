@@ -5,8 +5,9 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
-export type IEnumeratorFrequency = "never" | "hourly" | "daily" | "weekly" | "monthly";
 export type IEnumeratorProvider = "batoto" | "fanfox";
+export type IEnumeratorFrequency = "never" | "hourly" | "daily" | "weekly" | "monthly";
+export type IEnumeratorStrategy = "none" | "unread" | "all";
 export type IEnumeratorReadStatus = "all" | "unread" | "read";
 export type IEnumeratorSeriesStatus = "all" | "ongoing" | "completed";
 export type IEnumeratorSortKey = "addedAt" | "lastChapterAddedAt" | "lastPageReadAt" | "title";
@@ -36,7 +37,7 @@ export interface ILibrarySeries {
 export interface ILibrarySeriesAutomation {
   checkedAt?: number;
   frequency: IEnumeratorFrequency;
-  syncAll: boolean;
+  strategy: IEnumeratorStrategy;
 }
 export interface ILibrarySeriesChapter {
   id: string;
@@ -130,7 +131,7 @@ export interface ILibrarySeriesPatchContext {
   };
   query: {
     frequency: IEnumeratorFrequency;
-    syncAll: boolean;
+    strategy: IEnumeratorStrategy;
   };
 }
 export interface ILibrarySeriesImageContext {

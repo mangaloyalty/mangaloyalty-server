@@ -58,7 +58,7 @@ export class LibraryController {
   
   @api.createOperation('LibrarySeriesPatch')
   async seriesPatchAsync(model: app.ILibrarySeriesPatchContext): Promise<api.Result<void>> {
-    const success = await app.core.library.seriesPatchAsync(model.path.seriesId, model.query.frequency, model.query.syncAll);
+    const success = await app.core.library.seriesPatchAsync(model.path.seriesId, model.query.frequency, model.query.strategy);
     if (success) {
       return api.status(200);
     } else {
