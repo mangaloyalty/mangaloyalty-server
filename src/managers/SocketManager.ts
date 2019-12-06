@@ -17,12 +17,10 @@ export class SocketManager {
   }
 
   emit(action: app.ISocketAction) {
-    for (const handler of this._handlers) {
-      try {
-        handler(action);
-      } catch (error) {
-        app.writeError(error);
-      }
+    for (const handler of this._handlers) try {
+      handler(action);
+    } catch (error) {
+      app.writeError(error);
     }
   }
 }
