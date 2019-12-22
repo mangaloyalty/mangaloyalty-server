@@ -23,6 +23,7 @@ export interface ILibraryListItem {
   id: string;
   title: string;
   unreadCount: number;
+  url: string;
 }
 export interface ILibrarySeries {
   id: string;
@@ -101,11 +102,6 @@ export interface ILibraryListContext {
   };
 }
 export interface ILibrarySeriesCreateContext {
-  query: {
-    url: IProviderSeriesUrl;
-  };
-}
-export interface ILibrarySeriesFindByUrlContext {
   query: {
     url: IProviderSeriesUrl;
   };
@@ -211,7 +207,6 @@ export interface ISessionPageContext {
 
 export type ILibraryListResponse = ILibraryList;
 export type ILibrarySeriesCreateResponse = ILibraryResult;
-export type ILibrarySeriesFindByUrlResponse = ILibraryResult;
 export type ILibrarySeriesReadResponse = ILibrarySeries;
 export type ILibraryChapterReadResponse = ISessionListItem;
 export type IRemotePopularResponse = IRemoteList;

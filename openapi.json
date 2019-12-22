@@ -74,33 +74,6 @@
         }
       }
     },
-    "/api/library/findByUrl": {
-      "get": {
-        "operationId": "LibrarySeriesFindByUrl",
-        "tags": ["Library"], 
-        "description": "Finds the series.",
-        "parameters": [{
-          "in": "query",
-          "name": "url",
-          "description": "The series url.",
-          "required": true,
-          "schema": {"$ref": "#/components/schemas/ProviderSeriesUrl"}
-        }],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {"$ref": "#/components/schemas/LibraryResult"}
-              }
-            }
-          },
-          "400": {"$ref": "#/components/responses/BadRequest"},
-          "404": {"$ref": "#/components/responses/NotFound"},
-          "500": {"$ref": "#/components/responses/InternalServerError"}
-        }
-      }
-    },
     "/api/library/{seriesId}": {
       "delete": {
         "operationId": "LibrarySeriesDelete",
@@ -631,11 +604,12 @@
       },
       "LibraryListItem": {
         "type": "object",
-        "required": ["id", "title", "unreadCount"],
+        "required": ["id", "title", "unreadCount", "url"],
         "properties": {
           "id": {"type": "string"},
           "title": {"type": "string"},
-          "unreadCount": {"type": "number"}
+          "unreadCount": {"type": "number"},
+          "url": {"type": "string"}
         }
       },
       "LibrarySeries": {

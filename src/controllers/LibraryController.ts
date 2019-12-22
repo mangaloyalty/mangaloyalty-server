@@ -25,16 +25,6 @@ export class LibraryController {
       return api.status(404);
     }
   }
-
-  @api.createOperation('LibrarySeriesFindByUrl')
-  async seriesFindByUrl(model: app.ILibrarySeriesFindByUrlContext): Promise<api.Result<app.ILibrarySeriesFindByUrlResponse>> {
-    const id = await app.core.library.seriesFindByUrlAsync(model.query.url);
-    if (id) {
-      return api.json({id});
-    } else {
-      return api.status(404);
-    }
-  }
   
   @api.createOperation('LibrarySeriesImage', app.cacheOperation(app.settings.imageLibraryTimeout))
   async seriesImageAsync(model: app.ILibrarySeriesImageContext): Promise<api.Result<Buffer>> {
