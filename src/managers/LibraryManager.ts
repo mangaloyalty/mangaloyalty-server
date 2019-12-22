@@ -19,7 +19,7 @@ export class LibraryManager {
         .map((series) => ({series: series!, unreadCount: computeUnreadCount(series!)}))
         .filter(createSeriesFilter(readStatus, seriesStatus, title))
         .sort(createSeriesSorter(sortKey))
-        .map((data) => ({id: data.series.id, title: data.series.source.title, unreadCount: data.unreadCount}));
+        .map((data) => ({id: data.series.id, title: data.series.source.title, unreadCount: data.unreadCount, url: data.series.source.url}));
     });
   }
 
@@ -52,15 +52,6 @@ export class LibraryManager {
         if (error && error.code === 'ENOENT') return false;
         throw error;
       }
-    });
-  }
-
-  async seriesFindByUrlAsync(url: string) {
-    return await this.context.lockMainAsync(async () => {
-      const ids = await this._getListAsync();
-      const series = await Promise.all(ids.map((id) => this.seriesReadAsync(id)));
-      const match = series.filter(Boolean).find((series) => series && series.source.url === url);
-      return match && match.id;
     });
   }
 
