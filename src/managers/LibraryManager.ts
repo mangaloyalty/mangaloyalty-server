@@ -55,6 +55,27 @@ export class LibraryManager {
     });
   }
 
+  async seriesDumpAsync(seriesId: string, writableStream: NodeJS.WritableStream) {
+    const series = await this.seriesReadAsync(seriesId);
+    const chapters = series && series.chapters.slice().reverse() || [];
+    await app.Zipper.createAsync(writableStream, async (zipper) => {
+      for (let chapterIndex = 0; chapterIndex < chapters.length; chapterIndex++) {
+        const chapter = chapters[chapterIndex];
+        const chapterFolder = `[${app.createPrefix(chapterIndex, 3)}] ${chapter.title}`;
+        if (!chapter.pageCount || !chapter.syncAt) {
+          await zipper.directoryAsync(chapterFolder);
+          continue;
+        }
+        for (let pageNumber = 1; pageNumber <= chapter.pageCount; pageNumber++) {
+          const pageName = app.createPrefix(pageNumber, 3);
+          const image = await app.core.resource.readFileAsync(path.join(app.settings.library, seriesId, chapter.id, pageName));
+          const imageExtension = app.imageExtension(image);
+          if (imageExtension) await zipper.fileAsync(`${chapterFolder}/${pageName}.${imageExtension}`, image);
+        }
+      }
+    });
+  }
+
   async seriesImageAsync(seriesId: string) {
     return await this.context.lockSeriesAsync(seriesId, async (seriesContext) => {
       try {

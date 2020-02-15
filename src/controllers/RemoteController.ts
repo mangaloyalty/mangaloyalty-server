@@ -2,11 +2,11 @@ import * as api from 'express-openapi-json';
 import * as app from '..';
 
 export class RemoteController {
-  @api.createOperation('RemoteImage', app.cacheOperation(app.settings.imageRemoteTimeout))
-  async imageAsync(model: app.IRemoteImageContext): Promise<api.Result<Buffer>> {
+  @api.createOperation('RemoteImage', app.httpCache(app.settings.imageRemoteTimeout))
+  async imageAsync(model: app.IRemoteImageContext): Promise<api.Result<Function>> {
     const image = await app.provider.imageAsync(model.query.imageId);
     if (image) {
-      return api.buffer(image, app.imageContentType(image));
+      return api.handler(app.httpImage(image));
     } else {
       return api.status(404);
     }

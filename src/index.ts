@@ -11,6 +11,7 @@ export * from './classes/LibraryContextSeries';
 export * from './classes/SessionLocal';
 export * from './classes/SessionRunnable';
 export * from './classes/Watch';
+export * from './classes/Zipper';
 export * from './controllers/LibraryController';
 export * from './controllers/RemoteController';
 export * from './controllers/SessionController';

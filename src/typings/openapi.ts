@@ -130,6 +130,11 @@ export interface ILibrarySeriesPatchContext {
     strategy: IEnumeratorStrategy;
   };
 }
+export interface ILibrarySeriesDumpContext {
+  path: {
+    seriesId: string;
+  };
+}
 export interface ILibrarySeriesImageContext {
   path: {
     seriesId: string;
