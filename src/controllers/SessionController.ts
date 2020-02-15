@@ -8,12 +8,12 @@ export class SessionController {
     return api.json(app.core.session.getAll(seriesId));
   }
 
-  @api.createOperation('SessionPage', app.cacheOperation(app.settings.imageSessionTimeout))
-  async pageAsync(model: app.ISessionPageContext): Promise<api.Result<Buffer>> {
+  @api.createOperation('SessionPage', app.httpCache(app.settings.imageSessionTimeout))
+  async pageAsync(model: app.ISessionPageContext): Promise<api.Result<Function>> {
     const session = app.core.session.get(model.path.sessionId);
     const image = session && await session.getPageAsync(model.query.pageNumber);
     if (image) {
-      return api.buffer(image, app.imageContentType(image));
+      return api.handler(app.httpImage(image));
     } else {
       return api.status(404);
     }
