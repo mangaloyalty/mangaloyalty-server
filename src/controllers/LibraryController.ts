@@ -25,12 +25,33 @@ export class LibraryController {
       return api.status(404);
     }
   }
-  
-  @api.createOperation('LibrarySeriesImage', app.cacheOperation(app.settings.imageLibraryTimeout))
-  async seriesImageAsync(model: app.ILibrarySeriesImageContext): Promise<api.Result<Buffer>> {
+    
+  @api.createOperation('LibrarySeriesDump')
+  async seriesDumpAsync(model: app.ILibrarySeriesDumpContext): Promise<api.Result<Function>> {
+    return api.handler(async (_, res) => {
+      try {
+        const series = await app.core.library.seriesReadAsync(model.path.seriesId);
+        if (series) {
+          res.type('application/zip');
+          res.attachment(`${series.source.title}.zip`);
+          await app.core.library.seriesDumpAsync(model.path.seriesId, res);
+        } else {
+          res.status(404);
+          res.end();
+        }
+      } catch (error) {
+        app.writeError(error);
+        res.status(500);
+        res.end();
+      }
+    });
+  }
+
+  @api.createOperation('LibrarySeriesImage', app.httpCache(app.settings.imageLibraryTimeout))
+  async seriesImageAsync(model: app.ILibrarySeriesImageContext): Promise<api.Result<Function>> {
     const image = await app.core.library.seriesImageAsync(model.path.seriesId);
     if (image) {
-      return api.buffer(image, app.imageContentType(image));
+      return api.handler(app.httpImage(image));
     } else {
       return api.status(404);
     }
