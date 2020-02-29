@@ -20,7 +20,7 @@ export class CacheManager {
     } else if (value instanceof Promise) {
       const continueWith = () => expirePromiseWithTrace(this, key);
       value.then(continueWith, continueWith);
-    } else {
+    } else if (value) {
       clearTimeout(this._timeoutHandles[key]);
       delete this._timeoutHandles[key];
       delete this._values[key];
