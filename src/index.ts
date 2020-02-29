@@ -24,4 +24,4 @@ export * from './managers/SessionManager';
 export * from './managers/SocketManager';
 export * from './providers';
 export * from './typings/openapi';
-export * from './typings/system';
+export * from './typings/shared';

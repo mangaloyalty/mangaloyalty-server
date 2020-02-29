@@ -38,7 +38,7 @@
     "typescript": "3.5.1"
   },
   "scripts": {
-    "prepublish": "openapi2ts openapi.json > src/typings/openapi.d.ts",
+    "prepublish": "openapi2ts openapi.json > src/typings/openapi.ts",
     "prepare": "rimraf dist && tsc",
     "start": "node ."
   }
