@@ -49,9 +49,13 @@ async function seriesAsync() {
     const series = await app.core.library.seriesReadAsync(listItem.id);
     if (!series || computeNext(series) > Date.now()) continue;
     app.writeInfo(`[Automation] Fetching ${series.source.title}`);
-    if (await app.core.library.seriesUpdateAsync(series.id)) await seriesChaptersAsync(series);
-    app.writeInfo(`[Automation] Finished ${series.source.title}`);
-    await trackAsync(series.id);
+    if (await app.core.library.seriesUpdateAsync(series.id)) {
+      await seriesChaptersAsync(series);
+      app.writeInfo(`[Automation] Finished ${series.source.title}`);
+      await trackAsync(series.id);
+    } else {
+      app.writeInfo(`[Automation] Rejected ${series.source.title}`);
+    }
   } catch (error) {
     app.writeError(error);
   }
