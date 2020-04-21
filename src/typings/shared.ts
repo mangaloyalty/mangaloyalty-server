@@ -1,6 +1,6 @@
 import * as app from '..';
 export type IFileSeries = app.ILibrarySeries & {source: IFileSeriesSource};
-export type IFileSeriesSource = app.ILibrarySeriesSource & {image: string};
+export type IFileSeriesSource = app.ILibrarySeriesSource & {image?: string};
 
 export interface IAdaptor {
   detailLibrary?: {seriesId: string, chapterId: string, sync: boolean};
