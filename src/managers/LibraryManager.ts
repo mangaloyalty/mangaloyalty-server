@@ -27,7 +27,7 @@ export class LibraryManager {
     const remote = await app.provider.seriesAsync(url);
     const remoteImage = await app.provider.imageAsync(remote.imageId);
     return await this.context.lockMainAsync(async () => {
-      const series = createSeries(remote, remoteImage!);
+      const series = createSeries(remote, remoteImage);
       const seriesPath = path.join(app.settings.library, series.id, app.settings.librarySeries);
       synchronize(series, remote.chapters);
       await app.core.resource.writeFileAsync(seriesPath, series);
@@ -81,7 +81,7 @@ export class LibraryManager {
       try {
         const series = await seriesContext.getAsync();
         const image = series.source.image;
-        return Buffer.from(image, 'base64');
+        return image && Buffer.from(image, 'base64');
       } catch (error) {
         if (error && error.code === 'ENOENT') return;
         throw error;
@@ -125,12 +125,12 @@ export class LibraryManager {
     const series = await this.seriesReadAsync(seriesId);
     const remote = series && await app.provider.seriesAsync(series.source.url);
     const remoteImage = remote && await app.provider.imageAsync(remote.imageId);
-    if (!remote || !remoteImage) return false;
+    if (!remote) return false;
     return await this.context.lockSeriesAsync(seriesId, async (seriesContext) => {
       try {
         const series = await seriesContext.getAsync();
         series.lastSyncAt = Date.now();
-        series.source = createSeriesSource(remote, remoteImage);
+        series.source = createSeriesSource(remote, remoteImage, series.source);
         synchronize(series, remote.chapters);
         await seriesContext.saveAsync();
         app.core.socket.emit({type: 'SeriesUpdate', seriesId});
@@ -224,7 +224,7 @@ export class LibraryManager {
   }
 }
 
-function createSeries(remote: app.IRemoteSeries, remoteImage: Buffer): app.IFileSeries {
+function createSeries(remote: app.IRemoteSeries, remoteImage?: Buffer): app.IFileSeries {
   const id = app.createUniqueId();
   const addedAt = Date.now();
   const lastSyncAt = Date.now();
@@ -234,10 +234,10 @@ function createSeries(remote: app.IRemoteSeries, remoteImage: Buffer): app.IFile
   return {id, addedAt, lastSyncAt, automation, chapters, source};
 }
 
-function createSeriesSource(remote: app.IRemoteSeries, remoteImage: Buffer): app.IFileSeriesSource {
+function createSeriesSource(remote: app.IRemoteSeries, remoteImage?: Buffer, source?: app.IFileSeriesSource): app.IFileSeriesSource {
   const authors = remote.authors;
   const genres = remote.genres;
-  const image = remoteImage.toString('base64');
+  const image = remoteImage && remoteImage.toString('base64') || (source && source.image);
   const isCompleted = remote.isCompleted;
   const summary = remote.summary;
   const title = remote.title;

@@ -25,8 +25,7 @@ export class Watch {
   
   async getAsync(url: string) {
     const response = await this._futureResponses.getAsync(url);
-    const responseBuffer = response && await response.buffer();
-    if (!responseBuffer) throw new Error();
-    return responseBuffer;
+    if (!response) throw new Error();
+    return await response.buffer();
   }
 }
