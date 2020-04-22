@@ -644,7 +644,7 @@
       },
       "LibrarySeries": {
         "type": "object",
-        "required": ["id", "addedAt", "lastSyncAt", "automation", "chapters", "source"],
+        "required": ["id", "addedAt", "automation", "chapters", "source"],
         "properties": {
           "id": {"type": "string"},
           "addedAt": {"type": "number"},
