@@ -227,11 +227,10 @@ export class LibraryManager {
 function createSeries(remote: app.IRemoteSeries, remoteImage?: Buffer): app.IFileSeries {
   const id = app.createUniqueId();
   const addedAt = Date.now();
-  const lastSyncAt = Date.now();
   const automation: app.ILibrarySeriesAutomation = {checkedAt: Date.now(), frequency: 'weekly', strategy: 'none'};
   const chapters: app.ILibrarySeriesChapter[] = [];
   const source = createSeriesSource(remote, remoteImage);
-  return {id, addedAt, lastSyncAt, automation, chapters, source};
+  return {id, addedAt, automation, chapters, source};
 }
 
 function createSeriesSource(remote: app.IRemoteSeries, remoteImage?: Buffer, source?: app.IFileSeriesSource): app.IFileSeriesSource {
@@ -286,7 +285,7 @@ function synchronize(series: app.ILibrarySeries, remotes: app.IRemoteSeriesChapt
     } else {
       const id = app.createUniqueId();
       series.chapters.push({id, addedAt: Date.now(), title: remote.title, url: remote.url});
-      series.lastChapterAddedAt = Date.now();
+      series.lastChapterAddedAt = locals.length ? Date.now() : undefined;
       ids[id] = true;
     }
   }

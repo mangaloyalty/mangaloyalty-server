@@ -30,7 +30,7 @@ export interface ILibrarySeries {
   addedAt: number;
   lastChapterAddedAt?: number;
   lastPageReadAt?: number;
-  lastSyncAt: number;
+  lastSyncAt?: number;
   automation: ILibrarySeriesAutomation;
   chapters: ILibrarySeriesChapter[];
   source: ILibrarySeriesSource;
