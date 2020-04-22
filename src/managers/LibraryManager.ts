@@ -250,7 +250,7 @@ function createSeriesFilter(readStatus: app.IEnumeratorReadStatus, seriesStatus:
     if (readStatus === 'unread' && !data.unreadCount) return false;
     if (seriesStatus === 'completed' && !data.series.source.isCompleted) return false;
     if (seriesStatus === 'ongoing' && data.series.source.isCompleted) return false;
-    if (title && !title.split(/\s+/).every((piece) => data.series.source.title.toLocaleLowerCase().includes(piece.toLocaleLowerCase()))) return false;
+    if (title && !title.replace(/[^a-z0-9]/ig, ' ').split(/\s+/).filter(Boolean).every((piece) => data.series.source.title.toLocaleLowerCase().includes(piece.toLocaleLowerCase()))) return false;
     return true;
   }
 }
