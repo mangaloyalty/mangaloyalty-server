@@ -36,13 +36,15 @@ export class AdaptorLibrary implements app.IAdaptor {
   async getAsync(pageNumber: number) {
     await this._futurePages.getAsync(String(pageNumber));
     return await this._exclusiveLock.acquireAsync(async () => {
-      return await app.core.resource.readFileAsync(this._createPath(pageNumber));
+      const absolutePath = this._fetchPath(pageNumber)
+      return await app.core.resource.readFileAsync(absolutePath);
     });
   }
 
   async setAsync(pageNumber: number, image: Buffer) {
     return await this._exclusiveLock.acquireAsync(async () => {
-      await app.core.resource.writeFileAsync(this._createPath(pageNumber), image);
+      const absolutePath = this._fetchPath(pageNumber)
+      await app.core.resource.writeFileAsync(absolutePath, image);
       this._futurePages.resolve(String(pageNumber));
     });
   }
@@ -55,11 +57,14 @@ export class AdaptorLibrary implements app.IAdaptor {
           const series = await seriesContext.getAsync();
           const chapter = series.chapters.find((chapter) => chapter.id === this._chapterId);
           if (chapter) {
-            await this._moveAsync();
+            this._hasMoved = await this._moveAsync();
             chapter.pageCount = pageCount;
             chapter.syncAt = Date.now();
             await seriesContext.saveAsync();
             app.core.socket.emit({type: 'ChapterUpdate', seriesId: this._seriesId, chapterId: this._chapterId});
+            return true;
+          } else {
+            return false;
           }
         } catch (error) {
           if (error && error.code === 'ENOENT') return;
@@ -69,16 +74,17 @@ export class AdaptorLibrary implements app.IAdaptor {
     });
   }
   
-  private _createPath(pageNumber: number) {
-    return this._hasMoved
-      ? path.join(app.settings.library, this._seriesId, this._chapterId, app.createPrefix(pageNumber, 3))
-      : path.join(app.settings.sync, this._syncId, app.createPrefix(pageNumber, 3));
+  private _fetchPath(pageNumber: number) {
+    const baseName = this._hasMoved ? app.settings.library : app.settings.sync;
+    const folderName = this._hasMoved ? path.join(this._seriesId, this._chapterId) : this._syncId;
+    const pageName = app.createPrefix(pageNumber, 3);
+    return path.join(baseName, folderName, pageName);
   }
 
   private async _moveAsync() {
     const libraryPath = path.join(app.settings.library, this._seriesId, this._chapterId);
     const syncPath = path.join(app.settings.sync, this._syncId);
     await app.core.resource.moveAsync(syncPath, libraryPath);
-    this._hasMoved = true;
+    return true;
   }
 }
