@@ -16,19 +16,11 @@ export function createUniqueId() {
   return buffer.toString('hex');
 }
 
-export function imageContentType(image: Buffer) {
-  if (image.slice(0, 3).toString('hex') === '474946') return 'image/gif';
-  if (image.slice(0, 2).toString('hex') === 'ffd8') return 'image/jpeg';
-  if (image.slice(0, 4).toString('hex') === '89504e47') return 'image/png';
-  if (image.slice(0, 4).toString('hex') === '52494646') return 'image/webp';
-  return;
-}
-
-export function imageExtension(image: Buffer) {
-  if (image.slice(0, 3).toString('hex') === '474946') return 'gif';
-  if (image.slice(0, 2).toString('hex') === 'ffd8') return 'jpg';
-  if (image.slice(0, 4).toString('hex') === '89504e47') return 'png';
-  if (image.slice(0, 4).toString('hex') === '52494646') return 'webp';
+export function detectImageType(image: Buffer) {
+  if (image.slice(0, 3).toString('hex') === '474946') return {contentType: 'image/gif', extension: 'gif'};
+  if (image.slice(0, 2).toString('hex') === 'ffd8') return {contentType: 'image/jpeg', extension: 'jpg'};
+  if (image.slice(0, 4).toString('hex') === '89504e47') return {contentType: 'image/png', extension: 'png'};
+  if (image.slice(0, 4).toString('hex') === '52494646') return {contentType: 'image/webp', extension: 'webp'};
   return;
 }
 
@@ -39,8 +31,9 @@ export function httpCache(timeout: number) {
 }
 
 export function httpImage(image: Buffer) {
+  const imageType = detectImageType(image);
   return (_: express.Request, res: express.Response) => {
-    res.type(imageContentType(image) || 'application/octet-stream');
+    res.type(imageType ? imageType.contentType : 'application/octet-stream');
     res.status(200);
     res.send(image);
   };
