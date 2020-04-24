@@ -69,8 +69,8 @@ export class LibraryManager {
         for (let pageNumber = 1; pageNumber <= chapter.pageCount; pageNumber++) {
           const pageName = app.createPrefix(pageNumber, 3);
           const image = await app.core.resource.readFileAsync(path.join(app.settings.library, seriesId, chapter.id, pageName));
-          const imageExtension = app.imageExtension(image);
-          if (imageExtension) await zipper.fileAsync(`${chapterFolder}/${pageName}.${imageExtension}`, image);
+          const imageType = app.detectImageType(image);
+          if (imageType) await zipper.fileAsync(`${chapterFolder}/${pageName}.${imageType.extension}`, image);
         }
       }
     });
