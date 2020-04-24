@@ -64,9 +64,7 @@ export class LibraryManager {
         const chapterFolder = `[${app.createPrefix(chapterIndex, 3)}] ${chapter.title}`;
         if (!chapter.pageCount || !chapter.syncAt) {
           await zipper.directoryAsync(chapterFolder);
-          continue;
-        }
-        for (let pageNumber = 1; pageNumber <= chapter.pageCount; pageNumber++) {
+        } else for (let pageNumber = 1; pageNumber <= chapter.pageCount; pageNumber++) {
           const pageName = app.createPrefix(pageNumber, 3);
           const image = await app.core.resource.readFileAsync(path.join(app.settings.library, seriesId, chapter.id, pageName));
           const imageType = app.detectImageType(image);
