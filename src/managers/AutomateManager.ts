@@ -45,7 +45,7 @@ function computeNext(series: app.ILibrarySeries) {
 }
 
 async function seriesAsync() {
-  for (const listItem of await app.core.library.listAsync('all', 'all', 'lastPageReadAt')) try {
+  for (const listItem of await app.core.library.listReadAsync('all', 'all', 'lastPageReadAt')) try {
     const series = await app.core.library.seriesReadAsync(listItem.id);
     if (!series || computeNext(series) > Date.now()) continue;
     app.writeInfo(`[Automation] Fetching ${series.source.title}`);
