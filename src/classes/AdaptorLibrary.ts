@@ -26,7 +26,7 @@ export class AdaptorLibrary implements app.IAdaptor {
     return {seriesId, chapterId, sync};
   }
 
-  async endAsync(pageCount: number) {
+  async endAsync(pageCount?: number) {
     await this._exclusiveLock.acquireAsync(async () => {
       if (!pageCount || this._hasMoved) return;
       await app.core.resource.removeAsync(path.join(app.settings.sync, this._syncId));
@@ -43,11 +43,11 @@ export class AdaptorLibrary implements app.IAdaptor {
   async setAsync(pageNumber: number, image: Buffer) {
     return await this._exclusiveLock.acquireAsync(async () => {
       await app.core.resource.writeFileAsync(this._createPath(pageNumber), image);
-      await this._futurePages.resolve(String(pageNumber));
+      this._futurePages.resolve(String(pageNumber));
     });
   }
   
-  async successAsync(pageCount: number) {
+  async successAsync(pageCount?: number) {
     await this._exclusiveLock.acquireAsync(async () => {
       if (!pageCount) return;
       await this._context.lockSeriesAsync(this._seriesId, async (seriesContext) => {
