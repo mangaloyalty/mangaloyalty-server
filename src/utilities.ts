@@ -48,7 +48,7 @@ export function httpImage(image: Buffer) {
 
 export function writeError(error?: any) {
   if (error instanceof Error) writeInfo(error.stack || error.message);
-  else if (error) writeError(new Error(String(error) || ''));
+  else if (error && String(error)) writeError(new Error(String(error)));
   else writeError(new Error());
 }
 

@@ -19,10 +19,10 @@ export class FutureMap<T> {
     }
   }
 
-  reject(error?: any) {
+  reject(error: any) {
     if (this._hasReject) return;
     this._hasReject = true;
-    this._reject = error || new Error();
+    this._reject = error;
     Object.values(this._values).forEach((value) => value.reject(error));
   }
 
