@@ -23,7 +23,7 @@ export class Runner {
         await this._session.successAsync();
       });
     } catch (error) {
-      await this._session.endAsync(error);
+      await this._session.errorAsync(error);
     }
   }
 
