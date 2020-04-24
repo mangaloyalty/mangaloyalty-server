@@ -66,7 +66,7 @@ async function seriesChaptersAsync(series: app.ILibrarySeries) {
     if (series.automation.strategy !== 'all' && (series.automation.strategy !== 'unread' || chapter.isReadCompleted)) continue;
     app.writeInfo(`[Automation] Fetching ${series.source.title} -> ${chapter.title}`);
     const session = await app.core.library.chapterReadAsync(series.id, chapter.id);
-    const success = session instanceof app.SessionRunnable && await session.waitFinishedAsync();
+    const success = session instanceof app.SessionRunnable && await session.waitFinishedAsync().then(() => true, () => false);
     app.writeInfo(`[Automation] ${success ? 'Finished' : 'Rejected'} ${series.source.title} -> ${chapter.title}`);
   } catch (error) {
     app.writeError(error);

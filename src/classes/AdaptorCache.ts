@@ -19,7 +19,8 @@ export class AdaptorCache implements app.IAdaptor {
     return {seriesId, chapterId, sync};
   }
 
-  endAsync(pageCount: number) {
+  endAsync(pageCount?: number) {
+    if (!pageCount) return Promise.resolve();
     for (let i = 1; i <= pageCount; i++) app.core.cache.expire(`${this._adaptorId}/${i}`);
     return Promise.resolve();
   }

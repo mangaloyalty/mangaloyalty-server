@@ -16,7 +16,7 @@ export class CacheManager {
       clearTimeout(this._timeoutHandles[key]);
       delete this._timeoutHandles[key];
       delete this._values[key];
-      value.reject(new Error(`Cache '${key}' has expired`));
+      value.reject(new Error(key));
     } else if (value instanceof Promise) {
       const continueWith = () => expirePromiseWithTrace(this, key);
       value.then(continueWith, continueWith);
