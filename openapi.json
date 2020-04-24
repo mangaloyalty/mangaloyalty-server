@@ -8,7 +8,7 @@
   "paths": {
     "/api/library": {
       "get": {
-        "operationId": "LibraryList",
+        "operationId": "LibraryListRead",
         "tags": ["Library"], 
         "description": "Retrieves each series.",
         "parameters": [{
@@ -44,6 +44,31 @@
                 "schema": {"$ref": "#/components/schemas/LibraryList"}
               }
             }
+          },
+          "400": {"$ref": "#/components/responses/BadRequest"},
+          "500": {"$ref": "#/components/responses/InternalServerError"}
+        }
+      },
+      "patch": {
+        "operationId": "LibraryListPatch",
+        "tags": ["Library"], 
+        "description": "Patches each series automation.",
+        "parameters": [{
+          "in": "query",
+          "name": "frequency",
+          "description": "The synchronization frequency.",
+          "required": true,
+          "schema": {"$ref": "#/components/schemas/EnumeratorFrequency"}
+        }, {
+          "in": "query",
+          "name": "strategy",
+          "description": "The synchronization strategy.",
+          "required": true,
+          "schema": {"$ref": "#/components/schemas/EnumeratorStrategy"}
+        }],
+        "responses": {
+          "200": {
+            "description": "Success"
           },
           "400": {"$ref": "#/components/responses/BadRequest"},
           "500": {"$ref": "#/components/responses/InternalServerError"}
@@ -120,26 +145,6 @@
           "500": {"$ref": "#/components/responses/InternalServerError"}
         }
       },
-      "put": {
-        "operationId": "LibrarySeriesUpdate",
-        "tags": ["Library"], 
-        "description": "Updates the series.",
-        "parameters": [{
-          "in": "path",
-          "name": "seriesId",
-          "description": "The series identifier.",
-          "required": true,
-          "schema": {"type": "string"}
-        }],
-        "responses": {
-          "200": {
-            "description": "Success"
-          },
-          "400": {"$ref": "#/components/responses/BadRequest"},
-          "404": {"$ref": "#/components/responses/NotFound"},
-          "500": {"$ref": "#/components/responses/InternalServerError"}
-        }
-      },
       "patch": {
         "operationId": "LibrarySeriesPatch",
         "tags": ["Library"], 
@@ -164,9 +169,25 @@
           "schema": {"$ref": "#/components/schemas/EnumeratorStrategy"}
         }],
         "responses": {
-          "200": {
-            "description": "Success"
-          },
+          "200": {"description": "Success"},
+          "400": {"$ref": "#/components/responses/BadRequest"},
+          "404": {"$ref": "#/components/responses/NotFound"},
+          "500": {"$ref": "#/components/responses/InternalServerError"}
+        }
+      },
+      "put": {
+        "operationId": "LibrarySeriesUpdate",
+        "tags": ["Library"], 
+        "description": "Updates the series.",
+        "parameters": [{
+          "in": "path",
+          "name": "seriesId",
+          "description": "The series identifier.",
+          "required": true,
+          "schema": {"type": "string"}
+        }],
+        "responses": {
+          "200": {"description": "Success"},
           "400": {"$ref": "#/components/responses/BadRequest"},
           "404": {"$ref": "#/components/responses/NotFound"},
           "500": {"$ref": "#/components/responses/InternalServerError"}
@@ -252,9 +273,7 @@
           "schema": {"type": "string"}
         }],
         "responses": {
-          "200": {
-            "description": "Success"
-          },
+          "200": {"description": "Success"},
           "400": {"$ref": "#/components/responses/BadRequest"},
           "404": {"$ref": "#/components/responses/NotFound"},
           "500": {"$ref": "#/components/responses/InternalServerError"}
@@ -291,32 +310,6 @@
           "500": {"$ref": "#/components/responses/InternalServerError"}
         }
       },
-      "put": {
-        "operationId": "LibraryChapterUpdate",
-        "tags": ["Library"], 
-        "description": "Starts a session and synchronizes the chapter.",
-        "parameters": [{
-          "in": "path",
-          "name": "seriesId",
-          "description": "The series identifier.",
-          "required": true,
-          "schema": {"type": "string"}
-        }, {
-          "in": "path",
-          "name": "chapterId",
-          "description": "The chapter identifier.",
-          "required": true,
-          "schema": {"type": "string"}
-        }],
-        "responses": {
-          "200": {
-            "description": "Success"
-          },
-          "400": {"$ref": "#/components/responses/BadRequest"},
-          "404": {"$ref": "#/components/responses/NotFound"},
-          "500": {"$ref": "#/components/responses/InternalServerError"}
-        }
-      },
       "patch": {
         "operationId": "LibraryChapterPatch",
         "tags": ["Library"], 
@@ -345,6 +338,30 @@
           "description": "The page read number.",
           "required": false,
           "schema": {"type": "number", "minimum": 1}
+        }],
+        "responses": {
+          "200": {"description": "Success"},
+          "400": {"$ref": "#/components/responses/BadRequest"},
+          "404": {"$ref": "#/components/responses/NotFound"},
+          "500": {"$ref": "#/components/responses/InternalServerError"}
+        }
+      },
+      "put": {
+        "operationId": "LibraryChapterUpdate",
+        "tags": ["Library"], 
+        "description": "Starts a session and synchronizes the chapter.",
+        "parameters": [{
+          "in": "path",
+          "name": "seriesId",
+          "description": "The series identifier.",
+          "required": true,
+          "schema": {"type": "string"}
+        }, {
+          "in": "path",
+          "name": "chapterId",
+          "description": "The chapter identifier.",
+          "required": true,
+          "schema": {"type": "string"}
         }],
         "responses": {
           "200": {

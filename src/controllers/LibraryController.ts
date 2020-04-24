@@ -2,12 +2,18 @@ import * as api from 'express-openapi-json';
 import * as app from '..';
 
 export class LibraryController {
-  @api.createOperation('LibraryList')
-  async listAsync(model: app.ILibraryListContext): Promise<api.Result<app.ILibraryListResponse>> {
+  @api.createOperation('LibraryListRead')
+  async listReadAsync(model: app.ILibraryListReadContext): Promise<api.Result<app.ILibraryListReadResponse>> {
     const readStatus = model.query.readStatus;
     const seriesStatus = model.query.seriesStatus;
     const sortKey = model.query.sortKey;
-    return api.json(await app.core.library.listAsync(readStatus, seriesStatus, sortKey, model.query.title));
+    return api.json(await app.core.library.listReadAsync(readStatus, seriesStatus, sortKey, model.query.title));
+  }
+
+  @api.createOperation('LibraryListPatch')
+  async listPatchAsync(model: app.ILibraryListPatchContext): Promise<api.Result<void>> {
+    await app.core.library.listPatchAsync(model.query.frequency, model.query.strategy);
+    return api.status(200);
   }
 
   @api.createOperation('LibrarySeriesCreate')

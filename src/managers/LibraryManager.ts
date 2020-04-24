@@ -11,7 +11,7 @@ export class LibraryManager {
     return this._context;
   }
 
-  async listAsync(readStatus: app.IEnumeratorReadStatus, seriesStatus: app.IEnumeratorSeriesStatus, sortKey: app.IEnumeratorSortKey, title?: string) {
+  async listReadAsync(readStatus: app.IEnumeratorReadStatus, seriesStatus: app.IEnumeratorSeriesStatus, sortKey: app.IEnumeratorSortKey, title?: string) {
     return await this.context.lockMainAsync(async () => {
       const ids = await this._getListAsync();
       const series = await Promise.all(ids.map((id) => this.seriesReadAsync(id)));
@@ -20,6 +20,13 @@ export class LibraryManager {
         .filter(createSeriesFilter(readStatus, seriesStatus, title))
         .sort(createSeriesSorter(sortKey))
         .map((data) => ({id: data.series.id, title: data.series.source.title, unreadCount: data.unreadCount, url: data.series.source.url}));
+    });
+  }
+
+  async listPatchAsync(frequency: app.IEnumeratorFrequency, strategy: app.IEnumeratorStrategy) {
+    return await this.context.lockMainAsync(async () => {
+      const ids = await this._getListAsync();
+      await Promise.all(ids.map((id) => this.seriesPatchAsync(id, frequency, strategy)));
     });
   }
 

@@ -93,12 +93,18 @@ export interface ISessionListItem {
     sync: boolean;
   };
 }
-export interface ILibraryListContext {
+export interface ILibraryListReadContext {
   query: {
     readStatus: IEnumeratorReadStatus;
     seriesStatus: IEnumeratorSeriesStatus;
     sortKey: IEnumeratorSortKey;
     title?: string;
+  };
+}
+export interface ILibraryListPatchContext {
+  query: {
+    frequency: IEnumeratorFrequency;
+    strategy: IEnumeratorStrategy;
   };
 }
 export interface ILibrarySeriesCreateContext {
@@ -116,11 +122,6 @@ export interface ILibrarySeriesReadContext {
     seriesId: string;
   };
 }
-export interface ILibrarySeriesUpdateContext {
-  path: {
-    seriesId: string;
-  };
-}
 export interface ILibrarySeriesPatchContext {
   path: {
     seriesId: string;
@@ -128,6 +129,11 @@ export interface ILibrarySeriesPatchContext {
   query: {
     frequency: IEnumeratorFrequency;
     strategy: IEnumeratorStrategy;
+  };
+}
+export interface ILibrarySeriesUpdateContext {
+  path: {
+    seriesId: string;
   };
 }
 export interface ILibrarySeriesDumpContext {
@@ -152,12 +158,6 @@ export interface ILibraryChapterReadContext {
     chapterId: string;
   };
 }
-export interface ILibraryChapterUpdateContext {
-  path: {
-    seriesId: string;
-    chapterId: string;
-  };
-}
 export interface ILibraryChapterPatchContext {
   path: {
     seriesId: string;
@@ -166,6 +166,12 @@ export interface ILibraryChapterPatchContext {
   query: {
     isReadCompleted?: boolean;
     pageReadNumber?: number;
+  };
+}
+export interface ILibraryChapterUpdateContext {
+  path: {
+    seriesId: string;
+    chapterId: string;
   };
 }
 export interface IRemoteImageContext {
@@ -210,7 +216,7 @@ export interface ISessionPageContext {
   };
 }
 
-export type ILibraryListResponse = ILibraryList;
+export type ILibraryListReadResponse = ILibraryList;
 export type ILibrarySeriesCreateResponse = ILibraryResult;
 export type ILibrarySeriesReadResponse = ILibrarySeries;
 export type ILibraryChapterReadResponse = ISessionListItem;
