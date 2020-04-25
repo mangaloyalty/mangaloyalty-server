@@ -62,7 +62,7 @@ export class BrowserManager {
       const fetcherPromise = fetcher.download(chromiumRevision);
       const fetcherRevisions = await fetcher.localRevisions();
       await Promise.all(fetcherRevisions.filter((revision) => chromiumRevision !== revision).map((revision) => fetcher.remove(revision)));
-      return fetcherPromise;
+      return await fetcherPromise;
     });
   }
 
@@ -72,7 +72,7 @@ export class BrowserManager {
       const browser = await this._browser;
       if (!browser || this._numberOfPages) return;
       delete this._browser;
-      await closeWithTraceAsync(browser);
+      closeWithTraceAsync(browser);
     }, app.settings.chromeExitTimeout);
   }
 }

@@ -2,9 +2,9 @@ import * as app from '..';
 import * as path from 'path';
 
 export class LibraryManager {
+  private _cache?: string[];
   private _context?: app.LibraryContext;
-  private _listCache?: string[];
-
+  
   get context() {
     if (this._context) return this._context;
     this._context = new app.LibraryContext();
@@ -13,10 +13,10 @@ export class LibraryManager {
 
   async listReadAsync(readStatus: app.IEnumeratorReadStatus, seriesStatus: app.IEnumeratorSeriesStatus, sortKey: app.IEnumeratorSortKey, title?: string) {
     return await this.context.lockMainAsync(async () => {
-      const ids = await this._getListAsync();
+      const ids = await this._listAsync();
       const series = await Promise.all(ids.map((id) => this.seriesReadAsync(id)));
       return series.filter(Boolean)
-        .map((series) => ({series: series!, unreadCount: computeUnreadCount(series!)}))
+        .map((series) => ({series: series!, unreadCount: series!.chapters.filter((chapter) => !chapter.isReadCompleted).length}))
         .filter(createSeriesFilter(readStatus, seriesStatus, title))
         .sort(createSeriesSorter(sortKey))
         .map((data) => ({id: data.series.id, title: data.series.source.title, unreadCount: data.unreadCount, url: data.series.source.url}));
@@ -25,7 +25,7 @@ export class LibraryManager {
 
   async listPatchAsync(frequency: app.IEnumeratorFrequency, strategy: app.IEnumeratorStrategy) {
     return await this.context.lockMainAsync(async () => {
-      const ids = await this._getListAsync();
+      const ids = await this._listAsync();
       await Promise.all(ids.map((id) => this.seriesPatchAsync(id, frequency, strategy)));
     });
   }
@@ -38,7 +38,7 @@ export class LibraryManager {
       const seriesPath = path.join(app.settings.library, series.id, app.settings.librarySeries);
       synchronize(series, remote.chapters);
       await app.core.resource.writeFileAsync(seriesPath, series);
-      delete this._listCache;
+      delete this._cache;
       app.core.socket.emit({type: 'SeriesCreate', seriesId: series.id, seriesUrl: series.source.url});
       return series.id;
     });
@@ -51,7 +51,7 @@ export class LibraryManager {
         const deletePath = path.join(app.settings.library, `_${seriesId}`);
         await app.core.resource.moveAsync(seriesPath, deletePath);
         await app.core.resource.removeAsync(deletePath);
-        delete this._listCache;
+        delete this._cache;
         seriesContext.expire();
         app.core.socket.emit({type: 'SeriesDelete', seriesId});
         return true;
@@ -222,10 +222,10 @@ export class LibraryManager {
     }
   }
 
-  private async _getListAsync() {
-    if (this._listCache) return this._listCache;
-    this._listCache = (await app.core.resource.readdirAsync(app.settings.library)).filter((id) => /^[0-9a-f]{48}$/.test(id));
-    return this._listCache;
+  private async _listAsync() {
+    if (this._cache) return this._cache;
+    this._cache = (await app.core.resource.readdirAsync(app.settings.library)).filter((id) => /^[0-9a-f]{48}$/.test(id));
+    return this._cache;
   }
 }
 
@@ -269,12 +269,6 @@ function createSeriesSorter(sortBy: app.IEnumeratorSortKey) {
       case 'title': return a.series.source.title.toLocaleLowerCase().localeCompare(b.series.source.title.toLocaleLowerCase());
     }
   };
-}
-
-function computeUnreadCount(series: app.ILibrarySeries) {
-  const chapters = series.chapters;
-  const unreadChapters = chapters.filter((chapter) => !chapter.isReadCompleted);
-  return unreadChapters.length;
 }
 
 function synchronize(series: app.ILibrarySeries, remotes: app.IRemoteSeriesChapter[]) {
