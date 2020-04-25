@@ -1,13 +1,11 @@
-import * as fs from 'fs-extra';
 import * as os from 'os';
 import * as path from 'path';
-const basePath = path.join(os.homedir(), 'mangaloyalty');
 
 export const settings = {
-  cache: path.join(basePath, 'cache'),
+  cache: path.join(os.homedir(), 'mangaloyalty', 'cache'),
   cacheDataTimeout: 600000,
   cacheImageTimeout: 1200000,
-  chrome: path.join(basePath, 'chrome'),
+  chrome: path.join(os.homedir(), 'mangaloyalty', 'chrome'),
   chromeHeadless: true,
   chromeExitTimeout: 60000,
   chromeNavigationTimeout: 30000,
@@ -16,14 +14,10 @@ export const settings = {
   imageLibraryTimeout: 600000,
   imageRemoteTimeout: 1200000,
   imageSessionTimeout: 600000,
-  library: path.join(basePath, 'library'),
+  library: path.join(os.homedir(), 'mangaloyalty', 'library'),
   libraryAutomationTimeout: 600000,
   librarySeries: 'series',
-  logger: path.join(basePath, 'mangaloyalty.log'),
+  logger: path.join(os.homedir(), 'mangaloyalty', 'mangaloyalty.log'),
   sessionTimeout: 600000,
-  sync: path.join(basePath, 'sync')
+  sync: path.join(os.homedir(), 'mangaloyalty', 'sync')
 };
-
-Object.assign(settings, fs.readJsonSync(
-  path.join(basePath, 'settings.json'),
-  {throws: false}));
