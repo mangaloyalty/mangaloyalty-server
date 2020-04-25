@@ -5,6 +5,7 @@ import * as http from 'http';
 import * as io from 'socket.io';
 import * as os from 'os';
 import * as path from 'path';
+Object.assign(app.settings, fs.readJsonSync(path.join(os.homedir(), 'mangaloyalty', 'settings.json'), {throws: false}));
 fs.removeSync(path.join(os.homedir(), 'mangaloyalty', 'chromeCache')); // <= 0.6.0
 fs.removeSync(path.join(os.homedir(), 'mangaloyalty', 'coreCache'));   // <= 0.7.0
 
