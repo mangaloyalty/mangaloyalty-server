@@ -43,10 +43,10 @@ export class BrowserManager {
   private async _browserAsync() {
     try {
       if (this._browser) return await this._browser;
-      const downloadInfo = await this._prepareAsync();
-      const executablePath = downloadInfo.executablePath;
+      const browserInfo = await this._prepareAsync();
+      const executablePath = browserInfo.executablePath;
       const headless = app.settings.chromeHeadless;
-      const userDataDir = path.join(downloadInfo.folderPath, app.settings.chromeUserData);
+      const userDataDir = browserInfo.userDataDir;
       this._browser = puppeteer.launch({executablePath, headless, userDataDir});
       return await this._browser;
     } catch (error) {
@@ -56,13 +56,17 @@ export class BrowserManager {
   }
 
   private async _prepareAsync() {
-    return await this._exclusiveLock.acquireAsync(async () => {
+    if (process.env.ML_PUPPETEER_EXECUTABLEPATH && process.env.ML_PUPPETEER_USERDATADIR) {
+      const executablePath = process.env.ML_PUPPETEER_EXECUTABLEPATH;
+      const userDataDir = process.env.ML_PUPPETEER_USERDATADIR;
+      return {executablePath, userDataDir};
+    } else return await this._exclusiveLock.acquireAsync(async () => {
       const chromiumRevision = String(require('puppeteer-core/package').puppeteer.chromium_revision);
       const fetcher = puppeteer.createBrowserFetcher({path: app.settings.chrome});
-      const fetcherPromise = fetcher.download(chromiumRevision);
-      const fetcherRevisions = await fetcher.localRevisions();
-      await Promise.all(fetcherRevisions.filter((revision) => chromiumRevision !== revision).map((revision) => fetcher.remove(revision)));
-      return await fetcherPromise;
+      const revisionInfo = await fetcher.localRevisions();
+      await Promise.all(revisionInfo.filter((revision) => chromiumRevision !== revision).map((revision) => fetcher.remove(revision)));
+      const downloadInfo = await fetcher.download(chromiumRevision);
+      return {executablePath: downloadInfo.executablePath, userDataDir: path.join(downloadInfo.folderPath, app.settings.chromeUserData)};
     });
   }
 
