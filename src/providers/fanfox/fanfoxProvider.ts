@@ -1,4 +1,3 @@
-import puppeteer from 'puppeteer-core';
 import * as app from '../..';
 import * as seriesDetail from './evaluators/seriesDetail';
 import * as seriesList from './evaluators/seriesList';
@@ -13,8 +12,8 @@ export const fanfoxProvider = {
   async popularAsync(pageNumber?: number) {
     return await app.core.browser.pageAsync(async (page) => {
       const watch = new app.Watch(page);
-      await page.goto(`${baseUrl}/directory/${pageNumber && pageNumber > 1 ? `${pageNumber}.html` : ''}`, {waitUntil: 'domcontentloaded'});
-      const results = await page.evaluate(seriesList.evaluator);
+      await page.navigateAsync(`${baseUrl}/directory/${pageNumber && pageNumber > 1 ? `${pageNumber}.html` : ''}`);
+      const results = await page.evaluateAsync(seriesList.evaluator);
       const items = await watch.cacheItemsAsync(results.items);
       return {hasMorePages: results.hasMorePages, items};
     });
@@ -23,8 +22,8 @@ export const fanfoxProvider = {
   async searchAsync(title: string, pageNumber?: number) {
     return await app.core.browser.pageAsync(async (page) => {
       const watch = new app.Watch(page);
-      await page.goto(`${baseUrl}/search?title=${encodeURIComponent(title)}${pageNumber && pageNumber > 1 ? `&page=${pageNumber}` : ''}`, {waitUntil: 'domcontentloaded'});
-      const results = await page.evaluate(seriesList.evaluator);
+      await page.navigateAsync(`${baseUrl}/search?title=${encodeURIComponent(title)}${pageNumber && pageNumber > 1 ? `&page=${pageNumber}` : ''}`);
+      const results = await page.evaluateAsync(seriesList.evaluator);
       const items = await watch.cacheItemsAsync(results.items);
       return {hasMorePages: results.hasMorePages, items};
     });
@@ -33,9 +32,9 @@ export const fanfoxProvider = {
   async seriesAsync(url: string) {
     return await app.core.browser.pageAsync(async (page) => {
       const watch = new app.Watch(page);
-      await page.goto(url, {waitUntil: 'domcontentloaded'});
+      await page.navigateAsync(url);
       await ensureAdultAsync(page);
-      const result = await page.evaluate(seriesDetail.evaluator);
+      const result = await page.evaluateAsync(seriesDetail.evaluator);
       return await watch.cacheAsync(result);
     });
   },
@@ -48,8 +47,8 @@ export const fanfoxProvider = {
   }
 };
 
-async function ensureAdultAsync(page: puppeteer.Page) {
-  const waitPromise = page.waitForNavigation();
-  if (await page.evaluate(seriesDetail.shouldWaitAdultEvaluator)) await waitPromise;
+async function ensureAdultAsync(page: app.IBrowserManagerPage) {
+  const waitPromise = page.waitForNavigateAsync();
+  if (await page.evaluateAsync(seriesDetail.shouldWaitAdultEvaluator)) await waitPromise;
   else waitPromise.catch(() => undefined);
 }

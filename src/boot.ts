@@ -18,8 +18,8 @@ export function bootApp() {
   fs.removeSync(app.settings.sync);
 
   // Initialize the application system.
-  setImmediate(() => app.core.automate.tryRun());
-  setImmediate(() => app.core.browser.prepareWithTraceAsync());
+  setImmediate(() => app.core.automate.run());
+  setImmediate(() => app.core.browser.prepareAsync().catch(app.writeError));
 
   // Initialize the openapi data.
   const openapiData = require('../openapi.json');

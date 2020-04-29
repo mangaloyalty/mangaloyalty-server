@@ -1,6 +1,6 @@
 import * as app from '..';
 
-export class SocketManager {
+export class SocketManager implements app.ISocketManager {
   private readonly _handlers: ((action: app.ISocketAction) => void)[];
 
   constructor() {
@@ -9,11 +9,6 @@ export class SocketManager {
 
   addEventListener(handler: (action: app.ISocketAction) => void) {
     this._handlers.push(handler);
-  }
-
-  removeEventHandler(handler: (action: app.ISocketAction) => void) {
-    const index = this._handlers.indexOf(handler);
-    if (index !== -1) this._handlers.splice(index, 1);
   }
 
   emit(action: app.ISocketAction) {
