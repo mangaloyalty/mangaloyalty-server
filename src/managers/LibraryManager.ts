@@ -81,13 +81,13 @@ export class LibraryManager implements app.ILibraryManager {
     await app.Zipper.createAsync(writableStream, async (zipper) => {
       for (let chapterIndex = 0; chapterIndex < chapters.length; chapterIndex++) {
         const chapter = chapters[chapterIndex];
-        const chapterFolder = `[${app.createPrefix(chapterIndex, 3)}] ${chapter.title}`;
+        const chapterFolder = `[${app.createPageName(chapterIndex)}] ${chapter.title}`;
         if (!chapter.pageCount || !chapter.syncAt) {
           await zipper.directoryAsync(chapterFolder);
         } else for (let pageNumber = 1; pageNumber <= chapter.pageCount; pageNumber++) {
-          const pageName = app.createPrefix(pageNumber, 3);
+          const pageName = app.createPageName(pageNumber);
           const image = await app.core.resource.readFileAsync(path.join(app.settings.library, seriesId, chapter.id, pageName));
-          const imageType = app.detectImageType(image);
+          const imageType = app.detectImage(image);
           if (imageType) await zipper.fileAsync(`${chapterFolder}/${pageName}.${imageType.extension}`, image);
         }
       }

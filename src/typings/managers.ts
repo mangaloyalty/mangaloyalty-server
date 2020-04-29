@@ -5,18 +5,18 @@ export interface IAutomateManager {
 }
 
 export interface IBrowserManager {
-  pageAsync<T>(handlerAsync: (page: IBrowserManagerPage) => Promise<T> | T): Promise<T>;
+  pageAsync<T>(handlerAsync: (page: IBrowserPage) => Promise<T> | T): Promise<T>;
   prepareAsync(): Promise<void>;
 }
 
-export interface IBrowserManagerPage {
-  addEventListener(handler: (response: app.IBrowserManagerResponse) => void): void;
+export interface IBrowserPage {
+  addEventListener(handler: (response: app.IBrowserResponse) => void): void;
   evaluateAsync<T extends ((...args: any[]) => any)>(handler: T): Promise<ReturnType<T>>;
   navigateAsync(url: string): Promise<void>;
   waitForNavigateAsync(): Promise<void>;
 }
 
-export interface IBrowserManagerResponse {
+export interface IBrowserResponse {
   bufferAsync(): Promise<Buffer>;
   readonly url: string;
 }

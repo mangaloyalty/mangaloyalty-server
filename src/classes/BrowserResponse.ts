@@ -1,7 +1,7 @@
 import puppeteer from 'puppeteer-core';
 import * as app from '..';
 
-export class BrowserResponse implements app.IBrowserManagerResponse {
+export class BrowserResponse implements app.IBrowserResponse {
   private readonly _response: puppeteer.Response;
 
   constructor(response: puppeteer.Response) {

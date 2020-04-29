@@ -62,7 +62,7 @@ export class SessionRunnable implements app.ISession {
   async setImageAsync(pageNumber: number, image: Buffer) {
     if (this._hasEnded || this._hasError || !this._pageCount) throw this._error || new Error();
     if (pageNumber < 1 || pageNumber > this._pageCount) return;
-    if (!app.detectImageType(image)) throw new Error(image.slice(0, 6).toString('hex'));
+    if (!app.detectImage(image)) throw new Error(image.slice(0, 6).toString('hex'));
     await this._adaptor.setAsync(pageNumber, image);
   }
 

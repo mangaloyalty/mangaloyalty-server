@@ -1,10 +1,10 @@
 import * as app from '..';
 
 export class Watch {
-  private readonly _futureResponses: app.FutureMap<app.IBrowserManagerResponse | null>;
-	private readonly _page: app.IBrowserManagerPage;
+  private readonly _futureResponses: app.FutureMap<app.IBrowserResponse | null>;
+	private readonly _page: app.IBrowserPage;
 
-  constructor(page: app.IBrowserManagerPage) {
+  constructor(page: app.IBrowserPage) {
     this._futureResponses = new app.FutureMap(app.settings.chromeNavigationTimeout);
     this._page = page;
     this._page.addEventListener((response) => this._futureResponses.resolve(response.url, response));
