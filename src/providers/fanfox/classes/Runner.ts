@@ -26,7 +26,7 @@ export class Runner {
     }
   }
 
-  private async _stepAsync(page: app.IBrowserManagerPage, watch: app.Watch) {
+  private async _stepAsync(page: app.IBrowserPage, watch: app.Watch) {
     const result = await page.evaluateAsync(chapter.evaluatorAsync);
     this._session.setPageCount(result.pageCount);
     for (const image of result.images) await this._session.setImageAsync(++this._pageNumber, await watch.getAsync(image));
@@ -34,7 +34,7 @@ export class Runner {
   }
 }
 
-async function ensureAdultAsync(page: app.IBrowserManagerPage) {
+async function ensureAdultAsync(page: app.IBrowserPage) {
   const waitPromise = page.waitForNavigateAsync();
   if (await page.evaluateAsync(chapter.shouldWaitAdultEvaluator)) await waitPromise;
   else waitPromise.catch(() => undefined);

@@ -47,7 +47,7 @@ export const fanfoxProvider = {
   }
 };
 
-async function ensureAdultAsync(page: app.IBrowserManagerPage) {
+async function ensureAdultAsync(page: app.IBrowserPage) {
   const waitPromise = page.waitForNavigateAsync();
   if (await page.evaluateAsync(seriesDetail.shouldWaitAdultEvaluator)) await waitPromise;
   else waitPromise.catch(() => undefined);

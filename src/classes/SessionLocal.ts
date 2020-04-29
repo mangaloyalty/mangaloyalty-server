@@ -31,7 +31,7 @@ export class SessionLocal implements app.ISession {
   async getPageAsync(pageNumber: number) {
     try {
       if (pageNumber < 1 || pageNumber > this._pageCount) return;
-      const absolutePath = path.join(app.settings.library, this._seriesId, this._chapterId, app.createPrefix(pageNumber, 3));
+      const absolutePath = path.join(app.settings.library, this._seriesId, this._chapterId, app.createPageName(pageNumber));
       return await app.core.resource.readFileAsync(absolutePath);
     } catch (error) {
       if (error && error.code === 'ENOENT') return;

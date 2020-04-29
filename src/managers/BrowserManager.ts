@@ -16,7 +16,7 @@ export class BrowserManager implements app.IBrowserManager {
     this._numberOfPages = 0;
   }
 
-  async pageAsync<T>(handlerAsync: (page: app.IBrowserManagerPage) => Promise<T> | T) {
+  async pageAsync<T>(handlerAsync: (page: app.IBrowserPage) => Promise<T> | T) {
     let page: puppeteer.Page | undefined;
     try {
       this._numberOfPages++;
