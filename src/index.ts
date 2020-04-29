@@ -26,6 +26,6 @@ export * from './managers/ResourceManager';
 export * from './managers/SessionManager';
 export * from './managers/SocketManager';
 export * from './providers';
-export * from './typings/managers';
+export * from './typings/core';
 export * from './typings/openapi';
 export * from './typings/shared';
