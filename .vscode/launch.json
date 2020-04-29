@@ -1,7 +1,7 @@
 {
   "version": "0.2.0",
   "configurations": [{
-    "args": ["."],
+    "args": ["server"],
     "name": "Launch Program",
     "outputCapture": "std",
     "preLaunchTask": "TypeScript",
