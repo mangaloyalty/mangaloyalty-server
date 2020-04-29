@@ -77,7 +77,7 @@ export class AdaptorLibrary implements app.IAdaptor {
   private _fetchPath(pageNumber: number) {
     const baseName = this._hasMoved ? app.settings.library : app.settings.sync;
     const folderName = this._hasMoved ? path.join(this._seriesId, this._chapterId) : this._syncId;
-    const pageName = app.createPrefix(pageNumber, 3);
+    const pageName = app.createPageName(pageNumber);
     return path.join(baseName, folderName, pageName);
   }
 

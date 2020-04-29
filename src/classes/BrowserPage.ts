@@ -1,14 +1,14 @@
 import puppeteer from 'puppeteer-core';
 import * as app from '..';
 
-export class BrowserPage implements app.IBrowserManagerPage {
+export class BrowserPage implements app.IBrowserPage {
   private readonly _page: puppeteer.Page;
 
   constructor(page: puppeteer.Page) {
     this._page = page;
   }
 
-  addEventListener(handler: (response: app.IBrowserManagerResponse) => void) {
+  addEventListener(handler: (response: app.IBrowserResponse) => void) {
     this._page.on('response', (response) => handler(new app.BrowserResponse(response)));
   }
   

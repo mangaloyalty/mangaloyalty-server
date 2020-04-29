@@ -4,9 +4,9 @@ import * as winston from 'winston';
 import {randomBytes} from 'crypto';
 let logger: winston.Logger | undefined;
 
-export function createPrefix(value: number, length: number) {
+export function createPageName(value: number) {
   let result = String(value);
-  while (result.length < length) result = `0${result}`;
+  while (result.length < 3) result = `0${result}`;
   return result;
 }
 
@@ -16,7 +16,7 @@ export function createUniqueId() {
   return buffer.toString('hex');
 }
 
-export function detectImageType(image: Buffer) {
+export function detectImage(image: Buffer) {
   if (image.slice(0, 3).toString('hex') === '474946') return {contentType: 'image/gif', extension: 'gif'};
   if (image.slice(0, 2).toString('hex') === 'ffd8') return {contentType: 'image/jpeg', extension: 'jpg'};
   if (image.slice(0, 4).toString('hex') === '89504e47') return {contentType: 'image/png', extension: 'png'};
@@ -31,7 +31,7 @@ export function httpCache(timeout: number) {
 }
 
 export function httpImage(image: Buffer) {
-  const imageType = detectImageType(image);
+  const imageType = detectImage(image);
   return (_: express.Request, res: express.Response) => {
     res.type(imageType ? imageType.contentType : 'application/octet-stream');
     res.status(200);
