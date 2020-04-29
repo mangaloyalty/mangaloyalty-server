@@ -2,11 +2,10 @@ import * as app from '..';
 import * as path from 'path';
 
 export class LibraryManager implements app.ILibraryManager {
-  private _cache: string[];
+  private _cache?: string[];
   private _context: app.LibraryContext;
   
   constructor() {
-    this._cache = [];
     this._context = new app.LibraryContext();
   }
 
