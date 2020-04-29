@@ -1,6 +1,6 @@
 import * as app from '..';
 
-export class SessionManager {
+export class SessionManager implements app.ISessionManager {
   private readonly _timeoutHandles: {[id: string]: NodeJS.Timeout};
   private readonly _values: {[id: string]: app.ISession};
 
@@ -36,17 +36,8 @@ export class SessionManager {
       const session = this._values[id];
       delete this._timeoutHandles[id];
       delete this._values[id];
-      endWithTraceAsync(session);
+      app.core.socket.emit({type: 'SessionDelete', session: session.getData()});
+      session.endAsync().catch(app.writeError);
     }, app.settings.sessionTimeout);
-  }
-}
-
-async function endWithTraceAsync(session: app.ISession) {
-  try {
-    await session.endAsync();
-  } catch (error) {
-    app.writeError(error);
-  } finally {
-    app.core.socket.emit({type: 'SessionDelete', session: session.getData()});
   }
 }

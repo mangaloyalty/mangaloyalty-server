@@ -1,14 +1,13 @@
 import * as app from '..';
-import * as puppeteer from 'puppeteer-core';
 
 export class Watch {
-  private readonly _futureResponses: app.FutureMap<puppeteer.Response | null>;
-	private readonly _page: puppeteer.Page;
+  private readonly _futureResponses: app.FutureMap<app.IBrowserManagerResponse | null>;
+	private readonly _page: app.IBrowserManagerPage;
 
-  constructor(page: puppeteer.Page) {
+  constructor(page: app.IBrowserManagerPage) {
     this._futureResponses = new app.FutureMap(app.settings.chromeNavigationTimeout);
     this._page = page;
-    this._page.on('response', (response) => this._futureResponses.resolve(response.url(), response));
+    this._page.addEventListener((response) => this._futureResponses.resolve(response.url, response));
   }
 
   async cacheAsync<T extends {image: string}>(item: T) {
@@ -26,6 +25,6 @@ export class Watch {
   async getAsync(url: string) {
     const response = await this._futureResponses.getAsync(url);
     if (!response) throw new Error();
-    return await response.buffer();
+    return await response.bufferAsync();
   }
 }
