@@ -1,7 +1,7 @@
 import * as app from '..';
 import * as path from 'path';
 
-export class CacheManager {
+export class CacheManager implements app.ICacheManager {
   private readonly _timeoutHandles: {[key: string]: NodeJS.Timeout};
   private readonly _values: {[key: string]: app.Future<any> | Promise<any> | {id: string, isBuffer: boolean}};
 
@@ -18,13 +18,13 @@ export class CacheManager {
       delete this._values[key];
       value.reject(new Error(key));
     } else if (value instanceof Promise) {
-      const continueWith = () => expirePromiseWithTrace(this, key);
+      const continueWith = () => expireWithTrace(this, key);
       value.then(continueWith, continueWith);
     } else if (value) {
       clearTimeout(this._timeoutHandles[key]);
       delete this._timeoutHandles[key];
       delete this._values[key];
-      expireValueWithTraceAsync(path.join(app.settings.cache, value.id));
+      app.core.resource.removeAsync(path.join(app.settings.cache, value.id)).catch(app.writeError);
     }
   }
 
@@ -90,17 +90,9 @@ export class CacheManager {
   }
 }
 
-function expirePromiseWithTrace(cache: CacheManager, key: string) {
+function expireWithTrace(cache: CacheManager, key: string) {
   try {
     cache.expire(key);
-  } catch (error) {
-    app.writeError(error);
-  }
-}
-
-async function expireValueWithTraceAsync(path: string) {
-  try {
-    await app.core.resource.removeAsync(path);
   } catch (error) {
     app.writeError(error);
   }

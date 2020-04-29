@@ -1,7 +1,8 @@
+import * as app from '..';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 
-export class ResourceManager {
+export class ResourceManager implements app.IResourceManager {
   async moveAsync(absoluteFromPath: string, absoluteToPath: string) {
     await fs.move(absoluteFromPath, absoluteToPath, {overwrite: true});
   }

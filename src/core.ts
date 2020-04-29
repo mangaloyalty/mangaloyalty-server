@@ -1,52 +1,66 @@
 import * as app from '.';
-let automate: app.AutomateManager;
-let browser: app.BrowserManager;
-let cache: app.CacheManager;
-let library: app.LibraryManager;
-let resource: app.ResourceManager;
-let session: app.SessionManager;
-let socket: app.SocketManager;
+let automate: app.IAutomateManager;
+let browser: app.IBrowserManager;
+let cache: app.ICacheManager;
+let library: app.ILibraryManager;
+let resource: app.IResourceManager;
+let session: app.ISessionManager;
+let socket: app.ISocketManager;
 
 export const core = {
   get automate() {
-    if (automate) return automate;
-    automate = new app.AutomateManager();
-    return automate;
+    return automate || (automate = new app.AutomateManager());
   },
 
   get browser() {
-    if (browser) return browser;
-    browser = new app.BrowserManager();
-    return browser;
+    return browser || (browser = new app.BrowserManager());
   },
 
   get cache() {
-    if (cache) return cache;
-    cache = new app.CacheManager();
-    return cache;
+    return cache || (cache = new app.CacheManager());
   },
   
   get library() {
-    if (library) return library;
-    library = new app.LibraryManager();
-    return library;
+    return library || (library = new app.LibraryManager());
   },
 
   get resource() {
-    if (resource) return resource;
-    resource = new app.ResourceManager();
-    return resource;
+    return resource || (resource = new app.ResourceManager());
   },
   
   get session() {
-    if (session) return session;
-    session = new app.SessionManager();
-    return session;
+    return session || (session = new app.SessionManager());
   },
 
   get socket() {
-    if (socket) return socket;
-    socket = new app.SocketManager();
-    return socket;
+    return socket || (socket = new app.SocketManager());
+  },
+
+  set automate(value: app.IAutomateManager) {
+    automate = value;
+  },
+
+  set browser(value: app.IBrowserManager) {
+    browser = value;
+  },
+
+  set cache(value: app.ICacheManager) {
+    cache = value;
+  },
+
+  set library(value: app.ILibraryManager) {
+    library = value;
+  },
+
+  set resource(value: app.IResourceManager) {
+    resource = value;
+  },
+
+  set session(value: app.ISessionManager) {
+    session = value;
+  },
+
+  set socket(value: app.ISocketManager) {
+    socket = value;
   }
 };

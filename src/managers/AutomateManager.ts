@@ -1,14 +1,14 @@
 import * as app from '..';
 
-export class AutomateManager {
+export class AutomateManager implements app.IAutomateManager {
   private _isRunning?: boolean;
   private _timeoutHandle?: NodeJS.Timer;
 
-  tryRun() {
+  run() {
     if (this._isRunning) return;
     this._isRunning = true;
     this._cancelSchedule();
-    this._runWithTraceAsync().then(() => {
+    seriesAsync().catch(app.writeError).then(() => {
       this._isRunning = false;
       this._reschedule();
     });
@@ -22,15 +22,7 @@ export class AutomateManager {
 
   private _reschedule() {
     this._cancelSchedule();
-    this._timeoutHandle = setTimeout(() => this.tryRun(), app.settings.libraryAutomationTimeout);
-  }
-
-  private async _runWithTraceAsync() {
-    try {
-      await seriesAsync();
-    } catch (error) {
-      app.writeError(error);
-    }
+    this._timeoutHandle = setTimeout(() => this.run(), app.settings.libraryAutomationTimeout);
   }
 }
 
@@ -52,7 +44,7 @@ async function seriesAsync() {
     if (await app.core.library.seriesUpdateAsync(series.id)) {
       await seriesChaptersAsync(series);
       app.writeInfo(`[Automation] Finished ${series.source.title}`);
-      await trackAsync(series.id);
+      await app.core.library.seriesCheckedAsync(series.id);
     } else {
       app.writeInfo(`[Automation] Rejected ${series.source.title}`);
     }
@@ -71,17 +63,4 @@ async function seriesChaptersAsync(series: app.ILibrarySeries) {
   } catch (error) {
     app.writeError(error);
   }
-}
-
-async function trackAsync(seriesId: string) {
-  await app.core.library.context.lockSeriesAsync(seriesId, async (seriesContext) => {
-    try {
-      const series = await seriesContext.getAsync();
-      series.automation.checkedAt = Date.now();
-      await seriesContext.saveAsync();
-    } catch (error) {
-      if (error && error.code === 'ENOENT') return;
-      throw error;
-    }
-  });
 }
