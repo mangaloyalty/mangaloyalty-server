@@ -1,4 +1,5 @@
 import * as app from '../../..';
+import * as browser from '../evaluators/browser';
 import * as chapter from '../evaluators/chapter';
 
 export class Runner {
@@ -17,6 +18,7 @@ export class Runner {
       await app.core.browser.pageAsync(async (page) => {
         const watch = new app.Watch(page);
         await page.navigateAsync(this._url);
+        await browserAsync(page);
         while (await this._stepAsync(page, watch));
         await this._session.successAsync();
       });
@@ -31,4 +33,10 @@ export class Runner {
     for (const image of result.images) await this._session.setImageAsync(++this._pageNumber, await watch.getAsync(image));
     return this._session.isActive && result.shouldContinue;
   }
+}
+
+async function browserAsync(page: app.IBrowserPage) {
+  const result = await page.evaluateAsync(browser.evaluator);
+  if (!result.isVerification) return;
+  await page.waitForNavigateAsync();
 }
