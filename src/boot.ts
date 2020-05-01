@@ -19,7 +19,7 @@ export async function bootAsync() {
   // Initialize the application system.
   Object.assign(app.settings, settings);
   setImmediate(() => app.core.automate.run());
-  setImmediate(() => app.core.browser.prepareAsync().catch(app.writeError));
+  setImmediate(() => app.core.browser.prepareAsync().catch((error) => app.core.trace.error(error)));
 
   // Initialize the openapi data.
   const openapiData = require('../openapi.json');

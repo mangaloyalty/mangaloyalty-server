@@ -1,8 +1,5 @@
-import * as app from '.';
 import * as express from 'express';
-import * as winston from 'winston';
 import {randomBytes} from 'crypto';
-let logger: winston.Logger | undefined;
 
 export function createPageName(value: number) {
   let result = String(value);
@@ -35,17 +32,4 @@ export function httpImage(image: Buffer) {
     res.status(200);
     res.send(image);
   };
-}
-
-export function writeError(error: any) {
-  if (error instanceof Error) writeInfo(error.stack || error.message);
-  else if (error && String(error)) writeError(new Error(String(error)));
-  else writeError(new Error());
-}
-
-export function writeInfo(message: string) {
-  (logger || (logger = winston.createLogger({
-    format: winston.format.combine(winston.format.timestamp(), winston.format.printf((x) => `${x.timestamp}: ${x.message}`)),
-    transports: [new winston.transports.Console(), new winston.transports.File({filename: app.settings.logger})]
-  }))).info(message);
 }

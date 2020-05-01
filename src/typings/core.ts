@@ -64,3 +64,8 @@ export interface ISocketManager {
   addEventListener(handler: (action: app.ISocketAction) => void): void;
   emit(action: app.ISocketAction): void;
 }
+
+export interface ITraceManager {
+  error(error: any): void;
+  info(message: string): void;
+}

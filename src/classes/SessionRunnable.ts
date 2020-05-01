@@ -36,7 +36,7 @@ export class SessionRunnable implements app.ISession {
     this._futureFinished.reject(error);
     this._futurePageCount.reject(error);
     app.core.socket.emit({type: 'SessionUpdate', session: this.getData()});
-    app.writeError(error);
+    app.core.trace.error(error);
   }
 
   getData() {

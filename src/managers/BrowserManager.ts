@@ -69,7 +69,7 @@ export class BrowserManager implements app.IBrowserManager {
       const browser = await this._browser;
       if (!browser || this._numberOfPages) return;
       delete this._browser;
-      browser.close().catch(app.writeError);
+      browser.close().catch((error) => app.core.trace.error(error));
     }, app.settings.chromeExitTimeout);
   }
 }

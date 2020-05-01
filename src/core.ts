@@ -6,6 +6,7 @@ let library: app.ILibraryManager;
 let resource: app.IResourceManager;
 let session: app.ISessionManager;
 let socket: app.ISocketManager;
+let trace: app.ITraceManager;
 
 export const core = {
   get automate() {
@@ -36,6 +37,10 @@ export const core = {
     return socket || (socket = new app.SocketManager());
   },
 
+  get trace() {
+    return trace || (trace = new app.TraceManager());
+  },
+  
   set automate(value: app.IAutomateManager) {
     automate = value;
   },
@@ -62,5 +67,9 @@ export const core = {
 
   set socket(value: app.ISocketManager) {
     socket = value;
+  },
+  
+  set trace(value: app.ITraceManager) {
+    trace = value;
   }
 };
