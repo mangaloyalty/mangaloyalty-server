@@ -46,7 +46,7 @@ export class LibraryController {
           res.end();
         }
       } catch (error) {
-        app.writeError(error);
+        app.core.trace.error(error);
         res.status(500);
         res.end();
       }
