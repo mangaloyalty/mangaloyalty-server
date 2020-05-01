@@ -8,7 +8,9 @@ export function createPageName(value: number) {
 }
 
 export function createUniqueId() {
-  return randomBytes(24).toString('hex');
+  const now = Date.now().toString(16);
+  const random = randomBytes(24).toString('hex');
+  return now + random;
 }
 
 export function detectImage(image: Buffer) {
