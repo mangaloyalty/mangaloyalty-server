@@ -2,7 +2,7 @@ import * as app from '..';
 import * as path from 'path';
 
 export class LibraryManager implements app.ILibraryManager {
-  private _cache?: string[];
+  private _cache?: Promise<string[]>;
   private _context: app.LibraryContext;
   
   constructor() {
@@ -11,7 +11,7 @@ export class LibraryManager implements app.ILibraryManager {
 
   async listReadAsync(readStatus: app.IEnumeratorReadStatus, seriesStatus: app.IEnumeratorSeriesStatus, sortKey: app.IEnumeratorSortKey, title?: string) {
     return await this._context.lockMainAsync(async () => {
-      const ids = await this._listAsync();
+      const ids = await (this._cache || (this._cache = app.core.resource.readdirAsync(app.settings.library)));
       const series = await Promise.all(ids.map((id) => this.seriesReadAsync(id)));
       return series.filter(Boolean)
         .map((series) => ({series: series!, unreadCount: series!.chapters.filter((chapter) => !chapter.isReadCompleted).length}))
@@ -23,7 +23,7 @@ export class LibraryManager implements app.ILibraryManager {
 
   async listPatchAsync(frequency: app.IEnumeratorFrequency, strategy: app.IEnumeratorStrategy) {
     await this._context.lockMainAsync(async () => {
-      const ids = await this._listAsync();
+      const ids = await (this._cache || (this._cache = app.core.resource.readdirAsync(app.settings.library)));
       await Promise.all(ids.map((id) => this.seriesPatchAsync(id, frequency, strategy)));
     });
   }
@@ -232,12 +232,6 @@ export class LibraryManager implements app.ILibraryManager {
     } else {
       return false;
     }
-  }
-
-  private async _listAsync() {
-    if (this._cache) return this._cache;
-    this._cache = (await app.core.resource.readdirAsync(app.settings.library)).filter((id) => /^[0-9a-f]{48}$/.test(id));
-    return this._cache;
   }
 }
 
