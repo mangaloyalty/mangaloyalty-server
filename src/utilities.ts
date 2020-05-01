@@ -11,9 +11,7 @@ export function createPageName(value: number) {
 }
 
 export function createUniqueId() {
-  const buffer = randomBytes(24);
-  buffer.writeBigUInt64LE(BigInt(Date.now()))
-  return buffer.toString('hex');
+  return randomBytes(24).toString('hex');
 }
 
 export function detectImage(image: Buffer) {
