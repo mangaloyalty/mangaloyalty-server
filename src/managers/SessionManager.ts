@@ -37,7 +37,7 @@ export class SessionManager implements app.ISessionManager {
       delete this._timeoutHandles[id];
       delete this._values[id];
       app.core.socket.emit({type: 'SessionDelete', session: session.getData()});
-      session.endAsync().catch(app.writeError);
+      session.endAsync().catch((error) => app.core.trace.error(error));
     }, app.settings.sessionTimeout);
   }
 }

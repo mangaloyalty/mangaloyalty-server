@@ -24,7 +24,7 @@ export class CacheManager implements app.ICacheManager {
       clearTimeout(this._timeoutHandles[key]);
       delete this._timeoutHandles[key];
       delete this._values[key];
-      app.core.resource.removeAsync(path.join(app.settings.cache, value.id)).catch(app.writeError);
+      app.core.resource.removeAsync(path.join(app.settings.cache, value.id)).catch((error) => app.core.trace.error(error));
     }
   }
 
@@ -94,6 +94,6 @@ function expireWithTrace(cache: CacheManager, key: string) {
   try {
     cache.expire(key);
   } catch (error) {
-    app.writeError(error);
+    app.core.trace.error(error);
   }
 }

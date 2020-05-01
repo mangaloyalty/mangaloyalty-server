@@ -8,7 +8,7 @@ export class AutomateManager implements app.IAutomateManager {
     if (this._isRunning) return;
     this._isRunning = true;
     this._cancelSchedule();
-    seriesAsync().catch(app.writeError).then(() => {
+    seriesAsync().catch((error) => app.core.trace.error(error)).then(() => {
       this._isRunning = false;
       this._reschedule();
     });
@@ -40,27 +40,27 @@ async function seriesAsync() {
   for (const listItem of await app.core.library.listReadAsync('all', 'all', 'lastPageReadAt')) try {
     const series = await app.core.library.seriesReadAsync(listItem.id);
     if (!series || computeNext(series) > Date.now()) continue;
-    app.writeInfo(`[Automation] Fetching ${series.source.title}`);
+    app.core.trace.info(`[Automation] Fetching ${series.source.title}`);
     if (await app.core.library.seriesUpdateAsync(series.id)) {
       await seriesChaptersAsync(series);
-      app.writeInfo(`[Automation] Finished ${series.source.title}`);
+      app.core.trace.info(`[Automation] Finished ${series.source.title}`);
       await app.core.library.seriesCheckedAsync(series.id);
     } else {
-      app.writeInfo(`[Automation] Rejected ${series.source.title}`);
+      app.core.trace.info(`[Automation] Rejected ${series.source.title}`);
     }
   } catch (error) {
-    app.writeError(error);
+    app.core.trace.error(error);
   }
 }
 
 async function seriesChaptersAsync(series: app.ILibrarySeries) {
   for (const chapter of series.chapters.slice().reverse().filter((chapter) => !chapter.syncAt)) try {
     if (series.automation.strategy !== 'all' && (series.automation.strategy !== 'unread' || chapter.isReadCompleted)) continue;
-    app.writeInfo(`[Automation] Fetching ${series.source.title} -> ${chapter.title}`);
+    app.core.trace.info(`[Automation] Fetching ${series.source.title} -> ${chapter.title}`);
     const session = await app.core.library.chapterReadAsync(series.id, chapter.id);
     const success = session instanceof app.SessionRunnable && await session.waitFinishedAsync().then(() => true, () => false);
-    app.writeInfo(`[Automation] ${success ? 'Finished' : 'Rejected'} ${series.source.title} -> ${chapter.title}`);
+    app.core.trace.info(`[Automation] ${success ? 'Finished' : 'Rejected'} ${series.source.title} -> ${chapter.title}`);
   } catch (error) {
-    app.writeError(error);
+    app.core.trace.error(error);
   }
 }

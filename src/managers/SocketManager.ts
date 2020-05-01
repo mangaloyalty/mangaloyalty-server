@@ -15,7 +15,7 @@ export class SocketManager implements app.ISocketManager {
     for (const handler of this._handlers) try {
       handler(action);
     } catch (error) {
-      app.writeError(error);
+      app.core.trace.error(error);
     }
   }
 }
