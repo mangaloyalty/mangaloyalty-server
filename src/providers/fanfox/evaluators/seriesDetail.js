@@ -4,7 +4,7 @@ function evaluator() {
   const genres = getGenres(document.querySelectorAll('.detail-info a[href*=\'/directory/\']'));
   const image = getImage(document.querySelector('.detail-info img'));
   const isCompleted = getIsCompleted(document.querySelector('.detail-info span.detail-info-right-title-tip'));
-  const summary = getSummary(document.querySelector('.detail-info p.detail-info-right-content'));
+  const summary = getSummary(document.querySelector('.detail-info p.fullcontent'));
   const title = getTitle(document.querySelector('.detail-info span.detail-info-right-title-font'));
   const url = location.href;
   return {authors, chapters, genres, image, isCompleted, summary, title, url};
@@ -57,8 +57,6 @@ function evaluator() {
    * @param {HTMLParagraphElement?} summaryNode
    */
   function getSummary(summaryNode) {
-    const anchorNode = summaryNode && summaryNode.querySelector('a');
-    if (anchorNode) anchorNode.click();
     return validate(summaryNode && summaryNode.textContent);
   }
 
@@ -95,6 +93,7 @@ function shouldWaitAdultEvaluator() {
   function confirmAdult(adultNode) {
     if (!adultNode) return false;
     adultNode.click();
+    setTimeout(() => confirmAdult(adultNode), 1000);
     return true;
   }
 }
