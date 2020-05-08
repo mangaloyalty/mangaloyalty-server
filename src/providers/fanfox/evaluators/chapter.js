@@ -71,6 +71,7 @@ function shouldWaitAdultEvaluator() {
   function confirmAdult(adultNode) {
     if (!adultNode) return false;
     adultNode.click();
+    setTimeout(() => confirmAdult(adultNode), 1000);
     return true;
   }
 }
