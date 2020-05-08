@@ -13,7 +13,9 @@ export class BrowserPage implements app.IBrowserPage {
   }
   
   async evaluateAsync<T extends (...args: any[]) => any>(handler: T) {
-    return await this._page.evaluate(handler);
+    const resultPromise = this._page.evaluate(handler);
+    await Promise.race([resultPromise, this._page.waitFor(30000)]);
+    return await resultPromise;
   }
 
   async navigateAsync(url: string) {
