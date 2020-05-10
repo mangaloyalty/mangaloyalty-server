@@ -57,8 +57,8 @@ async function seriesChaptersAsync(series: app.ILibrarySeries) {
   for (const chapter of series.chapters.slice().reverse().filter((chapter) => !chapter.syncAt)) try {
     if (series.automation.strategy !== 'all' && (series.automation.strategy !== 'unread' || chapter.isReadCompleted)) continue;
     app.core.trace.info(`[Automation] Fetching ${series.source.title} -> ${chapter.title}`);
-    const session = await app.core.library.chapterReadAsync(series.id, chapter.id);
-    const success = session instanceof app.SessionRunnable && await session.waitFinishedAsync().then(() => true, () => false);
+    const session = await app.core.library.chapterReadAsync(series.id, chapter.id).catch(() => false);
+    const success = session instanceof app.SessionRunnable && await session.waitFinishedAsync().catch(() => false).then(() => true);
     app.core.trace.info(`[Automation] ${success ? 'Finished' : 'Rejected'} ${series.source.title} -> ${chapter.title}`);
   } catch (error) {
     app.core.trace.error(error);
