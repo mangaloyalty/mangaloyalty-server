@@ -40,11 +40,10 @@ export class SessionRunnable implements app.ISession {
   }
 
   getData() {
-    if (!this._pageCount) throw new Error();
     const id = this._sessionId;
     const finishedAt = this._finishedAt;
     const library = this._adaptor.detailLibrary;
-    const pageCount = this._pageCount;
+    const pageCount = this._pageCount || 0;
     const url = this._url;
     return {id, finishedAt, pageCount, url, library};
   }
