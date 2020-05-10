@@ -16,10 +16,9 @@ export class Runner {
   async runAsync() {
     try {
       await app.core.browser.pageAsync(async (page) => {
-        const watch = new app.Watch(page);
         await page.navigateAsync(this._url);
         await browserAsync(page);
-        while (await this._stepAsync(page, watch));
+        while (await this._stepAsync(page));
         await this._session.successAsync();
       });
     } catch (error) {
@@ -27,10 +26,10 @@ export class Runner {
     }
   }
 
-  private async _stepAsync(page: app.IBrowserPage, watch: app.Watch) {
+  private async _stepAsync(page: app.IBrowserPage) {
     const result = await page.evaluateAsync(chapter.evaluator);
     this._session.setPageCount(result.pageCount);
-    for (const image of result.images) await this._session.setImageAsync(++this._pageNumber, await watch.getAsync(image));
+    for (const image of result.images) await this._session.setImageAsync(++this._pageNumber, await page.responseAsync(image));
     return this._session.isActive && result.shouldContinue;
   }
 }

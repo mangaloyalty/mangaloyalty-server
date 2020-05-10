@@ -11,31 +11,31 @@ export const fanfoxProvider = {
 
   async popularAsync(pageNumber?: number) {
     return await app.core.browser.pageAsync(async (page) => {
-      const watch = new app.Watch(page);
+      const cache = new app.BrowserCache(page);
       await page.navigateAsync(`${baseUrl}/directory/${pageNumber && pageNumber > 1 ? `${pageNumber}.html` : ''}`);
       const results = await page.evaluateAsync(seriesList.evaluator);
-      const items = await watch.cacheItemsAsync(results.items);
+      const items = await cache.batchAsync(results.items);
       return {hasMorePages: results.hasMorePages, items};
     });
   },
 
   async searchAsync(title: string, pageNumber?: number) {
     return await app.core.browser.pageAsync(async (page) => {
-      const watch = new app.Watch(page);
+      const cache = new app.BrowserCache(page);
       await page.navigateAsync(`${baseUrl}/search?title=${encodeURIComponent(title)}${pageNumber && pageNumber > 1 ? `&page=${pageNumber}` : ''}`);
       const results = await page.evaluateAsync(seriesList.evaluator);
-      const items = await watch.cacheItemsAsync(results.items);
+      const items = await cache.batchAsync(results.items);
       return {hasMorePages: results.hasMorePages, items};
     });
   },
 
   async seriesAsync(url: string) {
     return await app.core.browser.pageAsync(async (page) => {
-      const watch = new app.Watch(page);
+      const cache = new app.BrowserCache(page);
       await page.navigateAsync(url);
       await ensureAdultAsync(page);
       const result = await page.evaluateAsync(seriesDetail.evaluator);
-      return await watch.cacheAsync(result);
+      return await cache.itemAsync(result);
     });
   },
 
