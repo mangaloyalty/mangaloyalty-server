@@ -12,33 +12,33 @@ export const batotoProvider = {
 
   async popularAsync(pageNumber?: number) {
     return await app.core.browser.pageAsync(async (page) => {
-      const watch = new app.Watch(page);
+      const cache = new app.BrowserCache(page);
       await page.navigateAsync(`${baseUrl}/browse?langs=english${pageNumber && pageNumber > 1 ? `&page=${pageNumber}` : ''}`);
       await browserAsync(page);
       const results = await page.evaluateAsync(seriesList.evaluator);
-      const items = await watch.cacheItemsAsync(results.items);
+      const items = await cache.batchAsync(results.items);
       return {hasMorePages: results.hasMorePages, items};
     });
   },
 
   async searchAsync(title: string, pageNumber?: number) {
     return await app.core.browser.pageAsync(async (page) => {
-      const watch = new app.Watch(page);
+      const cache = new app.BrowserCache(page);
       await page.navigateAsync(`${baseUrl}/search?q=${encodeURIComponent(title)}${pageNumber && pageNumber > 1 ? `&a=&p=${pageNumber}` : ''}`);
       await browserAsync(page);
       const results = await page.evaluateAsync(seriesList.evaluator);
-      const items = await watch.cacheItemsAsync(results.items);
+      const items = await cache.batchAsync(results.items);
       return {hasMorePages: results.hasMorePages, items};
     });
   },
 
   async seriesAsync(url: string) {
     return await app.core.browser.pageAsync(async (page) => {
-      const watch = new app.Watch(page);
+      const cache = new app.BrowserCache(page);
       await page.navigateAsync(url);
       await browserAsync(page);
       const result = await page.evaluateAsync(seriesDetail.evaluator);
-      return await watch.cacheAsync(result);
+      return await cache.itemAsync(result);
     });
   },
 
