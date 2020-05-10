@@ -10,15 +10,10 @@ export interface IBrowserManager {
 }
 
 export interface IBrowserPage {
-  addEventListener(handler: (response: app.IBrowserResponse) => void): void;
   evaluateAsync<T extends ((...args: any[]) => any)>(handler: T): Promise<ReturnType<T>>;
   navigateAsync(url: string): Promise<void>;
+  responseAsync(url: string): Promise<Buffer>;
   waitForNavigateAsync(): Promise<void>;
-}
-
-export interface IBrowserResponse {
-  bufferAsync(): Promise<Buffer>;
-  readonly url: string;
 }
 
 export interface ICacheManager {
