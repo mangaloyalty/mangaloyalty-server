@@ -11,6 +11,13 @@ export class FutureMap<T> {
     this._values = {};
   }
 
+  clear(error: any) {
+    Object.keys(this._values).forEach((key) => {
+      this._values[key].reject(error);
+      delete this._values[key];
+    });
+  }
+
   async getAsync(key: string) {
     if (this._hasReject && !this._values[key]) {
       return await Promise.reject(this._reject);
