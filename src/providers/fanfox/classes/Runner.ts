@@ -7,7 +7,7 @@ export class Runner {
   private _pageNumber: number;
 
   constructor(session: app.SessionRunnable, url: string) {
-    this._pageNumber = 0;
+    this._pageNumber = 1;
     this._session = session;
     this._url = url;
   }
@@ -28,7 +28,7 @@ export class Runner {
   private async _stepAsync(page: app.IBrowserPage) {
     const result = await page.evaluateAsync(chapter.evaluatorAsync);
     this._session.setPageCount(result.pageCount);
-    for (const image of result.images) await this._session.setImageAsync(++this._pageNumber, await page.responseAsync(image));
+    await this._session.setImageAsync(this._pageNumber++, await page.responseAsync(result.image));
     return this._session.isActive && result.shouldContinue;
   }
 }

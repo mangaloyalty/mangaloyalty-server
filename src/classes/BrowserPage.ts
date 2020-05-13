@@ -18,6 +18,7 @@ export class BrowserPage implements app.IBrowserPage {
   }
 
   async navigateAsync(url: string) {
+    this._futureResponses.clear(new Error());
     await this._page.goto(url, {waitUntil: 'domcontentloaded'});
   }
 
