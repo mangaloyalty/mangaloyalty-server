@@ -1,25 +1,24 @@
 async function evaluatorAsync() {
   scrollTo(0, document.body.scrollHeight);
-  const images = await getImagesAsync(document.querySelectorAll('img.reader-main-img'));
-  const pageCount = images.length >= 2 ? images.length : getPageCount(document.querySelectorAll('.cp-pager-list a[data-page]'));
-  const shouldContinue = images.length >= 2 ? false : getShouldContinue(document.querySelector('.cp-pager-list span a:last-of-type'), images);
-  return {images, pageCount, shouldContinue};
+  const image = await getImageAsync(document.querySelector('img.reader-main-img'));
+  const pageCount = getPageCount(document.querySelectorAll('.cp-pager-list a[data-page]'));
+  const shouldContinue = getShouldContinue(document.querySelector('.cp-pager-list span a:last-of-type'), image);
+  return {image, pageCount, shouldContinue};
 
   /**
-   * @param {NodeListOf<HTMLImageElement>?} imageNodes
-   * @return {Promise<string[]>}
+   * @param {HTMLImageElement?} imageNode
+   * @return {Promise<string>}
    */
-  function getImagesAsync(imageNodes) {
-    if (!imageNodes || !imageNodes.length) throw new Error();
+  function getImageAsync(imageNode) {
     const endTime = Date.now() + 30000;
-    return Promise.all(Array.from(imageNodes).map((imageNode) => new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       (function tick() {
         const image = validateStrict(imageNode && imageNode.src);
         if (!/\/loading\.(gif|jpg)$/.test(image)) resolve(image);
         else if (!imageNode || Date.now() >= endTime) reject(new Error());
         else setTimeout(tick, 10);
       })();
-    })));
+    });
   }
 
   /**
@@ -27,8 +26,8 @@ async function evaluatorAsync() {
    */
   function getPageCount(anchorNodes) {
     if (!anchorNodes || !anchorNodes.length) throw new Error();
-    const pageData = Array.from(anchorNodes).map((anchorNode) => anchorNode.getAttribute('data-page'));
-    const pageNumbers = pageData.filter((page) => page && /^[0-9]+$/.test(page)).map((page) => Number(page));
+    const pageValues = Array.from(anchorNodes).map((anchorNode) => anchorNode.getAttribute('data-page'));
+    const pageNumbers = pageValues.filter((page) => page && /^[0-9]+$/.test(page)).map((page) => Number(page));
     const pageCount = pageNumbers.sort((a, b) => a < b ? 1 : -1)[0];
     if (!pageCount) throw new Error();
     return pageCount;
@@ -36,11 +35,11 @@ async function evaluatorAsync() {
 
   /**
    * @param {HTMLAnchorElement?} anchorNode
-   * @param {string[]} images
+   * @param {string} image
    */
-  function getShouldContinue(anchorNode, images) {
+  function getShouldContinue(anchorNode, image) {
     const anchorText = validateStrict(anchorNode && anchorNode.textContent);
-    const shouldContinue = Boolean(images.length) && anchorText === '>';
+    const shouldContinue = Boolean(image) && anchorText === '>';
     if (shouldContinue && anchorNode) anchorNode.click();
     return shouldContinue;
   }
