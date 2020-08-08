@@ -57,6 +57,7 @@ export interface ISessionManager {
 
 export interface ISocketManager {
   addEventListener(handler: (action: app.ISocketAction) => void): void;
+  removeEventListener(handler: (action: app.ISocketAction) => void): void;
   emit(action: app.ISocketAction): void;
 }
 

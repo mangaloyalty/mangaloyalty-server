@@ -1,9 +1,9 @@
-import io from 'socket.io';
 import * as api from 'express-openapi-json';
 import * as app from '.';
 import * as http from 'http';
 import * as os from 'os';
 import * as path from 'path';
+import * as ws from 'ws';
 
 export function attachRouter(router: api.Router) {
   const handler = router.node();
@@ -14,8 +14,11 @@ export function attachRouter(router: api.Router) {
 }
 
 export function attachSocket(server: http.Server) {
-  const sio = io(server);
-  app.core.socket.addEventListener((action) => sio.emit('action', action));
+  new ws.Server({server}).on('connection', (ws) => {
+    const handler = (action: app.ISocketAction) => ws.send(JSON.stringify(action));
+    ws.on('close', () => app.core.socket.removeEventListener(handler));
+    app.core.socket.addEventListener(handler);
+  });
 }
 
 export async function bootAsync() {
