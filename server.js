@@ -16,8 +16,8 @@ async function routerAsync() {
   // Initialize the router handlers.
   router.get('/', (_, res) => res.redirect('/api/'));
   router.use('/api', express.static(`${__dirname}/public`));
-  router.use('/api', express.static(swaggerUi.absolutePath()));
-  router.use(await app.bootAsync());
+  router.use('/api', express.static(swaggerUi.absolutePath())); 
+  router.use((await app.bootAsync()).express());
   return router;
 }
 

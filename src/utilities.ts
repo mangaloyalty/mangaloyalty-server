@@ -1,4 +1,4 @@
-import * as express from 'express';
+import * as api from 'express-openapi-json';
 import {randomBytes} from 'crypto';
 
 export function createPageName(value: number) {
@@ -21,17 +21,8 @@ export function detectImage(image: Buffer) {
   return;
 }
 
-export function httpCache(timeout: number) {
-  const key = 'Cache-Control';
-  const value = `public, max-age=${Math.floor(timeout / 1000)}`;
-  return (_: express.Request, res: express.Response, next: express.NextFunction) => Boolean(res.set(key, value)) && next();
-}
-
-export function httpImage(image: Buffer) {
-  const imageType = detectImage(image);
-  return (_: express.Request, res: express.Response) => {
-    res.type(imageType ? imageType.contentType : 'application/octet-stream');
-    res.status(200);
-    res.send(image);
-  };
+export function imageResult(image: Buffer, timeout: number) {
+  const cacheControl = `public, max-age=${Math.floor(timeout / 1000)}`;
+  const contentType = detectImage(image)?.contentType || 'application/octet-stream';
+  return api.content(image, 200, {'Cache-Control': cacheControl, 'Content-Type': contentType});
 }
