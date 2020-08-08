@@ -4,7 +4,6 @@ const compression = require('compression');
 const cors = require('cors');
 const express = require('express');
 const http = require('http');
-const swaggerUi = require('swagger-ui-dist');
 
 async function routerAsync() {
   // Initialize the router.
@@ -15,8 +14,7 @@ async function routerAsync() {
 
   // Initialize the router handlers.
   router.get('/', (_, res) => res.redirect('/api/'));
-  router.use('/api', express.static(`${__dirname}/public`));
-  router.use('/api', express.static(swaggerUi.absolutePath())); 
+  router.get('/api', (req, res) => res.redirect(`https://petstore.swagger.io/?url=${encodeURIComponent(`${req.protocol}://${req.get('host')}/openapi.json`)}`));
   router.use((await app.bootAsync()).express());
   return router;
 }
