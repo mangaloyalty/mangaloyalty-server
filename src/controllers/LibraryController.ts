@@ -7,7 +7,7 @@ export class LibraryController {
     const readStatus = model.query.readStatus;
     const seriesStatus = model.query.seriesStatus;
     const sortKey = model.query.sortKey;
-    return api.json(await app.core.library.listReadAsync(readStatus, seriesStatus, sortKey, model.query.title));
+    return api.content(await app.core.library.listReadAsync(readStatus, seriesStatus, sortKey, model.query.title));
   }
 
   @api.createOperation('LibraryListPatch')
@@ -19,7 +19,7 @@ export class LibraryController {
   @api.createOperation('LibrarySeriesCreate')
   async seriesCreateAsync(model: app.ILibrarySeriesCreateContext): Promise<api.Result<app.ILibrarySeriesCreateResponse>> {
     const id = await app.core.library.seriesCreateAsync(model.query.url);
-    return api.json({id});
+    return api.content({id});
   }
 
   @api.createOperation('LibrarySeriesDelete')
@@ -34,30 +34,21 @@ export class LibraryController {
     
   @api.createOperation('LibrarySeriesDump')
   async seriesDumpAsync(model: app.ILibrarySeriesDumpContext): Promise<api.Result<Function>> {
-    return api.handler(async (_, res) => {
-      try {
-        const series = await app.core.library.seriesReadAsync(model.path.seriesId);
-        if (series) {
-          res.type('application/zip');
-          res.attachment(`${series.source.title}.zip`);
-          await app.core.library.seriesDumpAsync(model.path.seriesId, res);
-        } else {
-          res.status(404);
-          res.end();
-        }
-      } catch (error) {
-        app.core.trace.error(error);
-        res.status(500);
-        res.end();
-      }
-    });
+    const series = await app.core.library.seriesReadAsync(model.path.seriesId);
+    if (series) {
+      const contentDisposition = `attachment; filename="${series.source.title}.zip"`;
+      const contentType = 'application/zip';
+      return api.content(createHandler(model.path.seriesId), 200, {'Content-Disposition': contentDisposition, 'Content-Type': contentType});
+    } else {
+      return api.status(404);
+    }
   }
 
-  @api.createOperation('LibrarySeriesImage', app.httpCache(app.settings.imageLibraryTimeout))
-  async seriesImageAsync(model: app.ILibrarySeriesImageContext): Promise<api.Result<Function>> {
+  @api.createOperation('LibrarySeriesImage')
+  async seriesImageAsync(model: app.ILibrarySeriesImageContext): Promise<api.Result<Buffer>> {
     const image = await app.core.library.seriesImageAsync(model.path.seriesId);
     if (image) {
-      return api.handler(app.httpImage(image));
+      return app.imageResult(image, app.settings.imageLibraryTimeout);
     } else {
       return api.status(404);
     }
@@ -67,7 +58,7 @@ export class LibraryController {
   async seriesReadAsync(model: app.ILibrarySeriesReadContext): Promise<api.Result<app.ILibrarySeriesReadResponse>> {
     const series = await app.core.library.seriesReadAsync(model.path.seriesId);
     if (series) {
-      return api.json(series);
+      return api.content(series);
     } else {
       return api.status(404);
     }
@@ -107,7 +98,7 @@ export class LibraryController {
   async chapterReadAsync(model: app.ILibraryChapterReadContext): Promise<api.Result<app.ILibraryChapterReadResponse>> {
     const session = await app.core.library.chapterReadAsync(model.path.seriesId, model.path.chapterId);
     if (session) {
-      return api.json(session.getData());
+      return api.content(session.getData());
     } else {
       return api.status(404);
     }
@@ -132,4 +123,15 @@ export class LibraryController {
       return api.status(404);
     }
   }
+}
+
+function createHandler(seriesId: string) {
+  return async (_: any, stream: NodeJS.WritableStream) => {
+    try {
+      await app.core.library.seriesDumpAsync(seriesId, stream);
+    } catch (error) {
+      app.core.trace.error(error);
+      throw error;
+    }
+  };
 }
