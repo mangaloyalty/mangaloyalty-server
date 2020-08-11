@@ -51,7 +51,7 @@ export class LibraryManager implements app.ILibraryManager {
       synchronize(series, remote.chapters);
       await app.core.resource.writeFileAsync(seriesPath, series);
       delete this._cache;
-      app.core.socket.emit({type: 'SeriesCreate', seriesId: series.id, seriesUrl: series.source.url});
+      app.core.action.emit({type: 'SeriesCreate', seriesId: series.id, seriesUrl: series.source.url});
       return series.id;
     });
   }
@@ -65,7 +65,7 @@ export class LibraryManager implements app.ILibraryManager {
         await app.core.resource.removeAsync(deletePath);
         delete this._cache;
         seriesContext.expire();
-        app.core.socket.emit({type: 'SeriesDelete', seriesId});
+        app.core.action.emit({type: 'SeriesDelete', seriesId});
         return true;
       } catch (error) {
         if (error && error.code === 'ENOENT') return false;
@@ -112,6 +112,7 @@ export class LibraryManager implements app.ILibraryManager {
         const series = await seriesContext.getAsync();
         const result = Object.assign({}, series);
         result.source = Object.assign({}, series.source);
+        delete result.source.image;
         return result;
       } catch (error) {
         if (error && error.code === 'ENOENT') return;
@@ -128,7 +129,7 @@ export class LibraryManager implements app.ILibraryManager {
         series.automation.frequency = frequency;
         series.automation.strategy = strategy;
         await seriesContext.saveAsync();
-        app.core.socket.emit({type: 'SeriesPatch', seriesId});
+        app.core.action.emit({type: 'SeriesPatch', seriesId});
         app.core.automate.run();
         return true;
       } catch (error) {
@@ -150,7 +151,7 @@ export class LibraryManager implements app.ILibraryManager {
         series.source = createSeriesSource(remote, remoteImage, series.source);
         synchronize(series, remote.chapters);
         await seriesContext.saveAsync();
-        app.core.socket.emit({type: 'SeriesUpdate', seriesId});
+        app.core.action.emit({type: 'SeriesUpdate', seriesId});
         return true;
       } catch (error) {
         if (error && error.code === 'ENOENT') return false;
@@ -169,13 +170,13 @@ export class LibraryManager implements app.ILibraryManager {
           await app.core.resource.removeAsync(chapterPath);
           series.chapters.splice(series.chapters.indexOf(chapter), 1);
           await seriesContext.saveAsync();
-          app.core.socket.emit({type: 'ChapterDelete', seriesId, chapterId});
+          app.core.action.emit({type: 'ChapterDelete', seriesId, chapterId});
           return true;
         } else if (chapter && chapter.syncAt) {
           await app.core.resource.removeAsync(chapterPath);
           delete chapter.syncAt;
           await seriesContext.saveAsync();
-          app.core.socket.emit({type: 'ChapterDelete', seriesId, chapterId});
+          app.core.action.emit({type: 'ChapterDelete', seriesId, chapterId});
           return true;
         } else {
           return false;
@@ -211,7 +212,7 @@ export class LibraryManager implements app.ILibraryManager {
           chapter.pageReadNumber = typeof pageReadNumber === 'number' ? pageReadNumber : chapter.pageReadNumber;
           series.lastPageReadAt = Date.now();
           await seriesContext.saveAsync();
-          app.core.socket.emit({type: 'ChapterPatch', seriesId, chapterId});
+          app.core.action.emit({type: 'ChapterPatch', seriesId, chapterId});
           return true;
         } else {
           return false;

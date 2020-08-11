@@ -7,15 +7,16 @@ export class BrowserCache {
     this._page = page;
   }
 
-  async batchAsync<T extends {image: string}>(items: T[]) {
+  async batchAsync<T>(items: (T & {image: string})[]) {
     return await Promise.all(items.map(async (item) => {
       return await this.itemAsync(item);
     }));
   }
   
-  async itemAsync<T extends {image: string}>(item: T) {
+  async itemAsync<T>(item: T & {image: string}): Promise<T & {imageId: string}> {
     const imageId = app.createUniqueId();
     await app.core.cache.setAsync(imageId, app.settings.cacheImageTimeout, () => this._page.responseAsync(item.image));
+    delete item.image;
     return Object.assign({imageId}, item);
   }
 }
