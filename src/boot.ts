@@ -1,25 +1,7 @@
 import * as api from 'express-openapi-json';
 import * as app from '.';
-import * as http from 'http';
 import * as os from 'os';
 import * as path from 'path';
-import * as ws from 'ws';
-
-export function attachRouter(router: api.Router) {
-  const handler = router.node();
-  return async (req: http.IncomingMessage, res: http.ServerResponse) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    await handler(req, res);
-  };
-}
-
-export function attachSocket(server: http.Server) {
-  new ws.Server({server}).on('connection', (ws) => {
-    const handler = (action: app.ISocketAction) => ws.send(JSON.stringify(action));
-    ws.on('close', () => app.core.socket.removeEventListener(handler));
-    app.core.socket.addEventListener(handler);
-  });
-}
 
 export async function bootAsync() {
   // Initialize the application data.
@@ -39,6 +21,7 @@ export async function bootAsync() {
 
   // Initialize the openapi router.
   return register(api.createCore(openapiData)
+    .controller(new app.ActionController())
     .controller(new app.LibraryController())
     .controller(new app.RemoteController())
     .controller(new app.SessionController())

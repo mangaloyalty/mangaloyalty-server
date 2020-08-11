@@ -1,5 +1,11 @@
 import * as app from '..';
 
+export interface IActionManager {
+  emit(action: app.IActionListItemData): void;
+  get(previousResponseAt?: number): app.IActionList;
+  waitAsync(): Promise<app.IActionList>;
+}
+
 export interface IAutomateManager {
   run(): void;
 }
@@ -53,12 +59,6 @@ export interface ISessionManager {
   add<T extends app.ISession>(session: T): T;
   get(id: string): app.ISession | undefined;
   getAll(seriesId?: string): app.ISessionList;
-}
-
-export interface ISocketManager {
-  addEventListener(handler: (action: app.ISocketAction) => void): void;
-  removeEventListener(handler: (action: app.ISocketAction) => void): void;
-  emit(action: app.ISocketAction): void;
 }
 
 export interface ITraceManager {

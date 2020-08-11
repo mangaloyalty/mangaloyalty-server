@@ -6,6 +6,37 @@
     "version": "0.0.0"
   },
   "paths": {
+    "/api/action": {
+      "get": {
+        "operationId": "ActionListRead",
+        "tags": ["Action"], 
+        "description": "Retrieves each action.",
+        "parameters": [{
+          "in": "query",
+          "name": "isLongPolling",
+          "description": "Indicates whether long polling is requested.",
+          "required": true,
+          "schema": {"type": "boolean"}
+        }, {
+          "in": "query",
+          "name": "previousResponseAt",
+          "description": "The previous response timestamp.",
+          "required": false,
+          "schema": {"type": "number"}
+        }],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/ActionList"}
+              }
+            }
+          },
+          "500": {"$ref": "#/components/responses/InternalServerError"}
+        }
+      }
+    },
     "/api/library": {
       "get": {
         "operationId": "LibraryListRead",
@@ -638,8 +669,70 @@
           {"type": "string", "pattern": "^https:\\/\\/fanfox\\.net\\/manga\\/[^\\/]+\\/$"}
         ]
       },
+      "ActionList": {
+        "type": "object",
+        "required": ["responseAt", "items"],
+        "properties": {
+          "responseAt": {"type": "number"},
+          "items": {
+            "type": "array",
+            "items": {"$ref": "#/components/schemas/ActionListItem"}
+          }
+        }
+      },
+      "ActionListItem": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["addedAt", "data"],
+        "properties": {
+          "addedAt": {"type": "number"},
+          "data": {"$ref": "#/components/schemas/ActionListItemData"}
+        }
+      },
+      "ActionListItemData": {
+        "type": "object",
+        "oneOf": [{
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "seriesId", "seriesUrl"],
+          "properties": {
+            "type": {"type": "string", "enum": ["SeriesCreate"]},
+            "seriesId": {"type": "string"},
+            "seriesUrl": {"type": "string"}
+          }
+        }, {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "seriesId"],
+          "properties": {
+            "type": {"type": "string", "enum": ["SeriesDelete", "SeriesPatch", "SeriesUpdate"]},
+            "seriesId": {"type": "string"}
+          }
+        }, {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "seriesId", "chapterId"],
+          "properties": {
+            "type": {"type": "string", "enum": ["ChapterDelete", "ChapterPatch", "ChapterUpdate"]},
+            "seriesId": {"type": "string"},
+            "chapterId": {"type": "string"}
+          }
+        }, {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "sessionId"],
+          "properties": {
+            "type": {"type": "string", "enum": ["SessionCreate", "SessionDelete", "SessionUpdate"]},
+            "sessionId": {"type": "string"},
+            "seriesId": {"type": "string"},
+            "chapterId": {"type": "string"},
+            "sync": {"type": "boolean"}
+          }
+        }]
+      },
       "LibraryResult": {
         "type": "object",
+        "additionalProperties": false,
         "required": ["id"],
         "properties": {
           "id": {"type": "string"}
@@ -651,6 +744,7 @@
       },
       "LibraryListItem": {
         "type": "object",
+        "additionalProperties": false,
         "required": ["id", "title", "unreadCount", "url"],
         "properties": {
           "id": {"type": "string"},
@@ -661,6 +755,7 @@
       },
       "LibrarySeries": {
         "type": "object",
+        "additionalProperties": false,
         "required": ["id", "addedAt", "automation", "chapters", "source"],
         "properties": {
           "id": {"type": "string"},
@@ -675,6 +770,7 @@
       },
       "LibrarySeriesAutomation": {
         "type": "object",
+        "additionalProperties": false,
         "required": ["frequency", "strategy"],
         "properties": {
           "checkedAt": {"type": "number"},
@@ -684,6 +780,7 @@
       },
       "LibrarySeriesChapter": {
         "type": "object",
+        "additionalProperties": false,
         "required": ["id", "addedAt", "title", "url"],
         "properties": {
           "id": {"type": "string"},
@@ -699,6 +796,7 @@
       },
       "LibrarySeriesSource": {
         "type": "object",
+        "additionalProperties": false,
         "required": ["authors", "genres", "isCompleted", "title", "url"],
         "properties": {
           "authors": {"type": "array", "items": {"type": "string"}},
@@ -711,6 +809,7 @@
       },
       "RemoteList": {
         "type": "object",
+        "additionalProperties": false,
         "required": ["hasMorePages", "items"],
         "properties": {
           "hasMorePages": {"type": "boolean"},
@@ -719,6 +818,7 @@
       },
       "RemoteListItem": {
         "type": "object",
+        "additionalProperties": false,
         "required": ["imageId", "title", "url"],
         "properties": {
           "imageId": {"type": "string"},
@@ -728,6 +828,7 @@
       },
       "RemoteSeries": {
         "type": "object",
+        "additionalProperties": false,
         "required": ["authors", "chapters", "genres", "imageId", "isCompleted", "title", "url"],
         "properties": {
           "authors": {"type": "array", "items": {"type": "string"}},
@@ -742,6 +843,7 @@
       },
       "RemoteSeriesChapter": {
         "type": "object",
+        "additionalProperties": false,
         "required": ["title", "url"],
         "properties": {
           "title": {"type": "string"},
@@ -754,6 +856,7 @@
       },
       "SessionListItem": {
         "type": "object",
+        "additionalProperties": false,
         "required": ["id", "pageCount", "url"],
         "properties": {
           "id": {"type": "string"},
@@ -762,6 +865,7 @@
           "url": {"type": "string"},
           "library": {
             "type": "object",
+            "additionalProperties": false,
             "required": ["seriesId", "chapterId", "sync"],
             "properties": {
               "seriesId": {"type": "string"},

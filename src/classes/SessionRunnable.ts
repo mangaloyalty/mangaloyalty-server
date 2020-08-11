@@ -35,7 +35,7 @@ export class SessionRunnable implements app.ISession {
     this._finishedAt = Date.now();
     this._futureFinished.reject(error);
     this._futurePageCount.reject(error);
-    app.core.socket.emit({type: 'SessionUpdate', session: this.getData()});
+    app.core.action.emit(Object.assign({type: <'SessionUpdate'>'SessionUpdate', sessionId: this._sessionId}, this._adaptor.detailLibrary));
     app.core.trace.error(error);
   }
 
@@ -76,7 +76,7 @@ export class SessionRunnable implements app.ISession {
     await this._adaptor.successAsync(this._pageCount);
     this._finishedAt = Date.now();
     this._futureFinished.resolve();
-    app.core.socket.emit({type: 'SessionUpdate', session: this.getData()});
+    app.core.action.emit(Object.assign({type: <'SessionUpdate'>'SessionUpdate', sessionId: this._sessionId}, this._adaptor.detailLibrary));
   }
 
   async waitFinishedAsync() {

@@ -2,6 +2,8 @@ import * as os from 'os';
 import * as path from 'path';
 
 export const settings = {
+  actionExpireTimeout: 10000,
+  actionWaitTimeout: 60000,
   cache: path.join(os.homedir(), 'mangaloyalty', 'cache'),
   cacheDataTimeout: 600000,
   cacheImageTimeout: 1200000,

@@ -10,10 +10,10 @@ export class SessionManager implements app.ISessionManager {
   }
 
   add<T extends app.ISession>(session: T) {
-    const sessionData = session.getData();
-    this._values[sessionData.id] = session;
-    this._updateTimeout(sessionData.id);
-    app.core.socket.emit({type: 'SessionCreate', session: sessionData});
+    const sessionId = session.getData().id;
+    this._values[sessionId] = session;
+    this._updateTimeout(sessionId);
+    app.core.action.emit(Object.assign({type: <'SessionCreate'>'SessionCreate', sessionId}, session.getData().library));
     return session;
   }
   
@@ -30,13 +30,13 @@ export class SessionManager implements app.ISessionManager {
       .filter((data) => !seriesId || (data.library && data.library.seriesId === seriesId));
   }
   
-  private _updateTimeout(id: string) {
-    clearTimeout(this._timeoutHandles[id]);
-    this._timeoutHandles[id] = setTimeout(() => {
-      const session = this._values[id];
-      delete this._timeoutHandles[id];
-      delete this._values[id];
-      app.core.socket.emit({type: 'SessionDelete', session: session.getData()});
+  private _updateTimeout(sessionId: string) {
+    clearTimeout(this._timeoutHandles[sessionId]);
+    this._timeoutHandles[sessionId] = setTimeout(() => {
+      const session = this._values[sessionId];
+      delete this._timeoutHandles[sessionId];
+      delete this._values[sessionId];
+      app.core.action.emit(Object.assign({type: <'SessionDelete'>'SessionDelete', sessionId}, session.getData().library));
       session.endAsync().catch((error) => app.core.trace.error(error));
     }, app.settings.sessionTimeout);
   }
