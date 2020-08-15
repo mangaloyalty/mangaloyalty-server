@@ -5,7 +5,7 @@ export class SessionController {
   @api.createOperation('SessionList')
   list(model: app.ISessionListContext): api.Result<app.ISessionListResponse> {
     const seriesId = model.query.seriesId;
-    return app.corsContent(app.core.session.getAll(seriesId));
+    return api.content(app.core.session.getAll(seriesId));
   }
 
   @api.createOperation('SessionPage')
@@ -13,9 +13,9 @@ export class SessionController {
     const session = app.core.session.get(model.path.sessionId);
     const image = session && await session.getPageAsync(model.query.pageNumber);
     if (image) {
-      return app.corsImage(image, app.settings.imageSessionTimeout);
+      return app.imageResult(image, app.settings.imageSessionTimeout);
     } else {
-      return app.corsStatus(404);
+      return api.status(404);
     }
   }
 }
