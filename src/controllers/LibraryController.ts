@@ -7,28 +7,28 @@ export class LibraryController {
     const readStatus = model.query.readStatus;
     const seriesStatus = model.query.seriesStatus;
     const sortKey = model.query.sortKey;
-    return app.corsContent(await app.core.library.listReadAsync(readStatus, seriesStatus, sortKey, model.query.title));
+    return api.content(await app.core.library.listReadAsync(readStatus, seriesStatus, sortKey, model.query.title));
   }
 
   @api.createOperation('LibraryListPatch')
   async listPatchAsync(model: app.ILibraryListPatchContext): Promise<api.Result<void>> {
     await app.core.library.listPatchAsync(model.query.frequency, model.query.strategy);
-    return app.corsStatus(200);
+    return api.status(200);
   }
 
   @api.createOperation('LibrarySeriesCreate')
   async seriesCreateAsync(model: app.ILibrarySeriesCreateContext): Promise<api.Result<app.ILibrarySeriesCreateResponse>> {
     const id = await app.core.library.seriesCreateAsync(model.query.url);
-    return app.corsContent({id});
+    return api.content({id});
   }
 
   @api.createOperation('LibrarySeriesDelete')
   async seriesDeleteAsync(model: app.ILibrarySeriesDeleteContext): Promise<api.Result<void>> {
     const success = await app.core.library.seriesDeleteAsync(model.path.seriesId);
     if (success) {
-      return app.corsStatus(200);
+      return api.status(200);
     } else {
-      return app.corsStatus(404);
+      return api.status(404);
     }
   }
     
@@ -38,9 +38,9 @@ export class LibraryController {
     if (series) {
       const contentDisposition = `attachment; filename="${series.source.title}.zip"`;
       const contentType = 'application/zip';
-      return app.corsContent(createHandler(model.path.seriesId), 200, {'Content-Disposition': contentDisposition, 'Content-Type': contentType});
+      return api.content(createHandler(model.path.seriesId), 200, {'Content-Disposition': contentDisposition, 'Content-Type': contentType});
     } else {
-      return app.corsStatus(404);
+      return api.status(404);
     }
   }
 
@@ -48,9 +48,9 @@ export class LibraryController {
   async seriesImageAsync(model: app.ILibrarySeriesImageContext): Promise<api.Result<Buffer>> {
     const image = await app.core.library.seriesImageAsync(model.path.seriesId);
     if (image) {
-      return app.corsImage(image, app.settings.imageLibraryTimeout);
+      return app.imageResult(image, app.settings.imageLibraryTimeout);
     } else {
-      return app.corsStatus(404);
+      return api.status(404);
     }
   }
 
@@ -58,9 +58,9 @@ export class LibraryController {
   async seriesReadAsync(model: app.ILibrarySeriesReadContext): Promise<api.Result<app.ILibrarySeriesReadResponse>> {
     const series = await app.core.library.seriesReadAsync(model.path.seriesId);
     if (series) {
-      return app.corsContent(series);
+      return api.content(series);
     } else {
-      return app.corsStatus(404);
+      return api.status(404);
     }
   }
   
@@ -68,9 +68,9 @@ export class LibraryController {
   async seriesPatchAsync(model: app.ILibrarySeriesPatchContext): Promise<api.Result<void>> {
     const success = await app.core.library.seriesPatchAsync(model.path.seriesId, model.query.frequency, model.query.strategy);
     if (success) {
-      return app.corsStatus(200);
+      return api.status(200);
     } else {
-      return app.corsStatus(404);
+      return api.status(404);
     }
   }
 
@@ -78,9 +78,9 @@ export class LibraryController {
   async seriesUpdateAsync(model: app.ILibrarySeriesUpdateContext): Promise<api.Result<void>> {
     const success = await app.core.library.seriesUpdateAsync(model.path.seriesId);
     if (success) {
-      return app.corsStatus(200);
+      return api.status(200);
     } else {
-      return app.corsStatus(404);
+      return api.status(404);
     }
   }
 
@@ -88,9 +88,9 @@ export class LibraryController {
   async chapterDeleteAsync(model: app.ILibraryChapterDeleteContext): Promise<api.Result<void>> {
     const success = await app.core.library.chapterDeleteAsync(model.path.seriesId, model.path.chapterId);
     if (success) {
-      return app.corsStatus(200);
+      return api.status(200);
     } else {
-      return app.corsStatus(404);
+      return api.status(404);
     }
   }
 
@@ -98,9 +98,9 @@ export class LibraryController {
   async chapterReadAsync(model: app.ILibraryChapterReadContext): Promise<api.Result<app.ILibraryChapterReadResponse>> {
     const session = await app.core.library.chapterReadAsync(model.path.seriesId, model.path.chapterId);
     if (session) {
-      return app.corsContent(session.getData());
+      return api.content(session.getData());
     } else {
-      return app.corsStatus(404);
+      return api.status(404);
     }
   }
 
@@ -108,9 +108,9 @@ export class LibraryController {
   async chapterPatchAsync(model: app.ILibraryChapterPatchContext): Promise<api.Result<void>> {
     const success = await app.core.library.chapterPatchAsync(model.path.seriesId, model.path.chapterId, model.query.isReadCompleted, model.query.pageReadNumber);
     if (success) {
-      return app.corsStatus(200);
+      return api.status(200);
     } else {
-      return app.corsStatus(404);
+      return api.status(404);
     }
   }
 
@@ -118,9 +118,9 @@ export class LibraryController {
   async chapterUpdateAsync(model: app.ILibraryChapterUpdateContext): Promise<api.Result<void>> {
     const success = await app.core.library.chapterUpdateAsync(model.path.seriesId, model.path.chapterId);
     if (success) {
-      return app.corsStatus(200);
+      return api.status(200);
     } else {
-      return app.corsStatus(404);
+      return api.status(404);
     }
   }
 }

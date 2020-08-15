@@ -20,12 +20,17 @@ export async function bootAsync() {
   openapiData.info.version = packageData.version;
 
   // Initialize the openapi router.
-  return register(api.createCore(openapiData)
+  return register(api.createCore(openapiData, corsModifier)
     .controller(new app.ActionController())
     .controller(new app.LibraryController())
     .controller(new app.RemoteController())
     .controller(new app.SessionController())
     .router());
+}
+
+function corsModifier(result: api.Result<any>) {
+  result.headers['Access-Control-Allow-Origin'] = '*';
+  return result;
 }
 
 function register(router: api.Router) {
