@@ -5,7 +5,7 @@ export class TraceManager implements app.ITraceManager {
   private _logger?: winston.Logger;
 
   error(error: any) {
-    if (error instanceof Error) this.info(error.stack || error.message);
+    if (error instanceof Error) this.info(String(error.stack || error.message || error));
     else if (error && String(error)) this.error(new Error(String(error)));
     else this.error(new Error());
   }
