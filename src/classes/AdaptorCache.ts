@@ -1,5 +1,6 @@
 import * as app from '..';
 
+// TODO: `getAsync` when the session has errored seems to be infinite.
 export class AdaptorCache implements app.IAdaptor {
   private readonly _adaptorId: string;
   private readonly _chapterId?: string;

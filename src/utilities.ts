@@ -1,8 +1,6 @@
 import * as api from 'express-openapi-json';
 import {randomBytes} from 'crypto';
 
-
-
 export function createPageName(value: number) {
   let result = String(value);
   while (result.length < 3) result = `0${result}`;
