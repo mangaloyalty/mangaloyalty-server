@@ -41,8 +41,7 @@ export class BrowserManager implements app.IBrowserManager {
     } else return await this._exclusiveLock.acquireAsync(async () => {
       const chromiumRevision = String(require('puppeteer-core/package').puppeteer.chromium_revision);
       const fetcher = puppeteer.createBrowserFetcher({path: app.settings.chrome});
-      const revisionInfo = await fetcher.localRevisions();
-      await Promise.all(revisionInfo.filter((revision) => chromiumRevision !== revision).map((revision) => fetcher.remove(revision)));
+      await fetcher.localRevisions().then(x => Promise.all(x.filter((revision) => chromiumRevision !== revision).map((revision) => fetcher.remove(revision))));
       const downloadInfo = await fetcher.download(chromiumRevision);
       this._browserExecutablePath = downloadInfo.executablePath;
       this._browserUserDataDir = path.join(downloadInfo.folderPath, app.settings.chromeUserData);
