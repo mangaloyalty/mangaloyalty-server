@@ -1,8 +1,8 @@
 function evaluator() {
   scrollTo(0, document.body.scrollHeight);
-  const image = getImage(document.querySelector('.chapter-page img'));
+  const image = getImage(document.querySelector('.page-img'));
   const pageCount = getPageCount(document.querySelectorAll('.nav-page option'));
-  const shouldContinue = getShouldContinue(document.querySelector('.nav-page option[selected]'), pageCount);
+  const shouldContinue = getShouldContinue(document.querySelectorAll('.nav-page option'), pageCount);
   return {image, pageCount, shouldContinue};
 
   /**
@@ -25,10 +25,11 @@ function evaluator() {
   }
 
   /**
-   * @param {HTMLOptionElement?} optionNode
+   * @param {NodeListOf<HTMLOptionElement>} optionNodes
    * @param {number} pageCount
    */
-  function getShouldContinue(optionNode, pageCount) {
+  function getShouldContinue(optionNodes, pageCount) {
+    const optionNode = Array.from(optionNodes).find(x => x.selected);
     const pageNumber = optionNode ? Number(optionNode.value) : NaN;
     if (pageCount <= pageNumber) return false;
     return true;
