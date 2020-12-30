@@ -13,7 +13,7 @@ export const batotoProvider = {
   async popularAsync(pageNumber?: number) {
     return await app.core.browser.pageAsync(async (page) => {
       const cache = new app.BrowserCache(page);
-      await page.navigateAsync(`${baseUrl}/browse?langs=english${pageNumber && pageNumber > 1 ? `&page=${pageNumber}` : ''}`);
+      await page.navigateAsync(`${baseUrl}/browse?langs=en${pageNumber && pageNumber > 1 ? `&page=${pageNumber}` : ''}`);
       await browserAsync(page);
       const results = await page.evaluateAsync(seriesList.evaluator);
       const items = await cache.batchAsync(results.items);

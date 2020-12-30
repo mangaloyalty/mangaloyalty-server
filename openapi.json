@@ -665,7 +665,7 @@
       "ProviderSeriesUrl": {
         "type": "string",
         "oneOf": [
-          {"type": "string", "pattern": "^https:\\/\\/bato\\.to\\/series\\/[0-9]+$"},
+          {"type": "string", "pattern": "^https:\\/\\/bato\\.to\\/series\\/[0-9]+\\/[^\\/]+$"},
           {"type": "string", "pattern": "^https:\\/\\/fanfox\\.net\\/manga\\/[^\\/]+\\/$"}
         ]
       },

@@ -1,9 +1,9 @@
 function evaluator() {
   const authors = find(document.querySelectorAll('.detail-set div.attr-item'), 'Authors:', getAuthors);
-  const chapters = getChapters(document.querySelectorAll('.chapter-list a.chapt'));
+  const chapters = getChapters(document.querySelectorAll('.episode-list a.chapt'));
   const genres = find(document.querySelectorAll('.detail-set div.attr-item'), 'Genres:', getGenres);
   const image = getImage(document.querySelector('.detail-set img'));
-  const isCompleted = find(document.querySelectorAll('.detail-set div.attr-item'), 'Status:', getIsCompleted);
+  const isCompleted = find(document.querySelectorAll('.detail-set div.attr-item'), 'Release status:', getIsCompleted);
   const summary = getSummary(document.querySelector('.detail-set pre'));
   const title = getTitle(document.querySelector('.item-title a'));
   const url = location.href;
@@ -50,7 +50,7 @@ function evaluator() {
    */
   function getGenres(genreNode) {
     const match = (validate(genreNode && genreNode.textContent) || '').match(/:(.*)/);
-    const genres = match && match[1].split(/\//).map(validate).filter(Boolean).map(String);
+    const genres = match && match[1].split(/,/).map(validate).filter(Boolean).map(String);
     if (!genres) throw new Error();
     return genres;
   }
@@ -66,8 +66,9 @@ function evaluator() {
    * @param {HTMLDivElement?} statusNode
    */
   function getIsCompleted(statusNode) {
-    const status = validateStrict(statusNode && statusNode.textContent);
-    return status === 'Status: Completed';
+    if (!statusNode) return false;
+    const status = validateStrict(statusNode.textContent);
+    return status === 'Release status: Completed';
   }
 
   /**
